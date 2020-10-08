@@ -56,3 +56,4 @@ GUI 프로그램은 `http://localhost:8000`에서 실행됩니다.
 - vuex
 - vuetify
 - pwa
+- axios
