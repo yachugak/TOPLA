@@ -1,6 +1,7 @@
 package com.yachugak.topla.service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,10 @@ import com.yachugak.topla.repository.TaskRepository;
 public class TaskService {
 	@Autowired
 	private TaskRepository taskRepository;
+	
+	public List<Task> getAllTask(){
+		return taskRepository.findAll();
+	}
 
 	public Task createNewTask(String title, int priority) {
 
