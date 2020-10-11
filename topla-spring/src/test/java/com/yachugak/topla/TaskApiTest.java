@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.Date;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -60,5 +61,20 @@ public class TaskApiTest {
 			exceptionFlag = true;
 		}
 		assertTrue(exceptionFlag);
+	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	public void createNewTaskWithDueDate() {
+		Task task = taskService.createNewTask("마감일 테스트", 1);
+		Date testDate = new Date();
+		testDate.setYear(2030);
+		testDate.setMonth(5);
+		testDate.setDate(28);
+		taskService.setDueDate(task, testDate);
+		
+		Task result = taskRepository.findById(task.getUid()).get();
+		
+		assertEquals(testDate, result.getDueDate());
 	}
 }
