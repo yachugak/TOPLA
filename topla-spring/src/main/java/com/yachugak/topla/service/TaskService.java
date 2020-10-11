@@ -32,7 +32,7 @@ public class TaskService {
 	public void deleteTask(Task taskEntity) {
 		taskRepository.delete(taskEntity);
 	}
-
+	
 	public void setDueDate(Task task, Date newDate) {
 		task.setDueDate(newDate);
 	}
@@ -62,8 +62,7 @@ public class TaskService {
 	public void setProgress(Task task, int progress) {
 		if(progress > 0 || progress > 100) {
 			throw new InvalidArgumentException("progress", "0~100", progress+"");
-		}
-		
+		} 
 		task.setProgress(progress);
 	}
 

@@ -6,6 +6,7 @@ public class CreateTaskRequestFormat {
 	private String title;
 	private int priority;
 	private Date dueDate;
+	private int progress;
 	
 	public String getTitle() {
 		return title;
@@ -24,5 +25,11 @@ public class CreateTaskRequestFormat {
 	}
 	public void setDueDate(Date dueDate) {
 		this.dueDate = dueDate;
+	}
+	public int getProgress() {
+		return this.progress;
+	}
+	public void setProgress(int progress) {
+		this.progress = progress;
 	}
 }

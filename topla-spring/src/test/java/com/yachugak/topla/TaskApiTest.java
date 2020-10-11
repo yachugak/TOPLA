@@ -77,4 +77,15 @@ public class TaskApiTest {
 		
 		assertEquals(testDate, result.getDueDate());
 	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	public void updateProgress() {
+		Task task = taskService.createNewTask("진행도 업데이트 테스트", 1);
+		task.setProgress(50);
+		
+		Task resultTask = taskRepository.findById(task.getUid()).get();
+		
+		assertEquals(resultTask.getProgress(), 50);
+	}
 }
