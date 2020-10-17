@@ -50,3 +50,16 @@ jobs:
       - name: frontend build
         run: npm run build
         working-directory: topla-vue/
+
+
+      - name: Archive backend build result
+        uses: actions/upload-artifact@v2
+        with:
+          name: backend
+          path: topla-spring/target/*.jar
+
+      - name: Archive frontend build result
+        uses: actions/upload-artifact@v2
+        with:
+          name: frontend
+          path: topla-vue/dist/*
