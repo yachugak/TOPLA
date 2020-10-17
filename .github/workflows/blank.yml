@@ -24,6 +24,6 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: frontend build
-        run: cd topla-vue
-        run: npm install
-        run: npm run build
+      - run: cd topla-vue
+      - run: npm install
+      - run: npm run build
