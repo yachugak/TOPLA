@@ -1,0 +1,53 @@
+name: auto build for artifact
+on:
+  push:
+    branches: [ develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '11' # The JDK version to make available on the path.
+
+      - name: allow mvnw permission
+        run: chmod +x ./mvnw
+        working-directory: topla-spring/
+
+      - name: backend dependency install
+        run: ./mvnw install
+        working-directory: topla-spring/
+
+      - name: backend test
+        run: ./mvnw test
+        working-directory: topla-spring/
+
+      - name: backend build
+        run: ./mvnw test
+        working-directory: topla-spring/
+
+
+      - name: frontend dependy install
+        run: npm install
+        working-directory: topla-vue/
+
+      - name: frontend build
+        run: npm run build
+        working-directory: topla-vue/
+
+
+      - name: Archive backend build result
+        uses: actions/upload-artifact@v2
+        with:
+          name: backend
+          path: topla-spring/target/*.jar
+
+      - name: Archive frontend build result
+        uses: actions/upload-artifact@v2
+        with:
+          name: frontend
+          path: topla-vue/dist/*
