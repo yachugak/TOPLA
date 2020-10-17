@@ -21,10 +21,28 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      # Runs a single command using the runners shell
+
+      - name: backend dependency install
+        run: ./mvnw install
+        working-directory: topla-spring/
+
+      - name: backend test
+        run: ./mvnw test
+        working-directory: topla-spring/
+
+      - name: backend build
+        run: ./mvnw test
+        working-directory: topla-spring/
+
+
+      - uses: actions/setup-node@v2-beta
+          with:
+            node-version: '12'
+
       - name: frontend dependy install
         run: npm install
         working-directory: topla-vue/
+
       - name: frontend build
         run: npm run build
         working-directory: topla-vue/
