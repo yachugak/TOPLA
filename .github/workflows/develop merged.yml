@@ -1,8 +1,6 @@
-name: auto build
+name: auto build for artifact
 on:
   push:
-    branches: [ develop ]
-  pull_request:
     branches: [ develop ]
 
 jobs:
