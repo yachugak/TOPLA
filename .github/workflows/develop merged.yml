@@ -1,7 +1,7 @@
 name: auto build for artifact and auto deploy
 on:
   push:
-    branches: [ task/5.3 ]
+    branches: [ develop ]
 
 jobs:
   build:
