@@ -54,10 +54,10 @@ jobs:
 
       - name: backend build file upload
         uses: appleboy/scp-action@master
-          with:
-            host: ${{ secrets.HOST }}
-            username: ${{ secrets.USERNAME }}
-            password: ${{ secrets.PASSWORD }}
-            port: ${{ secrets.PORT }}
-            source: "topla-spring/target/*.jar"
-            target: "/root/ci-cd"
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          source: "topla-spring/target/*.jar"
+          target: "/root/ci-cd"
