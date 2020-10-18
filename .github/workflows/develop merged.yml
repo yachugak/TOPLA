@@ -53,12 +53,13 @@ jobs:
           path: topla-vue/dist/*
 
       - name: remove existing files
-        uses: fifsky/ssh-action@master
+        uses: appleboy/ssh-action@master
         with:
-          command: sh /root/ci-cd/auto-clean.sh
           host: ${{ secrets.HOST }}
-          user: ${{ secrets.USERNAME }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
+          script: sh /root/ci-cd/auto-clean.sh
 
       - name: backend build file upload
         uses: appleboy/scp-action@master
@@ -81,9 +82,10 @@ jobs:
           target: "/root/ci-cd"
 
       - name: run frontend and backend
-        uses: fifsky/ssh-action@master
+        uses: appleboy/ssh-action@master
         with:
-          command: sh /root/ci-cd/auto-run.sh
           host: ${{ secrets.HOST }}
-          user: ${{ secrets.USERNAME }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
+          script: sh /root/ci-cd/auto-run.sh
