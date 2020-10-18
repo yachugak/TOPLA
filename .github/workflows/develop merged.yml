@@ -52,6 +52,14 @@ jobs:
           name: frontend
           path: topla-vue/dist/*
 
+      - name: remove existing files
+        uses: fifsky/ssh-action@master
+        with:
+          command: sh /root/ci-cd/auto-clean.sh
+          host: ${{ secrets.HOST }}
+          user: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+
       - name: backend build file upload
         uses: appleboy/scp-action@master
         with:
@@ -61,3 +69,21 @@ jobs:
           port: ${{ secrets.PORT }}
           source: "topla-spring/target/*.jar"
           target: "/root/ci-cd"
+
+      - name: froent build file upload
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          source: "topla-vue/dist/*"
+          target: "/root/ci-cd"
+
+      - name: run frontend and backend
+        uses: fifsky/ssh-action@master
+        with:
+          command: sh /root/ci-cd/auto-run.sh
+          host: ${{ secrets.HOST }}
+          user: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
