@@ -1,4 +1,4 @@
-name: auto build for artifact
+name: auto build for artifact and auto deploy
 on:
   push:
     branches: [ task/5.3 ]
