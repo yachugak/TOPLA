@@ -1,13 +1,31 @@
 <template lang="html">
   <div>
-    <div id="dateSelector">
-      <v-btn class="dateButton" @click="onArrowButtonSelected('left')"><v-icon>mdi-chevron-left</v-icon></v-btn>
-      <v-btn class="dateButton" v-for="i in 5" :key="i" @click="onDateSelectorButtonSelected(i-1)">
-        {{dateSelectorButtonDisplayList.text[(i-1)*2]}} <br>
-        {{dateSelectorButtonDisplayList.text[(i-1)*2+1]}}
-      </v-btn>
-      <v-btn class="dateButton" @click="onArrowButtonSelected('right')"><v-icon>mdi-chevron-right</v-icon></v-btn>
-    </div>
+    <v-container fluid>
+      <v-row no-gutters>
+        <v-col cols="1" v-if="$vuetify.breakpoint.mdAndUp">
+          <v-btn class="arrowButton primary darken-1" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
+        </v-col>
+        <v-col cols="12" md="10">
+          <div id="dateSelector">
+            <v-btn :class="'dateButton primary ' + (i===3 ? 'darken-4' : 'darken-1')" v-for="i in 5" :key="i" @click="onDateSelectorButtonSelected(i-1)" tile>
+              {{dateSelectorButtonDisplayList.text[(i-1)*2]}} <br>
+              {{dateSelectorButtonDisplayList.text[(i-1)*2+1]}}
+            </v-btn>
+          </div>
+        </v-col>
+        <v-col cols="1" v-if="$vuetify.breakpoint.mdAndUp">
+          <v-btn class="arrowButton primary darken-1" @click="onArrowButtonSelected('right')" tile block><v-icon>mdi-chevron-right</v-icon></v-btn>
+        </v-col>
+      </v-row>
+      <v-row v-if="$vuetify.breakpoint.smAndDown" no-gutters>
+        <v-col cols="6">
+          <v-btn class="arrowButton primary darken-1" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
+        </v-col>
+        <v-col cols="6">
+          <v-btn class="arrowButton primary darken-1" @click="onArrowButtonSelected('right')" tile block><v-icon>mdi-chevron-right</v-icon></v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
     <div class="deep-purple darken-3 py-4">
       <v-card class="mx-2 mb-4" v-for="task in taskList" :key="task.uid" :color="bgColorByPriority[task.priority-1]">
         <v-card-title>{{task.title}}</v-card-title>
@@ -88,17 +106,20 @@ export default {
 <style lang="css" scoped>
 .w-100 {
   width: 100%;
-
 }
 
 #dateSelector {
-  display: inline-flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  width: 100%;
+  /*display: inline-flex;*/
+  /*flex-direction: row;*/
+  /*flex-wrap: nowrap;*/
+  /*justify-content: space-between;*/
+  /*width: 100%;*/
 }
 .dateButton {
-  width: 14.28571429%;
+  width: 20%;
+}
+
+.arrowButton {
+  width: 10%;
 }
 </style>
