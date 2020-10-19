@@ -11,19 +11,19 @@
     </v-app-bar>
 
     <v-main>
-      <test-view></test-view>
+      <todo-view></todo-view>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import testView from './views/test.vue';
+import todoView from './views/todo.vue';
 
 export default {
   name: 'App',
 
   components: {
-    testView,
+    todoView,
   },
 
   data: () => ({
