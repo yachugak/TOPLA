@@ -1,13 +1,15 @@
 <template lang="html">
   <div>
-    <v-container fluid>
+    <v-container fluid class="secondary">
       <v-row no-gutters>
         <v-col cols="1" v-if="$vuetify.breakpoint.mdAndUp">
           <v-btn class="arrowButton primary darken-1" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
         </v-col>
         <v-col cols="12" md="10">
           <div id="dateSelector">
-            <v-btn :class="'dateButton primary ' + (i===3 ? 'darken-4' : 'darken-1')" v-for="i in 5" :key="i" @click="onDateSelectorButtonSelected(i-1)" tile>
+            <v-btn class="dateButton primary"
+                   :class="{'darken-4': i===3, 'darken-1': i!==3, sunday: dateSelectorButtonDisplayList.text[(i-1)*2+1]==='일', saturday: dateSelectorButtonDisplayList.text[(i-1)*2+1]==='토' }"
+                   v-for="i in 5" :key="i" @click="onDateSelectorButtonSelected(i-1)" tile>
               {{dateSelectorButtonDisplayList.text[(i-1)*2]}} <br>
               {{dateSelectorButtonDisplayList.text[(i-1)*2+1]}}
             </v-btn>
@@ -26,8 +28,13 @@
         </v-col>
       </v-row>
     </v-container>
-    <div class="deep-purple darken-3 py-4">
-      <v-card class="mx-2 mb-4" v-for="task in taskList" :key="task.uid" :color="bgColorByPriority[task.priority-1]">
+
+    <div class="py-4 secondary" :class="{taskContainerSizeSm: isSm, taskContainerSizeMd: !isSm }">
+      <div class="mb-2">
+        <span id="dayText" class="pl-2">{{selectedDate.getMonth()}}월 {{selectedDate.getDate()}}일 {{getDayName(selectedDate.getDay())}}요일</span>
+        <span id="taskCountText" class="pr-2">{{displayTaskList.length}}개의 작업</span>
+      </div>
+      <v-card class="mx-2 mb-4" v-for="task in displayTaskList" :key="task.uid" :color="bgColorByPriority[task.priority-1]">
         <v-card-title>{{task.title}}</v-card-title>
         <v-card-text>
           <v-icon>mdi-clock-check-outline</v-icon>
@@ -54,7 +61,6 @@ export default {
 
   computed: {
     dateSelectorButtonDisplayList(){
-      let week = ['일', '월', '화', '수', '목', '금', '토'];
       let today = this.selectedDate;
       let textList = [];
       let dateList = [];
@@ -62,7 +68,7 @@ export default {
         let todayCopy = new Date(today);
         todayCopy.setDate(todayCopy.getDate()+i);
         textList.push(todayCopy.getDate());
-        textList.push(week[todayCopy.getDay()]);
+        textList.push(this.getDayName(todayCopy.getDay()));
         dateList.push(todayCopy);
       }
 
@@ -70,6 +76,18 @@ export default {
         text: textList,
         date: dateList
       };
+    },
+
+    isSm(){
+      return this.$vuetify.breakpoint.smAndDown;
+    },
+
+    displayTaskList(){
+      let vueInstance = this;
+      return this.taskList.filter(function(task){
+        let taskDate = new Date(task.dueDate);
+        return vueInstance.isSameDay(vueInstance.selectedDate, taskDate);
+      })
     }
   },
 
@@ -94,6 +112,19 @@ export default {
       }
 
       this.selectedDate = todayCopy;
+    },
+
+    isSameDay(date1, date2) {
+      let flag1 = date1.getFullYear() === date2.getFullYear();
+      let flag2 = date1.getMonth() === date2.getMonth();
+      let flag3 = date1.getDate() === date2.getDate();
+
+      return flag1 && flag2 && flag3;
+    },
+
+    getDayName(dayNumber){
+      let week = ['일', '월', '화', '수', '목', '금', '토'];
+      return week[dayNumber];
     }
   },
 
@@ -108,18 +139,40 @@ export default {
   width: 100%;
 }
 
-#dateSelector {
-  /*display: inline-flex;*/
-  /*flex-direction: row;*/
-  /*flex-wrap: nowrap;*/
-  /*justify-content: space-between;*/
-  /*width: 100%;*/
-}
 .dateButton {
   width: 20%;
 }
 
 .arrowButton {
   width: 10%;
+}
+
+.taskContainerSizeSm {
+  min-height: calc(100vh - 56px - 96px);
+}
+
+.taskContainerSizeMd {
+  min-height: calc(100vh - 64px - 60px);
+}
+
+#dayText {
+  display: inline-block;
+  width: calc((100vw - (100vw - 100%)) / 2);
+  color: white;
+}
+
+#taskCountText {
+  display: inline-block;
+  width: calc((100vw - (100vw - 100%)) / 2);
+  text-align: right;
+  color: white;
+}
+
+.sunday {
+  color: red !important;
+}
+
+.saturday{
+  color: deepskyblue !important;
 }
 </style>
