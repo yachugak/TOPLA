@@ -7,6 +7,7 @@ public class CreateTaskRequestFormat {
 	private int priority;
 	private Date dueDate;
 	private int progress;
+	private int estimatedTime;
 	
 	public String getTitle() {
 		return title;
@@ -31,5 +32,11 @@ public class CreateTaskRequestFormat {
 	}
 	public void setProgress(int progress) {
 		this.progress = progress;
+	}	
+	public Integer getEstimatedTime() {
+		return estimatedTime;
+	}
+	public void setEstimatedTime(Integer estimatedTime) {
+		this.estimatedTime = estimatedTime;
 	}
 }

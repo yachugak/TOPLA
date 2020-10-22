@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityExistsException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +29,8 @@ public class TaskService {
 		this.setTitle(newTask, title);
 		this.setPriority(newTask, priority);
 		this.setProgress(newTask, 0);
+		this.setEstimatedTime(newTask, null);
 		this.setCreatedDate(newTask, new Date());
-		
 		taskRepository.saveAndFlush(newTask);
 		
 		return newTask;
@@ -54,8 +56,8 @@ public class TaskService {
 	}
 	
 	public void setPriority(Task task, int priority) {
-		if(priority < 0) {
-			throw new InvalidArgumentException("priority", "음이 아닌 정수", priority+"");
+		if(priority < 1 || priority > 3) {
+			throw new InvalidArgumentException("priority", "1~3", priority+"");
 		}
 		task.setPriority(priority);
 	}
@@ -65,7 +67,7 @@ public class TaskService {
 	}
 	
 	public void setProgress(Task task, int progress) {
-		if(progress > 0 || progress > 100) {
+		if(progress < 0 || progress > 100) {
 			throw new InvalidArgumentException("progress", "0~100", progress+"");
 		} 
 		task.setProgress(progress);
@@ -79,4 +81,23 @@ public class TaskService {
 		
 		return opTask.get();
 	}
+
+	public void setEstimatedTime(Task task, Integer estimatedTime) {
+		if(estimatedTime == null) {
+			task.setEstimatedTime(null);
+		}
+		else if(estimatedTime < 0 || estimatedTime > 36000) {
+			throw new InvalidArgumentException("estimatedTime", "0~36000", estimatedTime+"");
+		}
+		task.setEstimatedTime(estimatedTime);	
+	}
+	
+	public Task findTaskByTitle(String title) {
+		Optional<Task> opTask = taskRepository.findByTitle(title);
+		if(opTask.isPresent()==false) {
+			throw new EntityExistsException("no task found with the title:"+title);
+		}
+		return opTask.get();
+	}
+	
 }

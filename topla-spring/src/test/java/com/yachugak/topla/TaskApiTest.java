@@ -81,11 +81,30 @@ public class TaskApiTest {
 	@Test
 	@Transactional(readOnly = false)
 	public void updateProgress() {
-		Task task = taskService.createNewTask("진행도 업데이트 테스트", 1);
+		Task originalTask = taskService.createNewTask("진행도 업데이트 테스트", 1);
+		Task task = taskService.findTaskById(originalTask.getUid());
 		task.setProgress(50);
+		Task resultTask = taskRepository.findById(task.getUid()).get();
+		assertEquals(resultTask.getProgress(), 50);
+	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	public void createNewTaskWithEstimatedTime() {
+		Task task = taskService.createNewTask("예상시간 테스트", 3);
+		taskService.setEstimatedTime(task, 60);
 		
 		Task resultTask = taskRepository.findById(task.getUid()).get();
-		
-		assertEquals(resultTask.getProgress(), 50);
+		assertEquals(60, resultTask.getEstimatedTime());
+	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	public void updateEstimatedTime() {
+		Task originalTask = taskService.createNewTask("예상시간 업데이트 테스트", 1);
+		Task task = taskService.findTaskById(originalTask.getUid());
+		task.setEstimatedTime(60);
+		Task resultTask = taskRepository.findById(task.getUid()).get();
+		assertEquals(resultTask.getEstimatedTime(), 60);
 	}
 }
