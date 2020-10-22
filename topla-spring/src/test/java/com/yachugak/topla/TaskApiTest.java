@@ -88,4 +88,14 @@ public class TaskApiTest {
 		
 		assertEquals(resultTask.getProgress(), 50);
 	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	public void createNewTaskWithEstimatedTime() {
+		Task task = taskService.createNewTask("예상시간 테스트", 3);
+		taskService.setEstimatedTime(task, 60);
+		
+		Task resultTask = taskRepository.findById(task.getUid()).get();
+		assertEquals(60, resultTask.getEstimatedTime());
+	}
 }

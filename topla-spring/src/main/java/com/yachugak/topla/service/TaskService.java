@@ -27,8 +27,8 @@ public class TaskService {
 		this.setTitle(newTask, title);
 		this.setPriority(newTask, priority);
 		this.setProgress(newTask, 0);
+		this.setEstimatedTime(newTask, null);
 		this.setCreatedDate(newTask, new Date());
-		
 		taskRepository.saveAndFlush(newTask);
 		
 		return newTask;
@@ -78,5 +78,15 @@ public class TaskService {
 		}
 		
 		return opTask.get();
+	}
+
+	public void setEstimatedTime(Task task, Integer estimatedTime) {
+		if(estimatedTime == null) {
+			task.setEstimatedTime(null);
+		}
+		else if(estimatedTime < 0 || estimatedTime > 36000) {
+			throw new InvalidArgumentException("estimatedTime", "0~36000", estimatedTime+"");
+		}
+		task.setEstimatedTime(estimatedTime);	
 	}
 }

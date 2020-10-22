@@ -26,14 +26,12 @@ public class TaskController {
 	@Transactional(readOnly = false)
 	public String createNewTask(@RequestBody CreateTaskRequestFormat req) {
 		Task newTask = taskService.createNewTask(req.getTitle(), req.getPriority());
-		
-		if(req.getDueDate() != null) {
+			taskService.setEstimatedTime(newTask, req.getEstimatedTime());
 			taskService.setDueDate(newTask, req.getDueDate());
-		}
 
 		return "ok";
 	}
-	
+
 	@PutMapping("/{uid}")
 	@Transactional(readOnly = false)
 	public String updateTask(@PathVariable("uid") long uid, @RequestBody CreateTaskRequestFormat req) {
@@ -42,6 +40,7 @@ public class TaskController {
 		taskService.setPriority(updateTarget, req.getPriority());
 		taskService.setDueDate(updateTarget, req.getDueDate());
 		taskService.setProgress(updateTarget, req.getProgress());
+		taskService.setEstimatedTime(updateTarget, req.getEstimatedTime());
 		
 		return "ok";
 	}
