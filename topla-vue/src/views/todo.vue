@@ -31,7 +31,7 @@
 
     <div class="py-4 secondary" :class="{taskContainerSizeSm: isSm, taskContainerSizeMd: !isSm }">
       <div class="mb-2">
-        <span id="dayText" class="pl-2">{{selectedDate.getMonth()}}월 {{selectedDate.getDate()}}일 {{getDayName(selectedDate.getDay())}}요일</span>
+        <span id="dayText" class="pl-2">{{selectedDate.getMonth()+1}}월 {{selectedDate.getDate()}}일 {{getDayName(selectedDate.getDay())}}요일</span>
         <span id="taskCountText" class="pr-2">{{displayTaskList.length}}개의 작업</span>
       </div>
       <v-card class="mx-2 mb-4" v-for="task in displayTaskList" :key="task.uid" :color="bgColorByPriority[task.priority-1]">
