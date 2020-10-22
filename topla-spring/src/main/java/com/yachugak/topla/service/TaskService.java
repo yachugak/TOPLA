@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityExistsException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -89,4 +91,13 @@ public class TaskService {
 		}
 		task.setEstimatedTime(estimatedTime);	
 	}
+	
+	public Task findTaskByTitle(String title) {
+		Optional<Task> opTask = taskRepository.findByTitle(title);
+		if(opTask.isPresent()==false) {
+			throw new EntityExistsException("no task found with the title:"+title);
+		}
+		return opTask.get();
+	}
+	
 }
