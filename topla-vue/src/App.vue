@@ -11,19 +11,16 @@
     </v-app-bar>
 
     <v-main>
-      <todo-view></todo-view>
+      <router-view></router-view>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import todoView from './views/todo.vue';
-
 export default {
   name: 'App',
 
   components: {
-    todoView,
   },
 
   data: () => ({
