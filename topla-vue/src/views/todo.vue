@@ -41,10 +41,47 @@
         </v-card-text>
       </v-card>
     </div>
+
+    <v-btn
+        color="primary"
+        elevation="2"
+        fab
+        large
+        id="addNewTaskbutton"
+        @click="isShowNewTaskdialog = true"
+    ><v-icon>mdi-plus-circle-outline</v-icon></v-btn>
+
+    <!--테스트 추가 창-->
+    <v-dialog
+        v-model="isShowNewTaskdialog"
+        persistent
+        max-width="500"
+    >
+      <v-card>
+        <v-card-title>새로운 작업 추가</v-card-title>
+        <task-info-form v-model="newTaskFormData"></task-info-form>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+              color="error"
+              @click="isShowNewTaskdialog = false"
+          >
+            취소
+          </v-btn>
+          <v-btn
+              color="primary"
+              @click="onAddNewTaskButtonClicked()"
+          >
+            작업 추가
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script>
+import taskInfoForm from "@/components/taskInfoForm";
 export default {
   data() {
     return {
@@ -56,7 +93,13 @@ export default {
           "amber darken-2",
           "amber darken-4",
       ],
+      isShowNewTaskdialog: false,
+      newTaskFormData: null
     }
+  },
+
+  components: {
+    taskInfoForm
   },
 
   computed: {
@@ -125,6 +168,24 @@ export default {
     getDayName(dayNumber){
       let week = ['일', '월', '화', '수', '목', '금', '토'];
       return week[dayNumber];
+    },
+
+    async onAddNewTaskButtonClicked(){
+      console.log("a");
+      try{
+        let res = await this.$axios.post("/task", {
+          title: this.newTaskFormData.title,
+          priority: 1,
+          progress: 0,
+          dueDate: this.newTaskFormData.dueDate,
+          estimatedTime: 60
+        });
+        console.log("b");
+        alert(res.data);
+      }catch(e){
+        console.log("c");
+        console.log(e);
+      }
     }
   },
 
@@ -174,5 +235,11 @@ export default {
 
 .saturday{
   color: deepskyblue !important;
+}
+
+#addNewTaskbutton {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
 }
 </style>

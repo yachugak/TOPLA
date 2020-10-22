@@ -1,5 +1,7 @@
 <template>
-  <task-info-form></task-info-form>
+  <div class="secondary">
+    <task-info-form v-model="formData"></task-info-form>
+  </div>
 </template>
 
 <script>
@@ -10,6 +12,12 @@ export default {
 
   components: {
     taskInfoForm
+  },
+
+  data() {
+    return {
+      formData: null
+    }
   }
 }
 </script>
