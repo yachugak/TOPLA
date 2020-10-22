@@ -56,8 +56,8 @@ public class TaskService {
 	}
 	
 	public void setPriority(Task task, int priority) {
-		if(priority < 0) {
-			throw new InvalidArgumentException("priority", "음이 아닌 정수", priority+"");
+		if(priority < 1 || priority > 3) {
+			throw new InvalidArgumentException("priority", "1~3", priority+"");
 		}
 		task.setPriority(priority);
 	}
@@ -67,7 +67,7 @@ public class TaskService {
 	}
 	
 	public void setProgress(Task task, int progress) {
-		if(progress > 0 || progress > 100) {
+		if(progress < 0 || progress > 100) {
 			throw new InvalidArgumentException("progress", "0~100", progress+"");
 		} 
 		task.setProgress(progress);

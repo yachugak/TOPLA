@@ -34,14 +34,14 @@ public class TaskController {
 
 	@PutMapping("/{uid}")
 	@Transactional(readOnly = false)
-	public String updateTask(@PathVariable("uid") long uid, @RequestBody CreateTaskRequestFormat req) {
+	public String updateTask(@PathVariable("uid") long uid, @RequestBody CreateTaskRequestFormat req) {		
 		Task updateTarget = taskService.findTaskById(uid);
 		taskService.setTitle(updateTarget, req.getTitle());
 		taskService.setPriority(updateTarget, req.getPriority());
 		taskService.setDueDate(updateTarget, req.getDueDate());
 		taskService.setProgress(updateTarget, req.getProgress());
 		taskService.setEstimatedTime(updateTarget, req.getEstimatedTime());
-		
+
 		return "ok";
 	}
 	
