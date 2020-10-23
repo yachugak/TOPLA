@@ -37,6 +37,9 @@
       <task-card class="mx-2 mb-4" v-for="task in displayTaskList" :key="task.uid"
                  :title="task.title"
                  :priority="task.priority"
+                 :uid="task.uid"
+                 :progress="task.progress"
+                 @update="getTaskList()"
       ></task-card>
     </div>
 
