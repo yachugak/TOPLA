@@ -107,4 +107,15 @@ public class TaskApiTest {
 		Task resultTask = taskRepository.findById(task.getUid()).get();
 		assertEquals(resultTask.getEstimatedTime(), 60);
 	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	public void finishTask() {
+		Task originalTask = taskService.createNewTask("작업 완료 테스트", 3);
+		Task updateTask = taskRepository.findByTitle("작업 완료 테스트").get();
+		Date nowDate = new Date();
+		taskService.setFinishTime(updateTask, nowDate);
+		Task resultTask = taskRepository.findByTitle("작업 완료 테스트").get();
+		assertEquals(nowDate, resultTask.getFinishDate());
+	}
 }
