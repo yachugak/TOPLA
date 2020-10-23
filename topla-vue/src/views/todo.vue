@@ -66,12 +66,14 @@
           <v-btn
               color="error"
               @click="isShowNewTaskdialog = false"
+              :loading="isCalling>0"
           >
             취소
           </v-btn>
           <v-btn
               color="primary"
               @click="onAddNewTaskButtonClicked()"
+              :loading="isCalling>0"
           >
             작업 추가
           </v-btn>
@@ -91,7 +93,8 @@ export default {
       selectedDate: new Date(),
       taskList: [],
       isShowNewTaskdialog: false,
-      newTaskFormData: null
+      newTaskFormData: null,
+      isCalling: 0 //현재 통신 진행중인지 나타내는 변수, 1 이상이면 통신 진행중이라는 뜻
     }
   },
 
@@ -134,8 +137,10 @@ export default {
 
   methods: {
     async getTaskList() {
+      this.isCalling++;
       let res = await this.$axios.get("/task/list");
       this.taskList = res.data;
+      this.isCalling--;
     },
 
     async onDateSelectorButtonSelected(selectedButtonIndex) {
@@ -169,19 +174,19 @@ export default {
     },
 
     async onAddNewTaskButtonClicked(){
-      console.log("a");
       try{
-        let res = await this.$axios.post("/task", {
+        this.isCalling++;
+        await this.$axios.post("/task", {
           title: this.newTaskFormData.title,
-          priority: 1,
+          priority: this.newTaskFormData.priority,
           progress: 0,
           dueDate: this.newTaskFormData.dueDate,
           estimatedTime: 60
         });
-        console.log("b");
-        alert(res.data);
+        await this.getTaskList();
+        this.isCalling--
+        this.isShowNewTaskdialog = false;
       }catch(e){
-        console.log("c");
         console.log(e);
       }
     }
@@ -236,7 +241,7 @@ export default {
 }
 
 #addNewTaskbutton {
-  position: absolute;
+  position: fixed;
   bottom: 30px;
   right: 30px;
 }

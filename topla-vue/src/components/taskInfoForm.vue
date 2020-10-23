@@ -9,6 +9,15 @@
 
       <v-row>
         <v-col cols="3" class="leftCenter">
+          중요도<v-icon>mdi-alert-circle-check</v-icon>
+        </v-col>
+        <v-col cols="9" class="leftCenter">
+          <v-rating length="3" :color="bgColorByPriority[priority-1]" v-model="priority"></v-rating>
+        </v-col>
+      </v-row>
+
+      <v-row>
+        <v-col cols="3" class="leftCenter">
           마감일<v-icon>mdi-calendar-clock</v-icon>
         </v-col>
         <v-col cols="9" class="leftCenter">
@@ -32,8 +41,16 @@ export default {
     return {
       isShowDatePicker: false,
       isShowDueDateButton: true,
+
       dueDate: null,
-      title: ""
+      title: "",
+      priority: 1,
+
+      bgColorByPriority: [
+        "amber lighten-3",
+        "amber darken-2",
+        "amber darken-4",
+      ],
     }
   },
 
@@ -45,6 +62,10 @@ export default {
     },
 
     title(){
+      this.throwEvent();
+    },
+
+    priority(){
       this.throwEvent();
     }
   },
@@ -63,7 +84,8 @@ export default {
     throwEvent(){
       let res = {
         title: this.title,
-        dueDate: this.dueDate
+        dueDate: this.dueDate,
+        priority: this.priority
       };
       this.$emit("input", res);
     },
