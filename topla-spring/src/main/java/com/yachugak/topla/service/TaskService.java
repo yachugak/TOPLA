@@ -99,5 +99,9 @@ public class TaskService {
 		}
 		return opTask.get();
 	}
+
+	public void setFinishTime(Task task, Date finishDate) {
+		task.setFinishDate(finishDate);
+	}
 	
 }
