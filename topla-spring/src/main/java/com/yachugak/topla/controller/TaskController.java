@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,7 @@ import com.yachugak.topla.service.TaskService;
 
 @RestController
 @RequestMapping(path = "${apiUriPrefix}/task")
+@CrossOrigin(origins = "*")
 public class TaskController {
 	@Autowired
 	private TaskService taskService;
