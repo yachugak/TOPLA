@@ -1,5 +1,6 @@
 package com.yachugak.topla.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yachugak.topla.entity.Task;
+import com.yachugak.topla.request.CheckAsFinishedRequestFormat;
 import com.yachugak.topla.request.CreateTaskRequestFormat;
 import com.yachugak.topla.service.TaskService;
 
@@ -26,8 +28,8 @@ public class TaskController {
 	@Transactional(readOnly = false)
 	public String createNewTask(@RequestBody CreateTaskRequestFormat req) {
 		Task newTask = taskService.createNewTask(req.getTitle(), req.getPriority());
-			taskService.setEstimatedTime(newTask, req.getEstimatedTime());
-			taskService.setDueDate(newTask, req.getDueDate());
+		taskService.setEstimatedTime(newTask, req.getEstimatedTime());
+		taskService.setDueDate(newTask, req.getDueDate());
 
 		return "ok";
 	}
@@ -39,7 +41,6 @@ public class TaskController {
 		taskService.setTitle(updateTarget, req.getTitle());
 		taskService.setPriority(updateTarget, req.getPriority());
 		taskService.setDueDate(updateTarget, req.getDueDate());
-		taskService.setProgress(updateTarget, req.getProgress());
 		taskService.setEstimatedTime(updateTarget, req.getEstimatedTime());
 
 		return "ok";
@@ -49,5 +50,17 @@ public class TaskController {
 	@Transactional(readOnly = true)
 	public List<Task> taskList(){
 		return taskService.getAllTask();
+	}
+	
+	@PutMapping("/{uid}/finish")
+	@Transactional(readOnly = false)
+	public String updateProgress(@PathVariable("uid") long uid, @RequestBody CheckAsFinishedRequestFormat req) {
+		Task updateTarget = taskService.findTaskById(uid);
+		taskService.setProgress(updateTarget, req.getProgress());
+		if(req.getProgress() == 100) {
+			Date time = new Date();
+			taskService.setFinishTime(updateTarget, time);
+		}
+		return "ok";
 	}
 }
