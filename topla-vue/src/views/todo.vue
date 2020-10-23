@@ -34,12 +34,13 @@
         <span id="dayText" class="pl-2">{{selectedDate.getMonth()+1}}월 {{selectedDate.getDate()}}일 {{getDayName(selectedDate.getDay())}}요일</span>
         <span id="taskCountText" class="pr-2">{{displayTaskList.length}}개의 작업</span>
       </div>
-      <v-card class="mx-2 mb-4" v-for="task in displayTaskList" :key="task.uid" :color="bgColorByPriority[task.priority-1]">
-        <v-card-title>{{task.title}}</v-card-title>
-        <v-card-text>
-          <v-icon>mdi-clock-check-outline</v-icon>
-        </v-card-text>
-      </v-card>
+      <task-card class="mx-2 mb-4" v-for="task in displayTaskList" :key="task.uid"
+                 :title="task.title"
+                 :priority="task.priority"
+                 :uid="task.uid"
+                 :progress="task.progress"
+                 @update="getTaskList()"
+      ></task-card>
     </div>
 
     <v-btn
@@ -82,24 +83,21 @@
 
 <script>
 import taskInfoForm from "@/components/taskInfoForm";
+import taskCard from "@/components/taskCard";
 export default {
   data() {
     return {
       selectedDateButton: 3,
       selectedDate: new Date(),
       taskList: [],
-      bgColorByPriority: [
-          "amber lighten-3",
-          "amber darken-2",
-          "amber darken-4",
-      ],
       isShowNewTaskdialog: false,
       newTaskFormData: null
     }
   },
 
   components: {
-    taskInfoForm
+    taskInfoForm,
+    taskCard
   },
 
   computed: {
