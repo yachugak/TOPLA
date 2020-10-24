@@ -16,17 +16,52 @@
         </v-col>
       </v-row>
 
+
       <v-row>
         <v-col cols="3" class="leftCenter">
           마감일<v-icon>mdi-calendar-clock</v-icon>
         </v-col>
         <v-col cols="9" class="leftCenter">
-          <v-expand-transition>
-            <v-btn color="primary" @click="onDueDateButtonClicked()" v-show="isShowDueDateButton">{{displayDueDate}}</v-btn>
-          </v-expand-transition>
-          <v-expand-transition>
-            <v-date-picker v-show="isShowDatePicker" show-current color="primary" v-model="dueDate"></v-date-picker>
-          </v-expand-transition>
+          <v-menu
+              ref="menu"
+              v-model="isShowDatePicker"
+              :close-on-content-click="false"
+              :return-value.sync="date"
+              transition="scale-transition"
+              offset-y
+              min-width="290px"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                  v-model="dueDate"
+                  label="마감일"
+                  readonly
+                  v-bind="attrs"
+                  v-on="on"
+              ></v-text-field>
+            </template>
+            <v-date-picker
+                v-model="dueDate"
+                no-title
+                scrollable
+            >
+              <v-spacer></v-spacer>
+              <v-btn
+                  text
+                  color="error"
+                  @click="isShowDatePicker = false"
+              >
+                취소
+              </v-btn>
+              <v-btn
+                  text
+                  color="primary"
+                  @click="$refs.menu.save(dueDate)"
+              >
+                확인
+              </v-btn>
+            </v-date-picker>
+          </v-menu>
         </v-col>
       </v-row>
     </v-container>
@@ -50,14 +85,12 @@ export default {
         "amber lighten-3",
         "amber darken-2",
         "amber darken-4",
-      ],
+      ]
     }
   },
 
   watch: {
     dueDate(){
-      this.isShowDatePicker = false;
-      this.delayedDueDateButtonShow();
       this.throwEvent();
     },
 
@@ -88,31 +121,8 @@ export default {
         priority: this.priority
       };
       this.$emit("input", res);
-    },
-
-    onDueDateButtonClicked(){
-      this.isShowDueDateButton = false;
-      this.delayedDatePickerShow();
-    },
-
-    async delayedDueDateButtonShow(){
-      await wait(300);
-      this.isShowDueDateButton = true;
-    },
-
-    async delayedDatePickerShow(){
-      await wait(300);
-      this.isShowDatePicker = true;
     }
   }
-}
-
-let wait = function(time){
-  return new Promise(function(res){
-    setTimeout(function(){
-      res();
-    }, time);
-  });
 }
 </script>
 
