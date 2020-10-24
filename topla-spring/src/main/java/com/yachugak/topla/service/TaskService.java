@@ -103,5 +103,9 @@ public class TaskService {
 	public void setFinishTime(Task task, Date finishDate) {
 		task.setFinishDate(finishDate);
 	}
+
+	public void setLocation(Task task, String location) {
+		task.setLocation(location);
+	}
 	
 }

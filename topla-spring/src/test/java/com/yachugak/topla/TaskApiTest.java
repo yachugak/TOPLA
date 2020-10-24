@@ -118,4 +118,28 @@ public class TaskApiTest {
 		Task resultTask = taskRepository.findByTitle("작업 완료 테스트").get();
 		assertEquals(nowDate, resultTask.getFinishDate());
 	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	public void updateTaskwithLocation() {
+		Task originalTask = taskService.createNewTask("location 테스트", 2);
+		Task updateTask = taskRepository.findByTitle("location 테스트").get();
+		String location = "경기도 용인시 수지구";
+		taskService.setLocation(updateTask, location);
+		Task resultTask = taskRepository.findByTitle("location 테스트").get();
+		assertEquals("경기도 용인시 수지구", resultTask.getLocation());
+	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	public void updateTaskwithGPSLocation() {
+		Task originalTask = taskService.createNewTask("location 테스트2", 2);
+		Task updateTask = taskRepository.findByTitle("location 테스트2").get();
+		String location = "!GPS(23.3333, 24.4444)";
+		taskService.setLocation(updateTask, location);
+		Task resultTask = taskRepository.findByTitle("location 테스트2").get();
+		assertEquals("!GPS(23.3333, 24.4444)", resultTask.getLocation());
+	}
+	
+	
 }
