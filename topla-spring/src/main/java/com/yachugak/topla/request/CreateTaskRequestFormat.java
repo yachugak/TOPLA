@@ -7,6 +7,7 @@ public class CreateTaskRequestFormat {
 	private int priority;
 	private Date dueDate;
 	private int estimatedTime;
+	private String location;
 	
 	public String getTitle() {
 		return title;
@@ -31,5 +32,11 @@ public class CreateTaskRequestFormat {
 	}
 	public void setEstimatedTime(Integer estimatedTime) {
 		this.estimatedTime = estimatedTime;
+	}
+	public String getLocation() {
+		return location;
+	}
+	public void setLocation(String location) {
+		this.location = location;
 	}
 }

@@ -30,9 +30,9 @@ public class TaskController {
 	@Transactional(readOnly = false)
 	public String createNewTask(@RequestBody CreateTaskRequestFormat req) {
 		Task newTask = taskService.createNewTask(req.getTitle(), req.getPriority());
-		taskService.setEstimatedTime(newTask, req.getEstimatedTime());
 		taskService.setDueDate(newTask, req.getDueDate());
-
+		taskService.setEstimatedTime(newTask, req.getEstimatedTime());
+		taskService.setLocation(newTask, req.getLocation());
 		return "ok";
 	}
 
@@ -44,7 +44,7 @@ public class TaskController {
 		taskService.setPriority(updateTarget, req.getPriority());
 		taskService.setDueDate(updateTarget, req.getDueDate());
 		taskService.setEstimatedTime(updateTarget, req.getEstimatedTime());
-
+		taskService.setLocation(updateTarget, req.getLocation());
 		return "ok";
 	}
 	
