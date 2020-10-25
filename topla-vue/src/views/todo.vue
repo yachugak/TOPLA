@@ -59,7 +59,7 @@
         persistent
         max-width="500"
     >
-      <v-card>
+      <v-card v-if="isShowNewTaskdialog">
         <v-card-title>새로운 작업 추가</v-card-title>
         <task-info-form v-model="newTaskFormData"></task-info-form>
         <v-card-actions>
