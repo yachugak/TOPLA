@@ -63,6 +63,9 @@ public class TaskController {
 			Date time = new Date();
 			taskService.setFinishTime(updateTarget, time);
 		}
+		else {
+			taskService.setFinishTime(updateTarget, null);
+		}
 		return "ok";
 	}
 }
