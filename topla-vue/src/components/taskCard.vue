@@ -8,6 +8,7 @@
         <v-card-title>{{title}}</v-card-title>
         <v-card-text>
           <v-icon>mdi-clock-check-outline</v-icon>
+          {{displayEstimatedTime}}
         </v-card-text>
       </div>
     </div>
@@ -53,6 +54,11 @@ export default {
     uid: {
       type: Number,
       default: null
+    },
+
+    estimatedTime: {
+      type: Number,
+      default: 0
     }
   },
 
@@ -64,6 +70,13 @@ export default {
 
       //아직 완료되지 않은 작업이면 중요도로 색상 표시
       return this.bgColorByPriority[this.priority-1];
+    },
+
+    displayEstimatedTime(){
+      let hour = Number.parseInt(this.estimatedTime / 60); //몫 구하기
+      let min = this.estimatedTime % 60; //나머지 구하기
+
+      return `${hour}시간 ${min}분`;
     }
   },
 

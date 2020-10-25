@@ -39,6 +39,7 @@
                  :priority="task.priority"
                  :uid="task.uid"
                  :progress="task.progress"
+                 :estimated-time="task.estimatedTime"
                  @update="getTaskList()"
       ></task-card>
     </div>
@@ -58,7 +59,7 @@
         persistent
         max-width="500"
     >
-      <v-card>
+      <v-card v-if="isShowNewTaskdialog">
         <v-card-title>새로운 작업 추가</v-card-title>
         <task-info-form v-model="newTaskFormData"></task-info-form>
         <v-card-actions>
@@ -181,7 +182,7 @@ export default {
           priority: this.newTaskFormData.priority,
           progress: 0,
           dueDate: this.newTaskFormData.dueDate,
-          estimatedTime: 60
+          estimatedTime: this.newTaskFormData.estimatedTime
         });
         await this.getTaskList();
         this.isCalling--
