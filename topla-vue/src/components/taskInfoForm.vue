@@ -26,7 +26,7 @@
               ref="menu"
               v-model="isShowDatePicker"
               :close-on-content-click="false"
-              :return-value.sync="date"
+              :return-value.sync="dueDate"
               transition="scale-transition"
               offset-y
               min-width="290px"
@@ -64,11 +64,22 @@
           </v-menu>
         </v-col>
       </v-row>
+
+      <v-row>
+        <v-col cols="3" class="leftCenter">
+          예상 시간 <v-icon>mdi-clock-check-outline</v-icon>
+        </v-col>
+        <v-col cols="9" class="leftCenter">
+          <duration-selector v-model="estimatedTime"></duration-selector>
+        </v-col>
+      </v-row>
     </v-container>
   </v-form>
 </template>
 
 <script>
+import durationSelector from "@/components/durationSelector";
+
 export default {
   name: "taskInfoForm",
 
@@ -80,6 +91,7 @@ export default {
       dueDate: null,
       title: "",
       priority: 1,
+      estimatedTime: 0,
 
       bgColorByPriority: [
         "amber lighten-3",
@@ -87,6 +99,14 @@ export default {
         "amber darken-4",
       ]
     }
+  },
+
+  components: {
+    durationSelector
+  },
+
+  created() {
+    this.throwEvent();
   },
 
   watch: {
@@ -99,6 +119,10 @@ export default {
     },
 
     priority(){
+      this.throwEvent();
+    },
+
+    estimatedTime(){
       this.throwEvent();
     }
   },
@@ -118,7 +142,8 @@ export default {
       let res = {
         title: this.title,
         dueDate: this.dueDate,
-        priority: this.priority
+        priority: this.priority,
+        estimatedTime: this.estimatedTime
       };
       this.$emit("input", res);
     }
