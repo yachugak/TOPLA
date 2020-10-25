@@ -39,6 +39,7 @@
                  :priority="task.priority"
                  :uid="task.uid"
                  :progress="task.progress"
+                 :estimated-time="task.estimatedTime"
                  @update="getTaskList()"
       ></task-card>
     </div>
