@@ -182,7 +182,8 @@ export default {
           priority: this.newTaskFormData.priority,
           progress: 0,
           dueDate: this.newTaskFormData.dueDate,
-          estimatedTime: this.newTaskFormData.estimatedTime
+          estimatedTime: this.newTaskFormData.estimatedTime,
+          location: this.newTaskFormData.location
         });
         await this.getTaskList();
         this.isCalling--
