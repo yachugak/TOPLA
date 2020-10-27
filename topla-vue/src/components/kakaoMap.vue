@@ -83,8 +83,16 @@ export default {
       this.serviceLinking();
     },
 
-    drawMarker(lat, lng){
+    async drawMarker(lat, lng){
       this.marker.setPosition(latLng(lat, lng));
+
+      let address = await this.geoToAddress(lat, lng);
+
+      this.$emit("newMarkerPosition", {
+        lat: lat,
+        lng: lng,
+        address: address
+      });
     },
 
     serviceLinking() {
@@ -121,7 +129,9 @@ export default {
     },
 
     onMapClicked(mouseEvent){
-      this.marker.setPosition(mouseEvent[0].latLng);
+      let lat = mouseEvent[0].latLng.getLat();
+      let lng = mouseEvent[0].latLng.getLng();
+      this.drawMarker(lat, lng);
     },
 
     async getDevicePosition(){
@@ -134,6 +144,18 @@ export default {
       }catch(e){
         console.error(e);
       }
+    },
+
+    async geoToAddress(lat, lng){
+      let addr = await geoToAddr(lat, lng);
+
+      //도로명 주소가 있으면 도로명 주소 우선 반환
+      if(addr.roadAddress !== null){
+        return addr.roadAddress;
+      }
+
+      //없으면 지번 주소
+      return addr.address;
     }
   }
 }
@@ -175,6 +197,23 @@ function getLocationPromise(){
 
 function latLng(lat, lng){
   return new window.kakao.maps.LatLng(lat, lng)
+}
+
+function geoToAddr(lat, lng){
+  return new Promise(function(res, rej){
+    let geocoder = new window.kakao.maps.services.Geocoder();
+    geocoder.coord2Address(lng, lat, function(result, status){
+      if(status !== window.kakao.maps.services.Status.OK){
+        rej("주소 변환 에러");
+        return;
+      }
+      let r = result[0];
+      res({
+        roadAddress: r.road_address ? r.road_address.address_name : null,
+        address: r.address.address_name
+      });
+    })
+  })
 }
 </script>
 

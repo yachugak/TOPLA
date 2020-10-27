@@ -73,12 +73,57 @@
           <duration-selector v-model="estimatedTime"></duration-selector>
         </v-col>
       </v-row>
+
+      <v-row>
+        <v-col cols="3" class="leftCenter">
+          장소 <v-icon>mdi-map-marker-outline</v-icon>
+        </v-col>
+        <v-col cols="9" class="leftCenter verticalStack flex-column">
+          <v-dialog
+              v-model="isShowPlaceDialog"
+              fullscreen
+              hide-overlay
+              transition="dialog-bottom-transition"
+          >
+            <template v-slot:activator="{on, attrs}">
+              <v-btn v-bind="attrs" v-on="on" class="d-block">
+                <span v-if="displayLocation===null">
+                  장소 지정되지 않음
+                </span>
+                  <span v-else>
+                  장소 다시 설정
+                </span>
+              </v-btn>
+            </template>
+            <v-card>
+              <v-toolbar color="primary" dark>
+                <v-btn icon @click="isShowPlaceDialog = false"><v-icon>mdi-close</v-icon></v-btn>
+                <v-toolbar-title>장소 선택</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-toolbar-items>
+                  <v-btn @click="isShowPlaceDialog=false; onConfirmLocation()" text>
+                    확인
+                  </v-btn>
+                </v-toolbar-items>
+              </v-toolbar>
+              <div class="pa-2">
+                <place-selector @input="tempLocation = $event"></place-selector>
+              </div>
+            </v-card>
+          </v-dialog>
+          <br>
+          <div>
+            {{displayLocation}}
+          </div>
+        </v-col>
+      </v-row>
     </v-container>
   </v-form>
 </template>
 
 <script>
 import durationSelector from "@/components/durationSelector";
+import placeSelector from "@/components/placeSelector";
 
 export default {
   name: "taskInfoForm",
@@ -87,11 +132,16 @@ export default {
     return {
       isShowDatePicker: false,
       isShowDueDateButton: true,
+      isShowPlaceDialog: false,
 
       dueDate: null,
       title: "",
       priority: 1,
       estimatedTime: 0,
+      location: null,
+
+      tempLocation: null,
+      displayLocation: null,
 
       bgColorByPriority: [
         "amber lighten-3",
@@ -102,7 +152,8 @@ export default {
   },
 
   components: {
-    durationSelector
+    durationSelector,
+    placeSelector
   },
 
   created() {
@@ -124,6 +175,10 @@ export default {
 
     estimatedTime(){
       this.throwEvent();
+    },
+
+    location(){
+      this.throwEvent();
     }
   },
 
@@ -143,9 +198,21 @@ export default {
         title: this.title,
         dueDate: this.dueDate,
         priority: this.priority,
-        estimatedTime: this.estimatedTime
+        estimatedTime: this.estimatedTime,
+        location: this.location
       };
       this.$emit("input", res);
+    },
+
+    onConfirmLocation(){
+      if(this.tempLocation.type==="single"){
+        this.location = this.tempLocation.code;
+        this.displayLocation = this.tempLocation.address;
+      }
+      else{
+        this.location = this.tempLocation.keyword;
+        this.displayLocation = this.tempLocation.keyword;
+      }
     }
   }
 }
@@ -156,5 +223,9 @@ export default {
   display: flex;
   justify-content: left;
   align-items: center;
+}
+
+.w-100 {
+  width: 100%;
 }
 </style>
