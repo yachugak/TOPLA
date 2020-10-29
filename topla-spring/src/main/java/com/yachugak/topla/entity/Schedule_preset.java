@@ -1,7 +1,5 @@
 package com.yachugak.topla.entity;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,8 +8,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 @Entity
 @Table(name="schedule_preset")
@@ -52,7 +48,5 @@ public class Schedule_preset {
 	public void setPreset_code(String preset_code) {
 		this.preset_code = preset_code;
 	}
-	
-	
 	
 }
