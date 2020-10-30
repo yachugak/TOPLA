@@ -10,7 +10,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="schedule_preset")
+@Table(name = "schedule_preset")
 public class Schedule_preset {
 	@Id
 	@Column
@@ -18,7 +18,7 @@ public class Schedule_preset {
 	private Long uid;
 
 	@ManyToOne
-	@JoinColumn(name="user_uid")
+	@JoinColumn(name = "user_uid")
 	private User user;
 	
 	@Column(name = "preset_code")
