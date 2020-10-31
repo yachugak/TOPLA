@@ -9,7 +9,7 @@ import java.util.Date;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.yachugak.topla.dataformat.SchedulePreset;
+import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
 import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.plan.Planizer;
 import com.yachugak.topla.plan.TimeTable;
@@ -20,7 +20,7 @@ public class PlanTest {
 	@Test
 	public void planTest() {
 		Date today = new Date();
-		SchedulePreset sp = new SchedulePreset();
+		SchedulePresetDataFormat sp = new SchedulePresetDataFormat();
 		for(int i = 0; i < 7; i++) {
 			sp.setTimeByHour(i, 240);
 		}
