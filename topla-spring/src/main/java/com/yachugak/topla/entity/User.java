@@ -5,6 +5,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -21,6 +24,10 @@ public class User {
 	@Column
 	private String password;
 
+	@OneToOne
+	@JoinColumn(name = "selected_preset_uid")
+	private SchedulePreset schedule_preset;
+	
 	public Long getUid() {
 		return uid;
 	}
@@ -44,6 +51,13 @@ public class User {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
 
+	public SchedulePreset getSchedule_preset() {
+		return schedule_preset;
+	}
+
+	public void setSchedule_preset(SchedulePreset schedule_preset) {
+		this.schedule_preset = schedule_preset;
+	}
+	
 }

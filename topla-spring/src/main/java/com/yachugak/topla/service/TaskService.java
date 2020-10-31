@@ -20,6 +20,7 @@ public class TaskService {
 	private TaskRepository taskRepository;
 	
 	public List<Task> getAllTask(){
+		// TODO: 현재 리포짓 전부 가져옴. 각 유저에 대한 task로 수정필요.
 		return taskRepository.findAll();
 	}
 
