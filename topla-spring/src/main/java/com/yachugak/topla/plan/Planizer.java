@@ -8,19 +8,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import com.yachugak.topla.dataformat.SchedulePreset;
+import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
 import com.yachugak.topla.entity.Task;
 
 //일정을 짜는 클래스입니다.
 public class Planizer {
-	private SchedulePreset schedulePreset;
+	private SchedulePresetDataFormat schedulePreset;
 	private List<Task> tasks;
 	private int day; //0이 일요일
 	
 	//계산용
 	private TimeTable timeTable;
 	
-	public Planizer(SchedulePreset schedulePreset, List<Task> tasks, int day) {
+	public Planizer(SchedulePresetDataFormat schedulePreset, List<Task> tasks, int day) {
 		this.schedulePreset = schedulePreset;
 		this.tasks = tasks;
 		this.day = day;
