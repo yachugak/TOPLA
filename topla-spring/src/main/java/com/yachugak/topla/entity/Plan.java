@@ -14,7 +14,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
-@Table(name="task")
+@Table(name="plan")
 public class Plan {
 	@Id
 	@Column

@@ -1,5 +1,6 @@
 package com.yachugak.topla.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -9,15 +10,20 @@ import javax.persistence.EntityExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.yachugak.topla.entity.Plan;
 import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.exception.EntityNotFoundException;
 import com.yachugak.topla.exception.InvalidArgumentException;
+import com.yachugak.topla.repository.PlanRepository;
 import com.yachugak.topla.repository.TaskRepository;
 
 @Service
 public class TaskService {
 	@Autowired
 	private TaskRepository taskRepository;
+	
+	@Autowired
+	private PlanRepository planRepository;
 	
 	public List<Task> getAllTask(){
 		// TODO: 현재 리포짓 전부 가져옴. 각 유저에 대한 task로 수정필요.
@@ -107,6 +113,32 @@ public class TaskService {
 
 	public void setLocation(Task task, String location) {
 		task.setLocation(location);
+	}
+	
+	// task에 할당된 일정을 지웁니다.
+	public void clearPlan(Task task) {
+		List<Plan> planList = task.getPlans();
+		
+		for(Plan p : planList) {
+			planRepository.delete(p);
+		}
+	}
+	
+	public void addPlan(Task task, Date doDate, int doTime) {
+		if(doTime < 0 || doTime > 1440) {
+			throw new InvalidArgumentException("doTime", "0~1440", ""+doTime);
+		}
+		
+		Plan newPlan = new Plan();
+		newPlan.setDoDate(doDate);
+		newPlan.setDoTime(doTime);
+		newPlan.setTask(task);
+		
+		planRepository.saveAndFlush(newPlan);
+	}
+	
+	public List<Task> getTaskListToPlan(long userUid, Date planStartDate){
+		return taskRepository.findTaskToPlan(userUid, planStartDate);
 	}
 	
 }

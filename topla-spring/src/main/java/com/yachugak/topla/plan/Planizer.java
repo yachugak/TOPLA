@@ -8,11 +8,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
 import com.yachugak.topla.entity.Task;
 
 //일정을 짜는 클래스입니다.
 public class Planizer {
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private SchedulePresetDataFormat schedulePreset;
 	private List<Task> tasks;
 	private int day; //0이 일요일
@@ -30,6 +34,8 @@ public class Planizer {
 		//일정 계산 과정을 저장하는 임시 시간표
 		this.timeTable = new TimeTable();
 		this.timeTable.getDays().add(new Day());
+		
+		logger.debug(tasks.size() + "개의 작업에 대해 일정을 계산합니다.");
 		
 		//일정을 마감일 순으로 정렬
 		sortTaskByDueDate();
@@ -67,6 +73,11 @@ public class Planizer {
 		int nowTodayTaskTime = getTodayTaskTime(nowDayOffset);
 		int todaySchedulePreset = getTodaySchedulePreset();
 		int allocableTime = todaySchedulePreset - nowTodayTaskTime;
+		
+		if(allocableTime == 0) {
+			//오늘 더이상 남은 시간이 없으면 할당하지 않고 넘김
+			return 0;
+		}
 		
 		if(allocableTime < taskLeftTime) {
 			//남은 시간이 부족하면 남은시간 만큼 할당하고 넘김

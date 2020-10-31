@@ -27,4 +27,8 @@ public class TimeTable {
 		
 		day.getTaskItems().add(taskItem);
 	}
+	
+	public int getLastDayOffset() {
+		return days.size()-1;
+	}
 }
