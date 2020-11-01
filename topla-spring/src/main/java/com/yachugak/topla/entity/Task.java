@@ -1,7 +1,7 @@
 package com.yachugak.topla.entity;
 
 import java.util.Date;
-
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -21,21 +22,12 @@ public class Task {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long uid;
 	
-	
 	@Column
 	private String title;
-	
 	
 	@Column
 	@Temporal(TemporalType.DATE)
 	private Date dueDate;
-	
-	@Column
-	@Temporal(TemporalType.DATE)
-	private Date doDate;
-	
-	@Column
-	private Integer doTime;
 	
 	@Column
 	private String location;
@@ -69,6 +61,9 @@ public class Task {
 	@ManyToOne
 	@JoinColumn(name="user_uid")
 	private User user;
+	
+	@OneToMany(mappedBy = "task")
+	private List<Plan> plans;
 
 	public Long getUid() {
 		return uid;
@@ -92,22 +87,6 @@ public class Task {
 
 	public void setDueDate(Date dueDate) {
 		this.dueDate = dueDate;
-	}
-
-	public Date getDoDate() {
-		return doDate;
-	}
-
-	public void setDoDate(Date doDate) {
-		this.doDate = doDate;
-	}
-
-	public Integer getDoTime() {
-		return doTime;
-	}
-
-	public void setDoTime(Integer doTime) {
-		this.doTime = doTime;
 	}
 
 	public String getLocation() {
@@ -188,6 +167,14 @@ public class Task {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public List<Plan> getPlans() {
+		return plans;
+	}
+
+	public void setPlans(List<Plan> plans) {
+		this.plans = plans;
 	}
 
 	

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.request.CheckAsFinishedRequestFormat;
 import com.yachugak.topla.request.CreateTaskRequestFormat;
+import com.yachugak.topla.service.PlanService;
 import com.yachugak.topla.service.TaskService;
 
 @RestController
@@ -26,6 +27,9 @@ public class TaskController {
 	@Autowired
 	private TaskService taskService;
 	
+	@Autowired
+	private PlanService planService;
+	
 	@PostMapping("")
 	@Transactional(readOnly = false)
 	public String createNewTask(@RequestBody CreateTaskRequestFormat req) {
@@ -33,6 +37,9 @@ public class TaskController {
 		taskService.setDueDate(newTask, req.getDueDate());
 		taskService.setEstimatedTime(newTask, req.getEstimatedTime());
 		taskService.setLocation(newTask, req.getLocation());
+		
+		planService.plan(1L, new Date());
+
 		return "ok";
 	}
 
@@ -45,6 +52,9 @@ public class TaskController {
 		taskService.setDueDate(updateTarget, req.getDueDate());
 		taskService.setEstimatedTime(updateTarget, req.getEstimatedTime());
 		taskService.setLocation(updateTarget, req.getLocation());
+
+		planService.plan(1L, new Date());
+
 		return "ok";
 	}
 	
