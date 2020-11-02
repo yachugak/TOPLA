@@ -12,10 +12,12 @@ import org.springframework.stereotype.Service;
 
 import com.yachugak.topla.entity.Plan;
 import com.yachugak.topla.entity.Task;
+import com.yachugak.topla.entity.User;
 import com.yachugak.topla.exception.EntityNotFoundException;
 import com.yachugak.topla.exception.InvalidArgumentException;
 import com.yachugak.topla.repository.PlanRepository;
 import com.yachugak.topla.repository.TaskRepository;
+import com.yachugak.topla.repository.UserRepository;
 
 @Service
 public class TaskService {
@@ -24,6 +26,9 @@ public class TaskService {
 	
 	@Autowired
 	private PlanRepository planRepository;
+	
+	@Autowired
+	private UserRepository userRepository;
 	
 	public List<Task> getAllTask(){
 		// TODO: 현재 리포짓 전부 가져옴. 각 유저에 대한 task로 수정필요.
@@ -41,6 +46,20 @@ public class TaskService {
 		taskRepository.saveAndFlush(newTask);
 		
 		return newTask;
+	}
+	
+	public Task createNewTask(long userUid, String title, int priority) {
+		Task newTask = this.createNewTask(title, priority);
+		Optional<User> owner = userRepository.findByUid(userUid);
+		
+		if(owner.isPresent() == false) {
+			throw new EntityNotFoundException("User", userUid);
+		}
+		
+		taskRepository.saveAndFlush(newTask);
+
+		return newTask;
+		
 	}
 
 	public void deleteTask(Task taskEntity) {

@@ -1,5 +1,6 @@
 package com.yachugak.topla.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.request.CheckAsFinishedRequestFormat;
 import com.yachugak.topla.request.CreateTaskRequestFormat;
+import com.yachugak.topla.response.TaskResponseFormat;
 import com.yachugak.topla.service.PlanService;
 import com.yachugak.topla.service.TaskService;
 
@@ -33,7 +35,7 @@ public class TaskController {
 	@PostMapping("")
 	@Transactional(readOnly = false)
 	public String createNewTask(@RequestBody CreateTaskRequestFormat req) {
-		Task newTask = taskService.createNewTask(req.getTitle(), req.getPriority());
+		Task newTask = taskService.createNewTask(1L, req.getTitle(), req.getPriority());
 		taskService.setDueDate(newTask, req.getDueDate());
 		taskService.setEstimatedTime(newTask, req.getEstimatedTime());
 		taskService.setLocation(newTask, req.getLocation());
@@ -60,8 +62,15 @@ public class TaskController {
 	
 	@GetMapping("/list")
 	@Transactional(readOnly = true)
-	public List<Task> taskList(){
-		return taskService.getAllTask();
+	public List<TaskResponseFormat> taskList(){
+		List<Task> taskList = taskService.getAllTask();
+		ArrayList<TaskResponseFormat> resList = new ArrayList<>();
+		
+		for(Task task : taskList) {
+			resList.add(new TaskResponseFormat(task));
+		}
+
+		return resList;
 	}
 	
 	@PutMapping("/{uid}/finish")
