@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
 import com.yachugak.topla.entity.SchedulePreset;
+import com.yachugak.topla.entity.User;
 import com.yachugak.topla.exception.EntityNotFoundException;
 import com.yachugak.topla.repository.PresetRepository;
 
@@ -32,14 +33,14 @@ public class PresetService {
 		return schedulePresetDataFormatList;
 	}
 
-	public void createSchedulePreset(SchedulePresetDataFormat presetDataFormat) {
+	public SchedulePreset createSchedulePreset(User user, SchedulePresetDataFormat presetDataFormat) {
 		// TODO: 현재 유저1의 Preset만. 
 		SchedulePreset newPreset = new SchedulePreset();
-//		newPreset.setUser(user);
-		newPreset.setPresetCode(presetDataFormat);
-		
-		
+		newPreset.setUser(user);
+		newPreset.setPresetCode(presetDataFormat.encodeHourListToSchedulePresetString());
 		presetRepository.saveAndFlush(newPreset);
+		
+		return newPreset;
 	}
 	
 	
