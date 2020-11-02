@@ -17,10 +17,10 @@ public class PresetService {
 	@Autowired
 	private PresetRepository presetRepository;
 	
-	public List<SchedulePresetDataFormat> getAllPreset(long userUid) {
-		List<SchedulePreset> schedulePresetList = presetRepository.findByUserUid(userUid);
+	public List<SchedulePresetDataFormat> getAllPreset(User user) {
+		List<SchedulePreset> schedulePresetList = presetRepository.findByUserUid(user.getUid());
 		if(schedulePresetList.isEmpty()) {
-			throw new EntityNotFoundException("schedulePreset", userUid);
+			throw new EntityNotFoundException("schedulePreset", user.getUid());
 		}
 		
 		List<SchedulePresetDataFormat> schedulePresetDataFormatList = new ArrayList<>();
@@ -41,6 +41,20 @@ public class PresetService {
 		presetRepository.saveAndFlush(newPreset);
 		
 		return newPreset;
+	}
+
+	public void deletePreset(long uid) {
+		// TODO Auto-generated method stub
+		return;
+		
+		
+	}
+
+	public SchedulePresetDataFormat getSelectedPresetInDataFormat(User user) {
+		String encodedPreset = user.getSchedule_preset().getPresetCode();
+		SchedulePresetDataFormat presetFormat = new SchedulePresetDataFormat();
+		presetFormat.decode(encodedPreset);
+		return presetFormat;
 	}
 	
 	
