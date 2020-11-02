@@ -31,6 +31,18 @@ public class PresetService {
 		
 		return schedulePresetDataFormatList;
 	}
+
+	public void createSchedulePreset(SchedulePresetDataFormat presetDataFormat) {
+		// TODO: 현재 유저1의 Preset만. 
+		SchedulePreset newPreset = new SchedulePreset();
+//		newPreset.setUser(user);
+		newPreset.setPresetCode(presetDataFormat);
+		
+		
+		presetRepository.saveAndFlush(newPreset);
+	}
+	
+	
 	
 	
 }

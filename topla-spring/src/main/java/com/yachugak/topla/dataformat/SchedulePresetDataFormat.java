@@ -10,7 +10,7 @@ public class SchedulePresetDataFormat {
 	}
 
 	public void setHourList(int[] hourList) {
-		this.hourList = hourList;
+		this.hourList = hourList.clone();
 	}
 
 	/// sun = 0 sat = 6
