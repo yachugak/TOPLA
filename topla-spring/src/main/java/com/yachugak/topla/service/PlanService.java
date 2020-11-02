@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
 import com.yachugak.topla.entity.Task;
+import com.yachugak.topla.entity.User;
 import com.yachugak.topla.plan.Planizer;
 import com.yachugak.topla.plan.TaskItem;
 import com.yachugak.topla.plan.TimeTable;
@@ -26,10 +27,10 @@ public class PlanService {
 	@Autowired
 	private TaskService taskService;
 	
-	public void plan(long userUid, Date planStartDate) {
+	public void plan(User user, Date planStartDate) {
 		logger.debug("plan 시작합니다.");
 		int planStartDay = planStartDate.getDay();
-		List<SchedulePresetDataFormat> schedulePresetList = presetService.getAllPreset(userUid);
+		List<SchedulePresetDataFormat> schedulePresetList = presetService.getAllPreset(user);
 		
 		//TODO: 후에 선택된 프리셋을 가져오는 API가 생기면 그거 반영할 것
 		SchedulePresetDataFormat selectedPreset = schedulePresetList.get(0);
@@ -42,7 +43,7 @@ public class PlanService {
 		logger.debug("금요일 " + selectedPreset.getTimeByHour(5)+"분");
 		logger.debug("토요일 " + selectedPreset.getTimeByHour(6)+"분");
 		
-		List<Task> taskList = taskService.getTaskListToPlan(userUid, planStartDate);
+		List<Task> taskList = taskService.getTaskListToPlan(user.getUid(), planStartDate);
 		
 		Planizer planizer = new Planizer(selectedPreset, taskList, planStartDay);
 		TimeTable calculatedPlan = planizer.plan();
