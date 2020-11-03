@@ -13,13 +13,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sun.el.stream.Optional;
 import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
 import com.yachugak.topla.entity.SchedulePreset;
 import com.yachugak.topla.entity.User;
-import com.yachugak.topla.repository.UserRepository;
 import com.yachugak.topla.request.CreateSchedulePresetRequestFormat;
 import com.yachugak.topla.response.SchedulePresetResponseFormat;
 import com.yachugak.topla.service.PresetService;
@@ -92,6 +91,16 @@ public class PresetController {
 		
 		SchedulePreset updateTarget = presetService.findPresetByID(uid);
 		updateTarget.setPresetCode(encodedPreset);
+		
+		return "ok";
+	}
+	
+	@PutMapping("/select")
+	@Transactional(readOnly = false)
+	public String selectSchedulePreset(@RequestParam("presetUid") long presetUid) {
+		// TODO: 유저1에만 대응
+		User user = userService.findUserById(1L);
+		userService.setPresetCode(user, presetUid);
 		
 		return "ok";
 	}
