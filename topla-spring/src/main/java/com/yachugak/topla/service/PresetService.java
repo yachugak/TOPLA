@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
 import com.yachugak.topla.entity.SchedulePreset;
+import com.yachugak.topla.entity.User;
 import com.yachugak.topla.exception.EntityNotFoundException;
 import com.yachugak.topla.repository.PresetRepository;
 
@@ -16,10 +17,10 @@ public class PresetService {
 	@Autowired
 	private PresetRepository presetRepository;
 	
-	public List<SchedulePresetDataFormat> getAllPreset(long userUid) {
-		List<SchedulePreset> schedulePresetList = presetRepository.findByUserUid(userUid);
+	public List<SchedulePresetDataFormat> getAllPreset(User user) {
+		List<SchedulePreset> schedulePresetList = presetRepository.findByUserUid(user.getUid());
 		if(schedulePresetList.isEmpty()) {
-			throw new EntityNotFoundException("schedulePreset", userUid);
+			throw new EntityNotFoundException("schedulePreset", user.getUid());
 		}
 		
 		List<SchedulePresetDataFormat> schedulePresetDataFormatList = new ArrayList<>();
@@ -31,6 +32,46 @@ public class PresetService {
 		
 		return schedulePresetDataFormatList;
 	}
+
+	public SchedulePreset createSchedulePreset(User user, SchedulePresetDataFormat presetDataFormat) {
+		// TODO: 현재 유저1의 Preset만. 
+		SchedulePreset newPreset = new SchedulePreset();
+		newPreset.setUser(user);
+		newPreset.setPresetCode(presetDataFormat.encodeHourListToSchedulePresetString());
+		presetRepository.saveAndFlush(newPreset);
+		
+		return newPreset;
+	}
+
+	public void deletePreset(long uid) {
+		presetRepository.deleteById(uid);
+		return;
+	}
+
+	public SchedulePresetDataFormat getSelectedPresetInDataFormat(User user) {
+		String encodedPreset = user.getSchedule_preset().getPresetCode();
+		SchedulePresetDataFormat presetFormat = new SchedulePresetDataFormat();
+		presetFormat.decode(encodedPreset);
+		return presetFormat;
+	}
 	
+	public SchedulePresetDataFormat getSelectedPresetInDataFormat(long uid) {
+		SchedulePreset target = presetRepository.findById(uid).get();
+		String encodedPreset = target.getPresetCode();
+		SchedulePresetDataFormat presetFormat = new SchedulePresetDataFormat();
+		presetFormat.decode(encodedPreset);
+		return presetFormat;
+	}
+
+	public SchedulePresetDataFormat convertHourListToDataFormat(int[] hourList) {
+		SchedulePresetDataFormat presetFormat = new SchedulePresetDataFormat();
+		presetFormat.setHourList(hourList);
+		return presetFormat;
+		
+	}
 	
+	public SchedulePreset findPresetByID(long uid) {
+		return presetRepository.findById(uid).get();
+	}
+	 
 }
