@@ -83,5 +83,17 @@ public class PresetController {
 
 		return "ok";
 	}
+	
+	@PutMapping("/{uid}")
+	@Transactional(readOnly = false)
+	public String updateSchedulePreset(@PathVariable("uid") long uid, @RequestBody CreateSchedulePresetRequestFormat req) {
+		SchedulePresetDataFormat presetFormat = presetService.convertHourListToDataFormat(req.getSchedulePreset());
+		String encodedPreset = presetFormat.encodeHourListToSchedulePresetString();
+		
+		SchedulePreset updateTarget = presetService.findPresetByID(uid);
+		updateTarget.setPresetCode(encodedPreset);
+		
+		return "ok";
+	}
 		
 }
