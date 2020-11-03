@@ -44,10 +44,8 @@ public class PresetService {
 	}
 
 	public void deletePreset(long uid) {
-		// TODO Auto-generated method stub
+		presetRepository.deleteById(uid);
 		return;
-		
-		
 	}
 
 	public SchedulePresetDataFormat getSelectedPresetInDataFormat(User user) {

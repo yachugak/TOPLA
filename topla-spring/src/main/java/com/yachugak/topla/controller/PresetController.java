@@ -80,7 +80,7 @@ public class PresetController {
 	@Transactional(readOnly = false)
 	public String deleteSchedulePreset(@PathVariable("uid") long uid) {
 		presetService.deletePreset(uid);
-		
+
 		return "ok";
 	}
 		
