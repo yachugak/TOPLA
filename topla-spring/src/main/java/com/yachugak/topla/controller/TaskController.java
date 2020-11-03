@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yachugak.topla.entity.Task;
+import com.yachugak.topla.exception.DuplicatedException;
 import com.yachugak.topla.request.CheckAsFinishedRequestFormat;
 import com.yachugak.topla.request.CreateTaskRequestFormat;
 import com.yachugak.topla.response.TaskResponseFormat;
@@ -35,6 +36,15 @@ public class TaskController {
 	@PostMapping("")
 	@Transactional(readOnly = false)
 	public String createNewTask(@RequestBody CreateTaskRequestFormat req) {
+		Task dup = new Task();
+		taskService.setTitle(dup, req.getTitle());
+		taskService.setDueDate(dup, req.getDueDate());
+		Task result = taskService.duplicated(dup);
+		
+		if(result.getUid() != -1 && !req.getDuplicated()) {
+			throw new DuplicatedException(req.getTitle(), result.getTitle());
+		}
+		
 		Task newTask = taskService.createNewTask(1L, req.getTitle(), req.getPriority());
 		taskService.setDueDate(newTask, req.getDueDate());
 		taskService.setEstimatedTime(newTask, req.getEstimatedTime());
