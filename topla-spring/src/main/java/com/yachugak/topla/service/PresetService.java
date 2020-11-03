@@ -55,7 +55,23 @@ public class PresetService {
 		return presetFormat;
 	}
 	
+	public SchedulePresetDataFormat getSelectedPresetInDataFormat(long uid) {
+		SchedulePreset target = presetRepository.findById(uid).get();
+		String encodedPreset = target.getPresetCode();
+		SchedulePresetDataFormat presetFormat = new SchedulePresetDataFormat();
+		presetFormat.decode(encodedPreset);
+		return presetFormat;
+	}
+
+	public SchedulePresetDataFormat convertHourListToDataFormat(int[] hourList) {
+		SchedulePresetDataFormat presetFormat = new SchedulePresetDataFormat();
+		presetFormat.setHourList(hourList);
+		return presetFormat;
+		
+	}
 	
-	
-	
+	public SchedulePreset findPresetByID(long uid) {
+		return presetRepository.findById(uid).get();
+	}
+	 
 }
