@@ -6,7 +6,7 @@ public class CreateTaskRequestFormat {
 	private String title;
 	private int priority;
 	private Date dueDate;
-	private int estimatedTime;
+	private Integer estimatedTime;
 	private String location;
 	private Date remindingTiming;
 	private boolean duplicated = false;
@@ -35,10 +35,10 @@ public class CreateTaskRequestFormat {
 	public void setDueDate(Date dueDate) {
 		this.dueDate = dueDate;
 	}	
-	public int getEstimatedTime() {
+	public Integer getEstimatedTime() {
 		return estimatedTime;
 	}
-	public void setEstimatedTime(int estimatedTime) {
+	public void setEstimatedTime(Integer estimatedTime) {
 		this.estimatedTime = estimatedTime;
 	}
 	public String getLocation() {

@@ -22,7 +22,7 @@ public class UserService {
 
 	public void setPresetCode(User user, long presetUid) {
 		SchedulePreset targetPreset = presetRepository.findById(presetUid).get();
-		user.setSchedule_preset(targetPreset);
+		user.setSchedulePreset(targetPreset);
 		return;	
 	}
 	
