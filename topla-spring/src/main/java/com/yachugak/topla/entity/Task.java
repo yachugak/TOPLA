@@ -64,6 +64,11 @@ public class Task {
 	
 	@OneToMany(mappedBy = "task")
 	private List<Plan> plans;
+	
+	@ManyToOne
+	@JoinColumn(name="report_uid")
+	private Report report;
+
 
 	public Long getUid() {
 		return uid;
@@ -176,6 +181,12 @@ public class Task {
 	public void setPlans(List<Plan> plans) {
 		this.plans = plans;
 	}
-
 	
+	public Report getReport() {
+		return report;
+	}
+
+	public void setReport(Report report) {
+		this.report = report;
+	}
 }
