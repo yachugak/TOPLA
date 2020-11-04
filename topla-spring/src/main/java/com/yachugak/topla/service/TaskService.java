@@ -165,9 +165,6 @@ public class TaskService {
 		
 		SimpleDateFormat format1 = new SimpleDateFormat("YYYY-MM-DD");
 		
-		//todo 쿼리된 search의 date양식과 task의 date양식이 다름. 이 ㅈ같은 상황을 해결해야함. 현재는 포매팅해서 문자열로 비교했음.
-		//웃긴건 test에서는 제대로 양식이 같이 나오는데 실제로 구동시 다르게나옴
-		//띠용
 		for(Task t : search) {
 			String date1 = format1.format(t.getDueDate());
 			String date2 = format1.format(task.getDueDate());
