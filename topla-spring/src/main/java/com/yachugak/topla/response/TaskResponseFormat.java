@@ -1,7 +1,10 @@
 package com.yachugak.topla.response;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import com.yachugak.topla.entity.Plan;
 import com.yachugak.topla.entity.Task;
 
 public class TaskResponseFormat {
@@ -17,6 +20,7 @@ public class TaskResponseFormat {
 	private Date remindingTiming;
 	private Date createdDate;
 	private Date finishDate;
+	private List<PlanResponseFormat> planList;
 	
 	public TaskResponseFormat() {
 	}
@@ -34,6 +38,13 @@ public class TaskResponseFormat {
 		remindingTiming = task.getRemindingTiming();
 		createdDate = task.getCreatedDate();
 		finishDate = task.getFinishDate();
+		planList = new ArrayList<>();
+		for(Plan plan : task.getPlans()) {
+			PlanResponseFormat temp = new PlanResponseFormat();
+			temp.setDoDate(plan.getDoDate());
+			temp.setDoTime(plan.getDoTime());
+			planList.add(temp);
+		}
 	}
 	
 	public Long getUid() {
@@ -107,5 +118,13 @@ public class TaskResponseFormat {
 	}
 	public void setFinishDate(Date finishDate) {
 		this.finishDate = finishDate;
+	}
+
+	public List<PlanResponseFormat> getPlanList() {
+		return planList;
+	}
+
+	public void setPlanList(List<PlanResponseFormat> planList) {
+		this.planList = planList;
 	}
 }
