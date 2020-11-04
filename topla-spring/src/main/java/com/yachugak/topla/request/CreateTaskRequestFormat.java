@@ -10,8 +10,7 @@ public class CreateTaskRequestFormat {
 	private String location;
 	private Date remindingTiming;
 	private boolean duplicated = false;
-
-	
+  
 	public String getTitle() {
 		return title;
 	}
