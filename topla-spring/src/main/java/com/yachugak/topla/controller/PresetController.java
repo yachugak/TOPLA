@@ -74,7 +74,7 @@ public class PresetController {
 			
 		// TODO: 리뷰 필요. 프리셋 생성시 새 프리셋을 기본값으로.
 		return "redirect:/api/preset/select?presetUid=" + preset.getUid();
-		}
+		
 	}
 	
 	@DeleteMapping("/{uid}")
