@@ -33,15 +33,14 @@ public class User {
 	private SchedulePreset schedule_preset;
 	
 	@Column
-	@Temporal(TemporalType.TIME)
-	private LocalTime report_time;
+	private LocalTime reportTime;
 	
-	public LocalTime getReport_time() {
-		return report_time;
+	public LocalTime getReportTime() {
+		return reportTime;
 	}
 
-	public void setReport_time(LocalTime report_time) {
-		this.report_time = report_time;
+	public void setReportTime(LocalTime reportTime) {
+		this.reportTime = reportTime;
 	}
 
 	public Long getUid() {
