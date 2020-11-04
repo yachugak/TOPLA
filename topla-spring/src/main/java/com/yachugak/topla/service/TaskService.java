@@ -56,6 +56,8 @@ public class TaskService {
 			throw new EntityNotFoundException("User", userUid);
 		}
 		
+		newTask.setUser(owner.get());
+		
 		taskRepository.saveAndFlush(newTask);
 
 		return newTask;
