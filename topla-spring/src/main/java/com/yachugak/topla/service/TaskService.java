@@ -159,5 +159,9 @@ public class TaskService {
 	public List<Task> getTaskListToPlan(long userUid, Date planStartDate){
 		return taskRepository.findTaskToPlan(userUid, planStartDate);
 	}
+
+	public void setRemindingTiming(Task newTask, Date remindingTiming) {
+		newTask.setRemindingTiming(remindingTiming);
+	}
 	
 }

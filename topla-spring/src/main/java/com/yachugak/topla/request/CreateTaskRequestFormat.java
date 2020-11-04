@@ -8,6 +8,7 @@ public class CreateTaskRequestFormat {
 	private Date dueDate;
 	private int estimatedTime;
 	private String location;
+	private Date remindingTiming;
 	
 	public String getTitle() {
 		return title;
@@ -27,10 +28,10 @@ public class CreateTaskRequestFormat {
 	public void setDueDate(Date dueDate) {
 		this.dueDate = dueDate;
 	}	
-	public Integer getEstimatedTime() {
+	public int getEstimatedTime() {
 		return estimatedTime;
 	}
-	public void setEstimatedTime(Integer estimatedTime) {
+	public void setEstimatedTime(int estimatedTime) {
 		this.estimatedTime = estimatedTime;
 	}
 	public String getLocation() {
@@ -38,5 +39,11 @@ public class CreateTaskRequestFormat {
 	}
 	public void setLocation(String location) {
 		this.location = location;
+	}
+	public Date getRemindingTiming() {
+		return remindingTiming;
+	}
+	public void setRemindingTiming(Date remindingTiming) {
+		this.remindingTiming = remindingTiming;
 	}
 }

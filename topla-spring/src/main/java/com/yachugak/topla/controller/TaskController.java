@@ -44,6 +44,7 @@ public class TaskController {
 		taskService.setDueDate(newTask, req.getDueDate());
 		taskService.setEstimatedTime(newTask, req.getEstimatedTime());
 		taskService.setLocation(newTask, req.getLocation());
+		taskService.setRemindingTiming(newTask, req.getRemindingTiming());
 		
 		// 유저1에만 대응. 변경예정
 		User user = userService.findUserById(1L);
@@ -61,6 +62,7 @@ public class TaskController {
 		taskService.setDueDate(updateTarget, req.getDueDate());
 		taskService.setEstimatedTime(updateTarget, req.getEstimatedTime());
 		taskService.setLocation(updateTarget, req.getLocation());
+		taskService.setRemindingTiming(updateTarget, req.getRemindingTiming());
 
 		// 유저1에만 대응.
 		User user = userService.findUserById(1L);
