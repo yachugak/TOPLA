@@ -30,7 +30,7 @@ public class User {
 
 	@OneToOne
 	@JoinColumn(name = "selected_preset_uid")
-	private SchedulePreset schedule_preset;
+	private SchedulePreset schedulePreset;
 	
 	@Column
 	private LocalTime reportTime;
@@ -67,12 +67,12 @@ public class User {
 		this.password = password;
 	}
 
-	public SchedulePreset getSchedule_preset() {
-		return schedule_preset;
+	public SchedulePreset getSchedulePreset() {
+		return schedulePreset;
 	}
 
-	public void setSchedule_preset(SchedulePreset schedule_preset) {
-		this.schedule_preset = schedule_preset;
+	public void setSchedulePreset(SchedulePreset schedule_preset) {
+		this.schedulePreset = schedule_preset;
 	}
 	
 }
