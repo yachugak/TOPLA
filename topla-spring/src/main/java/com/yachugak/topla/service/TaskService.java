@@ -1,6 +1,6 @@
 package com.yachugak.topla.service;
 
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -162,6 +162,26 @@ public class TaskService {
 
 	public void setRemindingTiming(Task newTask, Date remindingTiming) {
 		newTask.setRemindingTiming(remindingTiming);
+	}
+	
+	public Task duplicated(Task task) {
+		List<Task> search = taskRepository.findByTitleContains(task.getTitle());
+		
+		SimpleDateFormat format1 = new SimpleDateFormat("YYYY-MM-DD");
+		
+		for(Task t : search) {
+			String date1 = format1.format(t.getDueDate());
+			String date2 = format1.format(task.getDueDate());
+			if(date1.equals(date2)) {
+				return t;
+			}
+		}
+		
+		Task result = new Task();
+		result.setUid((long)-1);;
+		
+		return result;
+
 	}
 	
 }
