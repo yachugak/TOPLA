@@ -17,11 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.exception.DuplicatedException;
+import com.yachugak.topla.entity.User;
 import com.yachugak.topla.request.CheckAsFinishedRequestFormat;
 import com.yachugak.topla.request.CreateTaskRequestFormat;
 import com.yachugak.topla.response.TaskResponseFormat;
 import com.yachugak.topla.service.PlanService;
 import com.yachugak.topla.service.TaskService;
+import com.yachugak.topla.service.UserService;
 
 @RestController
 @RequestMapping(path = "${apiUriPrefix}/task")
@@ -32,6 +34,9 @@ public class TaskController {
 	
 	@Autowired
 	private PlanService planService;
+	
+	@Autowired
+	private UserService userService;
 	
 	@PostMapping("")
 	@Transactional(readOnly = false)
@@ -50,7 +55,9 @@ public class TaskController {
 		taskService.setEstimatedTime(newTask, req.getEstimatedTime());
 		taskService.setLocation(newTask, req.getLocation());
 		
-		planService.plan(1L, new Date());
+		// 유저1에만 대응. 변경예정
+		User user = userService.findUserById(1L);
+		planService.plan(user, new Date());
 
 		return "ok";
 	}
@@ -65,7 +72,9 @@ public class TaskController {
 		taskService.setEstimatedTime(updateTarget, req.getEstimatedTime());
 		taskService.setLocation(updateTarget, req.getLocation());
 
-		planService.plan(1L, new Date());
+		// 유저1에만 대응.
+		User user = userService.findUserById(1L);
+		planService.plan(user, new Date());
 
 		return "ok";
 	}
