@@ -1,5 +1,7 @@
 package com.yachugak.topla.entity;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,6 +30,17 @@ public class User {
 	@JoinColumn(name = "selected_preset_uid")
 	private SchedulePreset schedule_preset;
 	
+	@Column
+	private Date report_time;
+	
+	public Date getReport_time() {
+		return report_time;
+	}
+
+	public void setReport_time(Date report_time) {
+		this.report_time = report_time;
+	}
+
 	public Long getUid() {
 		return uid;
 	}
