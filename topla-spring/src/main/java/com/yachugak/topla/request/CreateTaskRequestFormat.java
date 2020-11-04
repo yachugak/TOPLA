@@ -8,6 +8,7 @@ public class CreateTaskRequestFormat {
 	private Date dueDate;
 	private int estimatedTime;
 	private String location;
+	private boolean duplicated = false;
 	
 	public String getTitle() {
 		return title;
@@ -24,6 +25,9 @@ public class CreateTaskRequestFormat {
 	public Date getDueDate() {
 		return dueDate;
 	}
+	public boolean getDuplicated() {
+		return duplicated;
+	}
 	public void setDueDate(Date dueDate) {
 		this.dueDate = dueDate;
 	}	
@@ -38,5 +42,8 @@ public class CreateTaskRequestFormat {
 	}
 	public void setLocation(String location) {
 		this.location = location;
+	}
+	public void setDuplicated(boolean duplicated) {
+		this.duplicated = duplicated;
 	}
 }
