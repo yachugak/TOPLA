@@ -1,14 +1,18 @@
 package com.yachugak.topla.entity;
 
+import java.time.LocalTime;
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(name="user")
@@ -28,6 +32,17 @@ public class User {
 	@JoinColumn(name = "selected_preset_uid")
 	private SchedulePreset schedule_preset;
 	
+	@Column
+	private LocalTime reportTime;
+	
+	public LocalTime getReportTime() {
+		return reportTime;
+	}
+
+	public void setReportTime(LocalTime reportTime) {
+		this.reportTime = reportTime;
+	}
+
 	public Long getUid() {
 		return uid;
 	}
