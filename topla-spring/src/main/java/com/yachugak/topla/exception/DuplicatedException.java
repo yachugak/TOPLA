@@ -14,4 +14,11 @@ public class DuplicatedException extends ToplaException{
 		list.add(taskName);
 		this.setArguments(list);
 	}
+	
+	public DuplicatedException(String email) {
+		super("DUPLICATED", email + "은 이미 존재합니다.");
+		ArrayList<String> list = new ArrayList<>();
+		list.add(email);
+		this.setArguments(list);
+	}
 }
