@@ -1,4 +1,4 @@
-package com.yachugak.topla.entity;
+ package com.yachugak.topla.entity;
 
 import java.time.LocalTime;
 import java.util.Date;
@@ -33,14 +33,25 @@ public class User {
 	private SchedulePreset schedulePreset;
 	
 	@Column
-	private LocalTime reportTime;
+	private LocalTime eveningReportTime;
 	
-	public LocalTime getReportTime() {
-		return reportTime;
+	@Column
+	private LocalTime morningReportTime;
+	
+	public LocalTime getEveningReportTime() {
+		return eveningReportTime;
 	}
 
-	public void setReportTime(LocalTime reportTime) {
-		this.reportTime = reportTime;
+	public void setEveningReportTime(LocalTime eveningReportTime) {
+		this.eveningReportTime = eveningReportTime;
+	}
+
+	public LocalTime getMorningReportTime() {
+		return morningReportTime;
+	}
+
+	public void setMorningReportTime(LocalTime morningReportTime) {
+		this.morningReportTime = morningReportTime;
 	}
 
 	public Long getUid() {
