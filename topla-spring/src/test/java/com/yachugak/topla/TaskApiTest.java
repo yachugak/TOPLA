@@ -151,4 +151,24 @@ public class TaskApiTest {
 		Task resultTask = taskRepository.findByTitle("완료작업 해제테스트").get();
 		assertEquals(resultTask.getFinishDate(), null);	
 	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	public void isduplicate() {
+		Task a = taskService.createNewTask(1L, "네갈죽", 3);
+		Date date = new Date();
+		date.setYear(2020);
+		date.setMonth(10);
+		date.setDate(11);
+		taskService.setDueDate(a, date);
+		taskService.setEstimatedTime(a, 80);
+		taskService.setLocation(a, "");
+		
+		
+		Task dup = new Task();
+		dup.setTitle("네갈");
+		dup.setDueDate(date);
+		Task result = taskService.duplicated(dup);
+		assertEquals(result.getUid(), a.getUid());
+	}
 }

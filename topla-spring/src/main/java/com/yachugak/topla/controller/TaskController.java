@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yachugak.topla.entity.Task;
+import com.yachugak.topla.exception.DuplicatedException;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.request.CheckAsFinishedRequestFormat;
 import com.yachugak.topla.request.CreateTaskRequestFormat;
@@ -40,10 +41,20 @@ public class TaskController {
 	@PostMapping("")
 	@Transactional(readOnly = false)
 	public String createNewTask(@RequestBody CreateTaskRequestFormat req) {
+		Task dup = new Task();
+		taskService.setTitle(dup, req.getTitle());
+		taskService.setDueDate(dup, req.getDueDate());
+		Task result = taskService.duplicated(dup);
+		
+		if(result.getUid() != -1 && !req.getDuplicated()) {
+			throw new DuplicatedException(req.getTitle(), result.getTitle());
+		}
+		
 		Task newTask = taskService.createNewTask(1L, req.getTitle(), req.getPriority());
 		taskService.setDueDate(newTask, req.getDueDate());
 		taskService.setEstimatedTime(newTask, req.getEstimatedTime());
 		taskService.setLocation(newTask, req.getLocation());
+		taskService.setRemindingTiming(newTask, req.getRemindingTiming());
 		
 		// 유저1에만 대응. 변경예정
 		User user = userService.findUserById(1L);
@@ -61,6 +72,7 @@ public class TaskController {
 		taskService.setDueDate(updateTarget, req.getDueDate());
 		taskService.setEstimatedTime(updateTarget, req.getEstimatedTime());
 		taskService.setLocation(updateTarget, req.getLocation());
+		taskService.setRemindingTiming(updateTarget, req.getRemindingTiming());
 
 		// 유저1에만 대응.
 		User user = userService.findUserById(1L);

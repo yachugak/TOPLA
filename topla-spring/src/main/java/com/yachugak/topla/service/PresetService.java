@@ -49,7 +49,7 @@ public class PresetService {
 	}
 
 	public SchedulePresetDataFormat getSelectedPresetInDataFormat(User user) {
-		String encodedPreset = user.getSchedule_preset().getPresetCode();
+		String encodedPreset = user.getSchedulePreset().getPresetCode();
 		SchedulePresetDataFormat presetFormat = new SchedulePresetDataFormat();
 		presetFormat.decode(encodedPreset);
 		return presetFormat;

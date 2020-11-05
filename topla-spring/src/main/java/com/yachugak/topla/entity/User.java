@@ -1,14 +1,18 @@
 package com.yachugak.topla.entity;
 
+import java.time.LocalTime;
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(name="user")
@@ -26,8 +30,19 @@ public class User {
 
 	@OneToOne
 	@JoinColumn(name = "selected_preset_uid")
-	private SchedulePreset schedule_preset;
+	private SchedulePreset schedulePreset;
 	
+	@Column
+	private LocalTime reportTime;
+	
+	public LocalTime getReportTime() {
+		return reportTime;
+	}
+
+	public void setReportTime(LocalTime reportTime) {
+		this.reportTime = reportTime;
+	}
+
 	public Long getUid() {
 		return uid;
 	}
@@ -52,12 +67,12 @@ public class User {
 		this.password = password;
 	}
 
-	public SchedulePreset getSchedule_preset() {
-		return schedule_preset;
+	public SchedulePreset getSchedulePreset() {
+		return schedulePreset;
 	}
 
-	public void setSchedule_preset(SchedulePreset schedule_preset) {
-		this.schedule_preset = schedule_preset;
+	public void setSchedulePreset(SchedulePreset schedule_preset) {
+		this.schedulePreset = schedule_preset;
 	}
 	
 }

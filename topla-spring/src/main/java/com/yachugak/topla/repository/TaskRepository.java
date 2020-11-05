@@ -17,4 +17,8 @@ public interface TaskRepository extends JpaRepository<Task, Long>{
 	
 	@Query("from Task t left join t.user u where u.uid = ?1 and t.dueDate >= ?2")
 	public List<Task> findTaskToPlan(long userUid, Date planStartDate);
+	
+	public List<Task> findByTitleContains(String keyword);
+	
+	public List<Task> findByDueDate(Date date);
 }
