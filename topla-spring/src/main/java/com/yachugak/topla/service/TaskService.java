@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yachugak.topla.entity.Plan;
+import com.yachugak.topla.entity.Report;
 import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.exception.EntityNotFoundException;
@@ -184,5 +185,13 @@ public class TaskService {
 		
 		return result;
 
+	}
+	
+	public void setReport(Report report) {
+		List<Task> search = taskRepository.findByFinishDate(report.getReportedDate());
+		
+		for(Task t:search) {
+			t.setReport(report);
+		}
 	}
 }

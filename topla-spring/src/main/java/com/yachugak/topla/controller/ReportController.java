@@ -3,7 +3,6 @@ package com.yachugak.topla.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yachugak.topla.entity.Report;
+import com.yachugak.topla.exception.EntityNotFoundException;
 import com.yachugak.topla.request.CreateReportRequestFormat;
 import com.yachugak.topla.service.ReportService;
 
@@ -24,17 +24,19 @@ public class ReportController {
 	@PostMapping("")
 	@Transactional(readOnly = false)
 	public String createNewReport(@RequestBody CreateReportRequestFormat req) {
-		Report newReport = reportService.createNewReport(req.getReportedDate(), req.getReviewScore());
+		Report newReport = reportService.createNewReport(req.getReportedDate());
 		
 		return "ok";
 	}
 	
-	@PutMapping("/{uid}")
+	@PutMapping("/update")
 	@Transactional(readOnly = false)
-	public String updateReport(@PathVariable("uid") long uid, @RequestBody CreateReportRequestFormat req) {
-		Report updateReport = reportService.findReportById(uid);
-		reportService.setReportedDate(updateReport, req.getReportedDate());
-		reportService.setReviewScore(updateReport, req.getReviewScore());
+	public String updateReport(@RequestBody CreateReportRequestFormat req) {
+		Report updateReport = reportService.updateReport(req.getReportedDate(), req.getReviewScore());
+		
+		if(updateReport.getReviewScore() == -1) {
+			throw new EntityNotFoundException("report", -1);
+		}
 		
 		return "ok";
 	}

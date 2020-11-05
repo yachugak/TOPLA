@@ -15,13 +15,22 @@ public class ReportService {
 	@Autowired
 	private ReportRepository reportRepository;
 	
-	public Report createNewReport(Date reportedDate, int reviewScore) {
+	public Report createNewReport(Date reportedDate) {
 		Report newReport = new Report();
 		this.setReportedDate(newReport, reportedDate);
-		this.setReviewScore(newReport, reviewScore);
 		reportRepository.saveAndFlush(newReport);
 		
 		return newReport;
+	}
+	
+	public Report updateReport(Date reportedDate, int reviewScore) {
+		Optional<Report> update = reportRepository.findByReportedDate(reportedDate);
+		if(!update.isPresent()) {
+			update.get().setReviewScore(-1);
+		}
+		this.setReviewScore(update.get(), reviewScore);
+		
+		return update.get();
 	}
 	
 	public void setReportedDate(Report report, Date date) {

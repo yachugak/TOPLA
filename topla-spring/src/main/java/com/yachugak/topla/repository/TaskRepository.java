@@ -21,4 +21,6 @@ public interface TaskRepository extends JpaRepository<Task, Long>{
 	public List<Task> findByTitleContains(String keyword);
 	
 	public List<Task> findByDueDate(Date date);
+	
+	public List<Task> findByFinishDate(Date finishDate);
 }
