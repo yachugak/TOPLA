@@ -1,24 +1,10 @@
 <template>
   <v-container>
     <v-row>
-      <v-slider
-          v-for="eachDay in daydata"
-          :key="eachDay.day"
-          v-model="eachDay.preset"
-          :label="eachDay.dayInEnglish"
-          vertical
-          step="0.5"
-          :max="eachDay.max"
-          :min="min">
-          <template v-slot:append>
-            <v-text-field
-                class="centered-input"
-                v-model="eachDay.preset"
-                style="width: 30px"
-                :max="eachDay.max"
-            ></v-text-field>
-          </template>
-      </v-slider>
+      <schedule-preset
+          :max="1440"
+          v-model="dayData"
+      ></schedule-preset>
     </v-row>
     <br>
     <v-card-actions>
@@ -38,7 +24,7 @@
     >
       <v-card v-if="showPresetList">
         <v-card-title>프리셋 리스트</v-card-title>
-        <preset-list @input="change()"></preset-list>
+        <preset-list @input="change()" ref="dialog"></preset-list>
         <v-card-actions>
           <v-spacer></v-spacer>
 
@@ -64,12 +50,13 @@
 
 <script>
 import presetList from "@/components/presetList";
+import schedulePreset from "@/components/schedulePreset";
 
 export default {
   data () {
     return {
       day:['일', '월', '화', '수', '목', '금', '토'],
-      daydata:[],
+      dayData:[],
       min:0,
       showPresetList:false,
     }
@@ -78,20 +65,12 @@ export default {
   async created(){
     let res = await this.$axios.get("/preset")
 
-    console.log(res.data)
-      for (let i =0;i<7;i++){
-        let day=new Object()
-
-        day.day=i
-        day.preset=res.data.schedulePreset[i]/60
-        day.max=10
-        day.dayInEnglish=this.day[i]
-        this.daydata.push(day)
-      }
+    this.dayData = res.data.schedulePreset;
   },
 
   components: {
     presetList,
+    schedulePreset
   },
 
   methods:{
@@ -101,8 +80,7 @@ export default {
           "schedulePreset":[0,0,0,0,0,0,0]
       })
 
-      console.log( await this.$axios.get("/preset/list"))
-
+      await this.$refs["dialog"].getPresetList();
     },
 
     change(){
