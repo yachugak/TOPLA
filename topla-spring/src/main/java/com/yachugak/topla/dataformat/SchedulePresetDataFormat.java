@@ -4,15 +4,24 @@ import com.yachugak.topla.exception.InvalidArgumentException;
 
 public class SchedulePresetDataFormat {
 	private int[] hourList = new int[7];
-	
+	private long presetUid;
+
 	public int[] getHourList() {
 		return hourList;
 	}
-
+	
 	public void setHourList(int[] hourList) {
 		for(int day = 0; day < 7; day++) {
 			setTimeByHour(day, hourList[day]);
 		}
+	}
+	
+	public long getPresetUid() {
+		return presetUid;
+	}
+
+	public void setPresetUid(long presetUid) {
+		this.presetUid = presetUid;
 	}
 
 	/// sun = 0 sat = 6
