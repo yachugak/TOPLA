@@ -27,6 +27,7 @@ public class PresetService {
 		for(SchedulePreset preset: schedulePresetList) {
 			SchedulePresetDataFormat temp = new SchedulePresetDataFormat();
 			temp.decode(preset.getPresetCode());
+			temp.setPresetUid(preset.getUid());
 			schedulePresetDataFormatList.add(temp);
 		}
 		
@@ -52,6 +53,7 @@ public class PresetService {
 		String encodedPreset = user.getSchedulePreset().getPresetCode();
 		SchedulePresetDataFormat presetFormat = new SchedulePresetDataFormat();
 		presetFormat.decode(encodedPreset);
+		presetFormat.setPresetUid(user.getSchedulePreset().getUid());
 		return presetFormat;
 	}
 	
@@ -60,6 +62,7 @@ public class PresetService {
 		String encodedPreset = target.getPresetCode();
 		SchedulePresetDataFormat presetFormat = new SchedulePresetDataFormat();
 		presetFormat.decode(encodedPreset);
+		presetFormat.setPresetUid(target.getUid());
 		return presetFormat;
 	}
 
