@@ -12,23 +12,24 @@
           :min="min">
           <template v-slot:append>
             <v-text-field
+                class="centered-input"
                 v-model="eachDay.preset"
-                class="mt-0 pt-0"
-                type="number"
-                style="width: 45px"
-                step="0.5"
+                style="width: 30px"
                 :max="eachDay.max"
             ></v-text-field>
           </template>
       </v-slider>
     </v-row>
     <br>
-    <v-btn v-on:click="check">
-      저장
+    <v-card-actions>
+      <v-spacer></v-spacer>
+    <v-btn @click="check()">
+      확인
     </v-btn>
     <v-btn @click="showPresetList = true">
       프리셋 교환
     </v-btn>
+    </v-card-actions>
 
     <v-dialog
         v-model="showPresetList"
@@ -37,9 +38,16 @@
     >
       <v-card v-if="showPresetList">
         <v-card-title>프리셋 리스트</v-card-title>
-        <preset-list></preset-list>
+        <preset-list @input="change()"></preset-list>
         <v-card-actions>
           <v-spacer></v-spacer>
+
+          <v-btn
+              color="primary"
+              @click="addPreset()"
+          >
+            추가
+          </v-btn>
           <v-btn
               color="error"
               @click="showPresetList = false"
@@ -76,7 +84,7 @@ export default {
 
         day.day=i
         day.preset=res.data.schedulePreset[i]/60
-        day.max=7
+        day.max=10
         day.dayInEnglish=this.day[i]
         this.daydata.push(day)
       }
@@ -87,17 +95,32 @@ export default {
   },
 
   methods:{
-    async check(){
-      let res=[]
+    async addPreset(){
 
-      for (let i=0;i<7;i++){
-        res.push(60*this.daydata[i].preset)
-      }
-      await this.$axios.put("/preset",{res})
-      console.log(res)
+      await this.$axios.post("/preset/create",{
+          "schedulePreset":[0,0,0,0,0,0,0]
+      })
+
+      console.log( await this.$axios.get("/preset/list"))
+
+    },
+
+    change(){
+      this.showPresetList = false
+      window.location.reload()
+    },
+
+    check(){
+      console.log(this.daydata)
     }
   }
 }
 
 </script>
+<style>
+  .centered-input input{
+    text-align: center;
+  }
+</style>
+
 
