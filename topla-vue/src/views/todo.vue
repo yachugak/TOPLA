@@ -37,6 +37,15 @@
           </v-btn>
         </v-col>
       </v-row>
+      <v-row v-if="taskViewMode === 'doDate'">
+        <v-progress-linear
+            :buffer-value="(todayAllocationTime/todayPresetTime)*100"
+            :value="(todayFinishTime/todayPresetTime)*100"
+            stream height="10" color="info"></v-progress-linear>
+        오늘 프리셋: {{todayPresetTime/60}}시간<br>
+        할당 시간: {{todayAllocationTime/60}}시간<br>
+        한 시간: {{todayFinishTime/60}}시간<br>
+      </v-row>
     </v-container>
 
     <div class="py-4 secondary" :class="{taskContainerSizeSm: isSm, taskContainerSizeMd: !isSm }">
@@ -148,6 +157,29 @@ export default {
       }
 
       throw new Error(`알 수 없는 taskViewMode: ${this.taskViewMode}`);
+    },
+
+    todayPresetTime(){
+      let day = this.selectedDate.getDay();
+      let time = this.schedulePreset[day];
+      return time
+    },
+
+    todayAllocationTime(){
+      let timeSum = 0;
+      for(let task of this.displayTaskList){
+        timeSum += task.doTime
+      }
+      return timeSum;
+    },
+
+    todayFinishTime(){
+      let timeSum = 0;
+      let doneTaskList = this.displayTaskList.filter((t)=>t.progress===100);
+      for(let task of doneTaskList) {
+        timeSum += task.doTime;
+      }
+      return timeSum;
     }
   },
 
@@ -159,12 +191,12 @@ export default {
       this.isCalling--;
     },
 
-    // async getSchedulePreset(){
-    //   this.isCalling++;
-    //   let res = await this.$axios.get("/preset");
-    //   this.schedulePreset = res.data;
-    //   this.isCalling--;
-    // },
+    async getSchedulePreset(){
+      this.isCalling++;
+      let res = await this.$axios.get("/preset");
+      this.schedulePreset = res.data.schedulePreset;
+      this.isCalling--;
+    },
 
     async onDateSelectorButtonSelected(selectedButtonIndex) {
       this.selectedDate = this.dateSelectorButtonDisplayList.date[selectedButtonIndex];
