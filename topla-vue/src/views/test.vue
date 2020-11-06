@@ -1,22 +1,22 @@
 <template>
   <div class="secondary">
-    <task-info-form v-model="formData"></task-info-form>
+    <v-btn @click="push()">푸싱~</v-btn>
   </div>
 </template>
 
 <script>
-import taskInfoForm from "@/components/taskInfoForm";
-
 export default {
   name: "test",
 
-  components: {
-    taskInfoForm
-  },
-
   data() {
     return {
-      formData: null
+    }
+  },
+
+  methods: {
+    push(){
+      let myWorker = new Worker('/service-worker.js');
+      myWorker.postMessage("ssss");
     }
   }
 }
