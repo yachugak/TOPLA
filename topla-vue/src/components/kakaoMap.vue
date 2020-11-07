@@ -45,6 +45,11 @@ export default {
     mapHeight: {
       type: String,
       default: "500px"
+    },
+
+    isloadGps: {
+      type: Boolean,
+      default: true
     }
   },
 
@@ -109,7 +114,9 @@ export default {
 
       //현위치 검색 걸어 놓기
       //현재 위치를 못 받아 오면 그냥 제주도 본사를 가리치고, 받아오면 그때 마커와 화면을 옮긴다. 해당 코드는 watch 기술되어 있음
-      this.getDevicePosition();
+      if(this.isloadGps){
+        this.getDevicePosition();
+      }
     },
 
     async search(keyword){

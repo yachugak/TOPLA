@@ -59,6 +59,8 @@
                  :uid="task.uid"
                  :progress="task.progress"
                  :estimated-time="taskViewMode === 'dueDate' ? task.estimatedTime : task.doTime"
+                 :due-date="task.dueDate"
+                 :location="task.location"
                  @update="getTaskList()"
       ></task-card>
     </div>
