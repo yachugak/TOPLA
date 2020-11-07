@@ -1,10 +1,10 @@
 <template>
-  <v-card :color="bgColor" @click.native="onCardClicked($event)">
+  <v-card :color="bgColor" >
     <div id="flexBox">
       <div id="leftSide" class="large-checkbox">
         <v-checkbox v-model="isDone" :disabled="isCallDoing"></v-checkbox>
       </div>
-      <div id="rightSide">
+      <div id="rightSide" @click="onCardClicked($event)">
         <v-card-title>{{title}}</v-card-title>
         <v-card-text>
           <v-container fluid>
@@ -42,7 +42,7 @@
     <v-expand-transition>
       <v-progress-linear indeterminate height="10" v-show="isCallDoing"></v-progress-linear>
     </v-expand-transition>
-    <kakao-map ref="map" v-show="false" :isload-gps="false"></kakao-map>
+    <kakao-map ref="map" v-show="false" :is-load-gps="false"></kakao-map>
   </v-card>
 </template>
 

@@ -7,7 +7,7 @@
     </v-radio-group>
 
     <div v-show="placeType==='single'">
-      <kakao-map map-width="300px" map-height="300px" @newMarkerPosition="selectedPoint = $event" class="mx-auto"></kakao-map>
+      <kakao-map map-width="300px" map-height="300px" @newMarkerPosition="selectedPoint = $event" class="mx-auto" :isload-gps="true"></kakao-map>
       <div>
         선택된 위치<br>
         위도: {{selectedPoint.lat}}<br>
