@@ -31,12 +31,12 @@ public class User {
 	@OneToOne
 	@JoinColumn(name = "selected_preset_uid")
 	private SchedulePreset schedulePreset;
+
+	@Column
+	private LocalTime morningReportTime;
 	
 	@Column
 	private LocalTime eveningReportTime;
-	
-	@Column
-	private LocalTime morningReportTime;
 	
 	public LocalTime getEveningReportTime() {
 		return eveningReportTime;

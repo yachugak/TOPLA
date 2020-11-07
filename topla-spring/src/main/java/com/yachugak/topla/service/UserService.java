@@ -76,5 +76,9 @@ public class UserService {
 			throw new InvalidArgumentException("morningReportTime", "값 있음", null);
 		}
 	}
+
+	public void deleteUser(User targetUser) {
+		userRepository.delete(targetUser);
+	}
 	
 }
