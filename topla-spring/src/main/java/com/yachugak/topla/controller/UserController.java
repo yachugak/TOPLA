@@ -65,17 +65,6 @@ public class UserController {
 		updateTarget.setEveningReportTime(req.getEveningReportTime());
 		updateTarget.setMorningReportTime(req.getMorningReportTime());
 		
-		/*
-		 	TODO: 리뷰필요. 이 부분에서 선택된 preset의 update를 넣어야하는지?
-		 	presetController에 "select"에 정의되어 있는 기능이긴함. 
-		 	
-		 	만약 한다면,
-		 	- 새로운 req 포맷에 presetUid를 정의해서 넣어주고(GetUserResponseFormat), presetService 통해서 preset을 검색해서 update하는 방법
-		 	안 한다면, 
-		 	- 유저 정보 업데이트는 이거, 프리셋의 선택, 수정은 presetController를 이용하는 방향.
-		 	
-		 	현재는 안하고 있음.
-		*/
 		return "ok";
 	}
 	
