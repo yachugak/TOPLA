@@ -56,4 +56,5 @@ messaging.onMessage(payload => {
         body: payload.data.body,
     };
     new Notification(payload.data.title, notificationOptions);
+    alert(payload.data.body);
 })
