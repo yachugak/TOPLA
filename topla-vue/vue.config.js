@@ -5,10 +5,10 @@ module.exports = {
 
   pwa: {
     // configure the workbox plugin
-    workboxPluginMode: 'InjectManifest',
-    workboxOptions: {
-      swSrc: 'src/sw.js',
-      swDest: 'service-worker.js',
-    }
+    // workboxPluginMode: 'InjectManifest',
+    // workboxOptions: {
+    //   swSrc: 'src/firebase-messaging-sw.js',
+    //   // swDest: 'service-worker.js',
+    // }
   }
 }

@@ -45,10 +45,15 @@ Notification.requestPermission()
 
 // TODO: Send token to server for send notification
 messaging.getToken()
-    .then(console.log)
+    .then(function(key){
+        console.log(`device key = ${key}`);
+        window.myDeviceKey = key;
+    })
 
-// Handle received push notification at foreground
+// // Handle received push notification at foreground
 messaging.onMessage(payload => {
-    console.log(payload)
-    alert(payload.data.message)
+    let notificationOptions = {
+        body: payload.data.body,
+    };
+    new Notification(payload.data.title, notificationOptions);
 })
