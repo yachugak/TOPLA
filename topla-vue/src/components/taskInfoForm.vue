@@ -3,7 +3,7 @@
     <v-container fluid>
       <v-row>
         <v-col cols="12">
-          <v-text-field label="작업 이름" outlined v-model="title"></v-text-field>
+          <v-text-field label="작업 이름" outlined v-model="value.title"></v-text-field>
         </v-col>
       </v-row>
 
@@ -12,7 +12,7 @@
           중요도<v-icon>mdi-alert-circle-check</v-icon>
         </v-col>
         <v-col cols="9" class="leftCenter">
-          <v-rating length="3" :color="bgColorByPriority[priority-1]" v-model="priority"></v-rating>
+          <v-rating length="3" :color="bgColorByPriority[value.priority-1]" v-model="value.priority"></v-rating>
         </v-col>
       </v-row>
 
@@ -26,14 +26,14 @@
               ref="menu"
               v-model="isShowDatePicker"
               :close-on-content-click="false"
-              :return-value.sync="dueDate"
+              :return-value.sync="value.dueDate"
               transition="scale-transition"
               offset-y
               min-width="290px"
           >
             <template v-slot:activator="{ on, attrs }">
               <v-text-field
-                  v-model="dueDate"
+                  v-model="value.dueDate"
                   label="마감일"
                   readonly
                   v-bind="attrs"
@@ -41,7 +41,7 @@
               ></v-text-field>
             </template>
             <v-date-picker
-                v-model="dueDate"
+                v-model="value.dueDate"
                 no-title
                 scrollable
             >
@@ -56,7 +56,7 @@
               <v-btn
                   text
                   color="primary"
-                  @click="$refs.menu.save(dueDate)"
+                  @click="$refs.menu.save(value.dueDate)"
               >
                 확인
               </v-btn>
@@ -70,7 +70,7 @@
           예상 시간 <v-icon>mdi-clock-check-outline</v-icon>
         </v-col>
         <v-col cols="9" class="leftCenter">
-          <duration-selector v-model="estimatedTime"></duration-selector>
+          <duration-selector v-model="value.estimatedTime"></duration-selector>
         </v-col>
       </v-row>
 
@@ -118,12 +118,15 @@
         </v-col>
       </v-row>
     </v-container>
+    <kakao-map v-show="false" ref="map" :is-load-gps="false"></kakao-map>
   </v-form>
 </template>
 
 <script>
 import durationSelector from "@/components/durationSelector";
 import placeSelector from "@/components/placeSelector";
+import gpsString from "@/plugins/gpsString";
+import kakaoMap from "@/components/kakaoMap";
 
 export default {
   name: "taskInfoForm",
@@ -134,14 +137,8 @@ export default {
       isShowDueDateButton: true,
       isShowPlaceDialog: false,
 
-      dueDate: null,
-      title: "",
-      priority: 1,
-      estimatedTime: 0,
-      location: null,
-
       tempLocation: null,
-      displayLocation: null,
+      addr: "주소 불러오는 중",
 
       bgColorByPriority: [
         "amber lighten-3",
@@ -152,33 +149,21 @@ export default {
   },
 
   components: {
+    kakaoMap,
     durationSelector,
     placeSelector
   },
 
   created() {
-    this.throwEvent();
+    if(this.value === null || this.value === undefined){
+      this.$emit("input", getDefaultObject());
+    }
   },
 
-  watch: {
-    dueDate(){
-      this.throwEvent();
-    },
-
-    title(){
-      this.throwEvent();
-    },
-
-    priority(){
-      this.throwEvent();
-    },
-
-    estimatedTime(){
-      this.throwEvent();
-    },
-
-    location(){
-      this.throwEvent();
+  props: {
+    value: {
+      type: Object,
+      default: getDefaultObject()
     }
   },
 
@@ -189,32 +174,77 @@ export default {
       }
 
       return this.dueDate;
+    },
+
+    displayLocation(){
+      if(this.value.location === null){
+        return "장소 미지정";
+      }
+      if(gpsString.isGpsString(this.value.location)){
+        let latLng = gpsString.parse(this.value.location);
+        this.getLoadAddress(latLng.lat, latLng.lng);
+        return this.addr;
+      }
+      else{
+        return this.value.location
+      }
     }
   },
 
   methods: {
     throwEvent(){
-      let res = {
-        title: this.title,
-        dueDate: this.dueDate,
-        priority: this.priority,
-        estimatedTime: this.estimatedTime,
-        location: this.location
-      };
-      this.$emit("input", res);
+      // let res = {
+      //   title: this.title,
+      //   dueDate: this.dueDate,
+      //   priority: this.priority,
+      //   estimatedTime: this.estimatedTime,
+      //   location: this.location
+      // };
+      // this.$emit("input", res);
     },
 
     onConfirmLocation(){
       if(this.tempLocation.type==="single"){
-        this.location = this.tempLocation.code;
-        this.displayLocation = this.tempLocation.address;
+        this.value.location = this.tempLocation.code;
       }
       else{
-        this.location = this.tempLocation.keyword;
-        this.displayLocation = this.tempLocation.keyword;
+        this.value.location = this.tempLocation.keyword;
       }
+    },
+
+    async getLoadAddress(lat, lng){
+      let addr = null
+      while(addr === null){
+        try {
+          addr = await this.$refs.map.geoToAddress(lat, lng);
+        }
+        catch(e){
+          console.info(`${lat}, ${lng}의 주소 변환 시도 실패, 3초후 재시도`);
+          await wait(300);
+        }
+      }
+
+      this.addr = addr;
     }
   }
+}
+
+function getDefaultObject(){
+  return {
+    dueDate: null,
+    estimatedTime: 0,
+    location: null,
+    priority: 1,
+    title: ""
+  }
+}
+
+function wait(time){
+  return new Promise(function (res){
+    setTimeout(function(){
+      res();
+    }, time);
+  });
 }
 </script>
 
