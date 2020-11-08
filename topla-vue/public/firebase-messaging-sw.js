@@ -30,4 +30,3 @@ messaging.setBackgroundMessageHandler((payload) => {
     return self.registration.showNotification(notificationTitle,
         notificationOptions)
 })
-
