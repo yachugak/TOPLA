@@ -1,6 +1,7 @@
 <template>
   <div class="secondary">
     <v-btn @click="push()">푸싱~</v-btn>
+    <v-btn @click="noti()">권한 받기</v-btn>
     <div>
       {{myDeviceKey}}
     </div>
@@ -20,6 +21,7 @@ export default {
 
   methods: {
     async push(){
+
       this.myDeviceKey = window.myDeviceKey;
       console.log(`server key = ${this.serverKey}`);
       console.log(`device key = ${this.myDeviceKey}`);
@@ -37,6 +39,16 @@ export default {
       );
 
       console.log(res.data);
+    },
+
+    noti(){
+      Notification.requestPermission()
+          .then((permission) => {
+            console.log('permission ', permission)
+            if (permission !== 'granted') {
+              alert('리마인더 기능을 사용하기 위해서는 알림을 허용해야 합니다.')
+            }
+          })
     }
   }
 }
