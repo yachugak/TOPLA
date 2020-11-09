@@ -1,14 +1,12 @@
 package com.yachugak.topla.response;
 
-import java.time.LocalTime;
-
-import com.yachugak.topla.entity.SchedulePreset;
+import java.time.OffsetTime;
 
 public class GetUserResponseFormat {
 	private String email;
 	private String password;
-	private LocalTime eveningReportTime;
-	private LocalTime morningReportTime;
+	private OffsetTime morningReportTime;
+	private OffsetTime eveningReportTime;
 	private long presetUid;
 	
 	public String getEmail() {
@@ -23,16 +21,16 @@ public class GetUserResponseFormat {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	public LocalTime getEveningReportTime() {
+	public OffsetTime getEveningReportTime() {
 		return eveningReportTime;
 	}
-	public void setEveningReportTime(LocalTime eveningReportTime) {
+	public void setEveningReportTime(OffsetTime eveningReportTime) {
 		this.eveningReportTime = eveningReportTime;
 	}
-	public LocalTime getMorningReportTime() {
+	public OffsetTime getMorningReportTime() {
 		return morningReportTime;
 	}
-	public void setMorningReportTime(LocalTime morningReportTime) {
+	public void setMorningReportTime(OffsetTime morningReportTime) {
 		this.morningReportTime = morningReportTime;
 	}
 	public long getPresetUid() {

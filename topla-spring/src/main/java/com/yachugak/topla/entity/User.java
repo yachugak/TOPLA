@@ -1,7 +1,6 @@
  package com.yachugak.topla.entity;
 
-import java.time.LocalTime;
-import java.util.Date;
+import java.time.OffsetTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,8 +10,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 @Entity
 @Table(name="user")
@@ -33,24 +30,24 @@ public class User {
 	private SchedulePreset schedulePreset;
 
 	@Column
-	private LocalTime morningReportTime;
+	private OffsetTime morningReportTime;
 	
 	@Column
-	private LocalTime eveningReportTime;
+	private OffsetTime eveningReportTime;
 	
-	public LocalTime getEveningReportTime() {
+	public OffsetTime getEveningReportTime() {
 		return eveningReportTime;
 	}
 
-	public void setEveningReportTime(LocalTime eveningReportTime) {
+	public void setEveningReportTime(OffsetTime eveningReportTime) {
 		this.eveningReportTime = eveningReportTime;
 	}
 
-	public LocalTime getMorningReportTime() {
+	public OffsetTime getMorningReportTime() {
 		return morningReportTime;
 	}
 
-	public void setMorningReportTime(LocalTime morningReportTime) {
+	public void setMorningReportTime(OffsetTime morningReportTime) {
 		this.morningReportTime = morningReportTime;
 	}
 

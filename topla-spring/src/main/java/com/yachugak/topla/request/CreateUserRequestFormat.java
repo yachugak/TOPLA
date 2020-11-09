@@ -1,14 +1,15 @@
 package com.yachugak.topla.request;
 
 import java.time.LocalTime;
+import java.time.OffsetTime;
 
 import com.yachugak.topla.entity.SchedulePreset;
 
 public class CreateUserRequestFormat {
 	private String email;
 	private String password;
-	private LocalTime eveningReportTime;
-	private LocalTime morningReportTime;
+	private OffsetTime eveningReportTime;
+	private OffsetTime morningReportTime;
 	
 	public String getEmail() {
 		return email;
@@ -22,16 +23,16 @@ public class CreateUserRequestFormat {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	public LocalTime getEveningReportTime() {
+	public OffsetTime getEveningReportTime() {
 		return eveningReportTime;
 	}
-	public void setEveningReportTime(LocalTime eveningReportTime) {
+	public void setEveningReportTime(OffsetTime eveningReportTime) {
 		this.eveningReportTime = eveningReportTime;
 	}
-	public LocalTime getMorningReportTime() {
+	public OffsetTime getMorningReportTime() {
 		return morningReportTime;
 	}
-	public void setMorningReportTime(LocalTime morningReportTime) {
+	public void setMorningReportTime(OffsetTime morningReportTime) {
 		this.morningReportTime = morningReportTime;
 	}
 	
