@@ -32,13 +32,13 @@ public class UserController {
 	@PostMapping("")
 	@Transactional(readOnly = false)
 	public String createUser(@RequestBody CreateUserRequestFormat req) {
-		User newUser = userService.createUser(req.getEmail(), req.getPassword());
-		newUser.setMorningReportTime(req.getMorningReportTime());
-		newUser.setEveningReportTime(req.getEveningReportTime());
-		
-		SchedulePreset newPreset = presetService.createSchedulePreset(newUser, presetService.createDefaultSchedulePreset());
-		newUser.setSchedulePreset(newPreset);
+		User newUser = userService.createUser(req.getEmail(), req.getPassword());		
+		userService.setMorningReportTime(newUser, req.getMorningReportTime());
+		userService.setEveningReportTime(newUser, req.getEveningReportTime());
 
+		SchedulePreset newPreset = presetService.createSchedulePreset(newUser, presetService.createDefaultSchedulePreset());
+		userService.setPresetCode(newUser, newPreset);
+	
 		return "ok";
 	}
 	
@@ -60,10 +60,10 @@ public class UserController {
 	public String updateUserInfo(@PathVariable("uid") long uid, @RequestBody CreateUserRequestFormat req) {
 		// TODO: 리뷰필요. getUserInfo 이후에 호출된다고 가정?
 		User updateTarget = userService.findUserById(uid);
-		updateTarget.setEmail(req.getEmail());
-		updateTarget.setPassword(req.getPassword());
-		updateTarget.setEveningReportTime(req.getEveningReportTime());
-		updateTarget.setMorningReportTime(req.getMorningReportTime());
+		userService.setEmail(updateTarget, req.getEmail());
+		userService.setPassword(updateTarget, req.getPassword());
+		userService.setMorningReportTime(updateTarget, req.getMorningReportTime());
+		userService.setEveningReportTime(updateTarget, req.getEveningReportTime());
 		
 		return "ok";
 	}

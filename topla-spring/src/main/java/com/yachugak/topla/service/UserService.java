@@ -1,6 +1,7 @@
 package com.yachugak.topla.service;
 
 import java.time.LocalTime;
+import java.time.OffsetTime;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,10 @@ public class UserService {
 		SchedulePreset targetPreset = presetRepository.findById(presetUid).get();
 		user.setSchedulePreset(targetPreset);
 		return;	
+	}
+	
+	public void setPresetCode(User user, SchedulePreset preset) {
+		user.setSchedulePreset(preset);
 	}
 
 	public User createUser(String email, String password) {
@@ -65,16 +70,18 @@ public class UserService {
 		user.setPassword(password);
 	}
 	
-	public void setEveningReportTime(User user, LocalTime eveningReportTime) {
+	public void setEveningReportTime(User user, OffsetTime eveningReportTime) {
 		if(eveningReportTime == null) {
 			throw new InvalidArgumentException("eveningReportTime", "값 있음", null);
 		}
+		user.setEveningReportTime(eveningReportTime);
 	}
 	
-	public void setMorningReportTime(User user, LocalTime morningReportTime) {
+	public void setMorningReportTime(User user, OffsetTime morningReportTime) {
 		if(morningReportTime == null) {
 			throw new InvalidArgumentException("morningReportTime", "값 있음", null);
 		}
+		user.setMorningReportTime(morningReportTime);
 	}
 
 	public void deleteUser(User targetUser) {
