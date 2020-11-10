@@ -31,7 +31,7 @@
               <v-col cols="6">
                 <div id="progressContentBox">
                   <v-icon id="progressIcon">mdi-progress-clock</v-icon>
-                  <v-progress-linear :value="progress"></v-progress-linear>
+                  <v-progress-linear :value="percentProgress"></v-progress-linear>
                 </div>
               </v-col>
             </v-row>
@@ -147,6 +147,10 @@ export default {
       else{
         return this.location;
       }
+    },
+
+    percentProgress(){
+      return (this.progress/this.estimatedTime)*100
     }
   },
 
@@ -166,10 +170,10 @@ export default {
         return;
       }
       if(newValue === true){
-        this.callUpdateProgress(100);
+        this.callUpdateProgress(this.estimatedTime);
       }
       else {
-        this.callUpdateProgress(0);
+        this.callUpdateProgress(-1);
       }
     }
   },
