@@ -145,6 +145,7 @@ public class TaskApiTest {
 	@Transactional(readOnly = false)
 	public void uncheckFinishedTask() {
 		Task originialTask = taskService.createNewTask("완료작업 해제테스트", 2);
+		taskService.setEstimatedTime(originialTask, 100);
 		taskService.setProgress(originialTask, 100);
 		Task updateTask = taskRepository.findByTitle("완료작업 해제테스트").get();
 		taskService.setProgress(updateTask, 50);
