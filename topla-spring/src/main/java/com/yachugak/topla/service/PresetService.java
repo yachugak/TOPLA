@@ -73,8 +73,15 @@ public class PresetService {
 		
 	}
 	
+	public SchedulePresetDataFormat createDefaultSchedulePreset() {
+		int[] temp = new int[7];
+		for(int i=0; i<7; i++) {
+			temp[i] = 180;
+		}
+		return this.convertHourListToDataFormat(temp);
+	}
+	
 	public SchedulePreset findPresetByID(long uid) {
 		return presetRepository.findById(uid).get();
-	}
-	 
+	}	 
 }

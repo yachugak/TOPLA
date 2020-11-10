@@ -1,7 +1,6 @@
-package com.yachugak.topla.entity;
+ package com.yachugak.topla.entity;
 
-import java.time.LocalTime;
-import java.util.Date;
+import java.time.OffsetTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,8 +10,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 @Entity
 @Table(name="user")
@@ -31,16 +28,27 @@ public class User {
 	@OneToOne
 	@JoinColumn(name = "selected_preset_uid")
 	private SchedulePreset schedulePreset;
+
+	@Column
+	private OffsetTime morningReportTime;
 	
 	@Column
-	private LocalTime reportTime;
+	private OffsetTime eveningReportTime;
 	
-	public LocalTime getReportTime() {
-		return reportTime;
+	public OffsetTime getEveningReportTime() {
+		return eveningReportTime;
 	}
 
-	public void setReportTime(LocalTime reportTime) {
-		this.reportTime = reportTime;
+	public void setEveningReportTime(OffsetTime eveningReportTime) {
+		this.eveningReportTime = eveningReportTime;
+	}
+
+	public OffsetTime getMorningReportTime() {
+		return morningReportTime;
+	}
+
+	public void setMorningReportTime(OffsetTime morningReportTime) {
+		this.morningReportTime = morningReportTime;
 	}
 
 	public Long getUid() {
