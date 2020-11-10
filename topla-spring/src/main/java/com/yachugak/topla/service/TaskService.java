@@ -40,9 +40,9 @@ public class TaskService {
 		Task newTask = new Task();
 		this.setTitle(newTask, title);
 		this.setPriority(newTask, priority);
-		this.setProgress(newTask, 0);
-		this.setEstimatedTime(newTask, null);
+		this.setEstimatedTime(newTask, 0);
 		this.setCreatedDate(newTask, new Date());
+		this.setProgress(newTask, 0);
 		taskRepository.saveAndFlush(newTask);
 		
 		return newTask;
@@ -95,6 +95,9 @@ public class TaskService {
 	}
 	
 	public void setProgress(Task task, int progress) {
+		if(task.getEstimatedTime() == null) {
+			throw new InvalidArgumentException("EstimatedTime", "예상시간값", task.getEstimatedTime()+"");
+		}
 		if(progress < 0 || progress > task.getEstimatedTime()) {
 			throw new InvalidArgumentException("progress", "0"+task.getEstimatedTime(), progress+"");
 		} 
