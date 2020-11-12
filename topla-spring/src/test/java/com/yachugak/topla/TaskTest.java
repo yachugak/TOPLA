@@ -17,7 +17,7 @@ import com.yachugak.topla.repository.TaskRepository;
 import com.yachugak.topla.service.TaskService;
 
 @SpringBootTest
-public class TaskApiTest {
+public class TaskTest {
 	@Autowired
 	private TaskService taskService;
 	
@@ -172,4 +172,7 @@ public class TaskApiTest {
 		Task result = taskService.duplicated(dup);
 		assertEquals(result.getUid(), a.getUid());
 	}
+	
+	
+	
 }
