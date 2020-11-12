@@ -13,7 +13,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.yachugak.topla.entity.Task;
+import com.yachugak.topla.entity.TaskHistory;
+import com.yachugak.topla.repository.TaskHistoryRepository;
 import com.yachugak.topla.repository.TaskRepository;
+import com.yachugak.topla.service.TaskHistoryService;
 import com.yachugak.topla.service.TaskService;
 
 @SpringBootTest
@@ -23,6 +26,9 @@ public class TaskApiTest {
 	
 	@Autowired
 	private TaskRepository taskRepository;
+	
+	@Autowired
+	private TaskHistoryService taskHistoryService;
 	
 	@Test
 	@Transactional(readOnly = false)
@@ -170,5 +176,24 @@ public class TaskApiTest {
 		dup.setDueDate(date);
 		Task result = taskService.duplicated(dup);
 		assertEquals(result.getUid(), a.getUid());
+	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	public void makeTaskHistory() {
+		Task a = taskService.createNewTask(1L, "반갈죽", 3);
+		Date date = new Date();
+		date.setYear(2020);
+		date.setMonth(10);
+		date.setDate(11);
+		taskService.setDueDate(a, date);
+		taskService.setEstimatedTime(a, 80);
+		taskService.setLocation(a, "");
+		
+		TaskHistory testH;
+		
+		testH = taskHistoryService.createNewHistory(a, 30);
+		
+		assertEquals(testH.getTask().getUid(), a.getUid());
 	}
 }

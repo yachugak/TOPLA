@@ -8,6 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -20,7 +22,7 @@ public class TaskHistory {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long uid;
 	
-	@Column
+	@ManyToOne
 	@JoinColumn(name="task_uid")
 	private Task task;
 
@@ -29,7 +31,7 @@ public class TaskHistory {
 	private Date recordedTime;
 	
 	@Column
-	private Integer doTime;
+	private Integer realTime;
 	
 	
 	//todo reportUid를 리포트랑 묶어야함 이건 리포트브랜치에서 만들것
@@ -48,8 +50,8 @@ public class TaskHistory {
 		return recordedTime;
 	}
 
-	public Integer getDoTime() {
-		return doTime;
+	public Integer getRealTime() {
+		return realTime;
 	}
 
 	public void setUid(Long uid) {
@@ -64,7 +66,7 @@ public class TaskHistory {
 		this.recordedTime = recordedTime;
 	}
 
-	public void setDoTime(Integer doTime) {
-		this.doTime = doTime;
+	public void setRealTime(Integer realTime) {
+		this.realTime = realTime;
 	}
 }
