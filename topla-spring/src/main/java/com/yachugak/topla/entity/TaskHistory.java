@@ -9,7 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -33,10 +32,9 @@ public class TaskHistory {
 	@Column
 	private Integer realTime;
 	
-	
-	//todo reportUid를 리포트랑 묶어야함 이건 리포트브랜치에서 만들것
 	@Column
-	private Long reportUid;
+	@JoinColumn(name = "report_uid")
+	private Report report;
 	
 	public Long getUid() {
 		return uid;
@@ -62,6 +60,14 @@ public class TaskHistory {
 		this.task = task;
 	}
 
+	public Report getReport() {
+		return report;
+	}
+
+	public void setReport(Report report) {
+		this.report = report;
+	}
+	
 	public void setRecordedTime(Date recordedTime) {
 		this.recordedTime = recordedTime;
 	}
@@ -69,4 +75,6 @@ public class TaskHistory {
 	public void setRealTime(Integer realTime) {
 		this.realTime = realTime;
 	}
+
+	
 }

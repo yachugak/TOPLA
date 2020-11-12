@@ -41,9 +41,9 @@ public class TaskHistoryService {
 	
 	
 	//todo 리포트부분에서 체크 해줘야하는부분
-//	public void setReportUid(TaskHistory history, int reportUid) {
-//		
-//	}
+	public void setReportUid(TaskHistory history, int reportUid) {
+		history.setReport(report);
+	}
 	
 	
 	public void deleteHistory(TaskHistory history) {
