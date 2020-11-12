@@ -5,12 +5,12 @@
         :max="nowTimeMax"
         min="0"
         persistent-hint
-        v-model="esTime"
+        v-model="innerModelValue"
         :hint="displayTime"
         step="30"
     ></v-slider>
     <v-expand-transition>
-      <v-btn color="info" v-show="esTime>=nowTimeMax && esTime != timeMax" @click="increaseMaxTime()">더 긴 시간을 원하십니까?</v-btn>
+      <v-btn color="info" v-show="value>=nowTimeMax && value !== timeMax" @click="increaseMaxTime()">더 긴 시간을 원하십니까?</v-btn>
     </v-expand-transition>
   </div>
 </template>
@@ -21,16 +21,16 @@ export default {
 
   data() {
     return {
-      esTime: 0,
       nowTimeMax: 240,
       timeMax: 36000,
+      innerModelValue: 0
     }
   },
 
   computed: {
     displayTime() {
-      let hour = Number.parseInt(this.esTime / 60); //몫 구하기
-      let min = this.esTime % 60; //나머지 구하기
+      let hour = Number.parseInt(this.value / 60); //몫 구하기
+      let min = this.value % 60; //나머지 구하기
 
       return `${hour}시간 ${min}분`;
     }
@@ -45,13 +45,10 @@ export default {
     }
   },
 
-  watch: {
-    value(newValue){
-      this.esTime = newValue
-    },
-
-    esTime(newValue){
-      this.$emit("input", newValue);
+  created() {
+    this.innerModelValue = this.value;
+    while(this.value > this.nowTimeMax){
+      this.nowTimeMax *= 2;
     }
   },
 
@@ -59,6 +56,19 @@ export default {
     value: {
       type: Number,
       default: 0
+    }
+  },
+
+  watch: {
+    value(newValue){
+      this.innerModelValue = newValue
+      while(newValue > this.nowTimeMax){
+        this.nowTimeMax *= 2;
+      }
+    },
+
+    innerModelValue(newValue){
+      this.$emit("input", newValue);
     }
   }
 }

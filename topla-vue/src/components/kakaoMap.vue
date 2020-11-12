@@ -5,9 +5,10 @@
       :level.sync="level"
       :map-type-id="mapTypeId"
       :libraries="libraries"
-      id="kakaoMapComponent"
+      ref="map"
       @load="onMapLoaded"
       @click="onMapClicked"
+      class="ttt"
   ></vue-daum-map>
 </template>
 
@@ -45,6 +46,11 @@ export default {
     mapHeight: {
       type: String,
       default: "500px"
+    },
+
+    isLoadGps: {
+      type: Boolean,
+      default: true
     }
   },
 
@@ -70,9 +76,10 @@ export default {
 
   methods: {
     updateSize(){
-      let map = document.getElementById("kakaoMapComponent");
-      map.style.width = this.mapWidth;
-      map.style.height = this.mapHeight;
+      // let map = this.$refs.map;
+      // console.log(map);
+      // map.style.width = this.mapWidth;
+      // map.style.height = this.mapHeight;
     },
 
     onMapLoaded(map){
@@ -109,7 +116,9 @@ export default {
 
       //현위치 검색 걸어 놓기
       //현재 위치를 못 받아 오면 그냥 제주도 본사를 가리치고, 받아오면 그때 마커와 화면을 옮긴다. 해당 코드는 watch 기술되어 있음
-      this.getDevicePosition();
+      if(this.isLoadGps){
+        this.getDevicePosition();
+      }
     },
 
     async search(keyword){
@@ -218,4 +227,8 @@ function geoToAddr(lat, lng){
 </script>
 
 <style scoped>
+.ttt{
+  width: 300px;
+  height: 300px;
+}
 </style>

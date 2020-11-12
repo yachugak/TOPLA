@@ -42,6 +42,7 @@ public class PresetController {
 		
 		SchedulePresetResponseFormat response = new SchedulePresetResponseFormat();
 		response.setSchedulePreset(presetFormat.getHourList());
+		response.setPresetUid(presetFormat.getPresetUid());
 		return response;
 	}
 	
@@ -57,6 +58,7 @@ public class PresetController {
 		for (SchedulePresetDataFormat i : plistDataFormats) {
 			SchedulePresetResponseFormat tempFormat = new SchedulePresetResponseFormat();
 			tempFormat.setSchedulePreset(i.getHourList());
+			tempFormat.setPresetUid(i.getPresetUid());
 			res.add(tempFormat);
 		}
 		return res;

@@ -21,6 +21,10 @@ public class Plan {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long uid;
 
+	@ManyToOne
+	@JoinColumn(name="task_uid")
+	private Task task;
+	
 	@Column
 	@Temporal(TemporalType.DATE)
 	private Date doDate;
@@ -28,9 +32,8 @@ public class Plan {
 	@Column
 	private Integer doTime;
 	
-	@ManyToOne
-	@JoinColumn(name="task_uid")
-	private Task task;
+	@Column
+	private Integer progress;
 
 	public Long getUid() {
 		return uid;
@@ -63,4 +66,13 @@ public class Plan {
 	public void setTask(Task task) {
 		this.task = task;
 	}
+
+	public Integer getProgress() {
+		return progress;
+	}
+
+	public void setProgress(Integer progress) {
+		this.progress = progress;
+	}
+	
 }
