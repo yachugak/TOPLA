@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.yachugak.topla.entity.SchedulePreset;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.request.CreateUserRequestFormat;
+import com.yachugak.topla.request.UpdateDeviceTokenRequestFormat;
 import com.yachugak.topla.response.GetUserResponseFormat;
 import com.yachugak.topla.service.PresetService;
 import com.yachugak.topla.service.UserService;
@@ -73,6 +74,15 @@ public class UserController {
 	public String deleteUser(@PathVariable("uid") long uid) {
 		User targetUser = userService.findUserById(uid);
 		userService.deleteUser(targetUser);
+		
+		return "ok";
+	}
+	
+	@PutMapping("/{uid}/token")
+	@Transactional(readOnly = false)
+	public String updateDeviceToken(@PathVariable("uid") long uid, @RequestBody UpdateDeviceTokenRequestFormat req) {
+		User targetUser = userService.findUserById(uid);
+		userService.setDeviceToken(targetUser, req.getDeviceToken());
 		
 		return "ok";
 	}

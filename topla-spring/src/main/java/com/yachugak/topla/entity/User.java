@@ -35,6 +35,17 @@ public class User {
 	@Column
 	private OffsetTime eveningReportTime;
 	
+	@Column
+	private String deviceToken;
+	
+	public String getDeviceToken() {
+		return deviceToken;
+	}
+
+	public void setDeviceToken(String deviceToken) {
+		this.deviceToken = deviceToken;
+	}
+
 	public OffsetTime getEveningReportTime() {
 		return eveningReportTime;
 	}
