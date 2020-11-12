@@ -55,9 +55,7 @@ import schedulePreset from "@/components/schedulePreset";
 export default {
   data () {
     return {
-      day:['일', '월', '화', '수', '목', '금', '토'],
       dayData:[],
-      min:0,
       showPresetList:false,
     }
   },
