@@ -97,15 +97,22 @@ public class TaskController {
 	@PutMapping("/{uid}/finish")
 	@Transactional(readOnly = false)
 	public String updateProgress(@PathVariable("uid") long uid, @RequestBody CheckAsFinishedRequestFormat req) {
+		// TODO: 나중에 서비스로 내리기.
 		Task updateTarget = taskService.findTaskById(uid);
-		taskService.setProgress(updateTarget, req.getProgress());
-		if(req.getProgress() == 100) {
+		if(req.getProgress() == updateTarget.getEstimatedTime()) {
 			Date time = new Date();
 			taskService.setFinishTime(updateTarget, time);
 		}
 		else {
 			taskService.setFinishTime(updateTarget, null);
 		}
+		
+		int progress = req.getProgress();
+		if(progress < 0) {
+			progress = 0;
+		}
+		taskService.setProgress(updateTarget, progress);
+		
 		return "ok";
 	}
 }

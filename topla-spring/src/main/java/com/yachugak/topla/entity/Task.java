@@ -23,27 +23,31 @@ public class Task {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long uid;
 	
+	@ManyToOne
+	@JoinColumn(name="user_uid")
+	private User user;
+	
 	@Column
 	private String title;
+
+	@Column
+	private String location;
 	
 	@Column
 	@Temporal(TemporalType.DATE)
 	private Date dueDate;
 	
 	@Column
-	private String location;
-	
-	@Column
 	private Integer priority;
 	
 	@Column
 	private Integer estimatedTime;
+
+	@Column
+	private Integer progress;
 	
 	@Column
 	private Integer realTime;
-	
-	@Column
-	private Integer progress;
 	
 	@Column
 	private String memo;
@@ -59,17 +63,11 @@ public class Task {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date finishDate;
 	
-	@ManyToOne
-	@JoinColumn(name="user_uid")
-	private User user;
-	
 	@OneToMany(mappedBy = "task")
 	private List<Plan> plans;
-	
-	@ManyToOne
-	@JoinColumn(name="report_uid")
-	private Report report;
 
+	@OneToMany(mappedBy = "task")
+	private List<TaskHistory> taskHistory;
 
 	public Long getUid() {
 		return uid;
@@ -184,13 +182,5 @@ public class Task {
 
 	public void setPlans(List<Plan> plans) {
 		this.plans = plans;
-	}
-	
-	public Report getReport() {
-		return report;
-	}
-
-	public void setReport(Report report) {
-		this.report = report;
 	}
 }

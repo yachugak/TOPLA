@@ -9,70 +9,64 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
-@Table(name="plan")
-public class Plan {
+@Table(name="task_history")
+public class TaskHistory {
 	@Id
 	@Column
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long uid;
-
+	
 	@ManyToOne
 	@JoinColumn(name="task_uid")
 	private Task task;
-	
+
 	@Column
 	@Temporal(TemporalType.DATE)
-	private Date doDate;
+	private Date recordedTime;
 	
 	@Column
-	private Integer doTime;
+	private Integer realTime;
 	
+	
+	//todo reportUid를 리포트랑 묶어야함 이건 리포트브랜치에서 만들것
 	@Column
-	private Integer progress;
-
+	private Long reportUid;
+	
 	public Long getUid() {
 		return uid;
-	}
-
-	public void setUid(Long uid) {
-		this.uid = uid;
-	}
-
-	public Date getDoDate() {
-		return doDate;
-	}
-
-	public void setDoDate(Date doDate) {
-		this.doDate = doDate;
-	}
-
-	public Integer getDoTime() {
-		return doTime;
-	}
-
-	public void setDoTime(Integer doTime) {
-		this.doTime = doTime;
 	}
 
 	public Task getTask() {
 		return task;
 	}
 
+	public Date getRecordedTime() {
+		return recordedTime;
+	}
+
+	public Integer getRealTime() {
+		return realTime;
+	}
+
+	public void setUid(Long uid) {
+		this.uid = uid;
+	}
+
 	public void setTask(Task task) {
 		this.task = task;
 	}
 
-	public Integer getProgress() {
-		return progress;
+	public void setRecordedTime(Date recordedTime) {
+		this.recordedTime = recordedTime;
 	}
 
-	public void setProgress(Integer progress) {
-		this.progress = progress;
+	public void setRealTime(Integer realTime) {
+		this.realTime = realTime;
 	}
-	
 }

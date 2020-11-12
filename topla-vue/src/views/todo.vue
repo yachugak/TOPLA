@@ -37,6 +37,15 @@
           </v-btn>
         </v-col>
       </v-row>
+      <v-row v-if="taskViewMode === 'doDate'">
+        <v-progress-linear
+            :buffer-value="(todayAllocationTime/todayPresetTime)*100"
+            :value="(todayFinishTime/todayPresetTime)*100"
+            stream height="10" color="info"></v-progress-linear>
+        오늘 프리셋: {{todayPresetTime/60}}시간<br>
+        할당 시간: {{todayAllocationTime/60}}시간<br>
+        한 시간: {{todayFinishTime/60}}시간<br>
+      </v-row>
     </v-container>
 
     <div class="py-4 secondary" :class="{taskContainerSizeSm: isSm, taskContainerSizeMd: !isSm }">
@@ -50,7 +59,10 @@
                  :uid="task.uid"
                  :progress="task.progress"
                  :estimated-time="taskViewMode === 'dueDate' ? task.estimatedTime : task.doTime"
+                 :due-date="task.dueDate"
+                 :location="task.location"
                  @update="getTaskList()"
+                 @click="onTaskClicked(task.uid)"
       ></task-card>
     </div>
 
@@ -60,7 +72,7 @@
         fab
         large
         id="addNewTaskbutton"
-        @click="isShowNewTaskdialog = true"
+        @click="isShowNewTaskdialog = true; taskCreatedMode = true"
     ><v-icon>mdi-plus-circle-outline</v-icon></v-btn>
 
     <!--테스트 추가 창-->
@@ -70,7 +82,8 @@
         max-width="500"
     >
       <v-card v-if="isShowNewTaskdialog">
-        <v-card-title>새로운 작업 추가</v-card-title>
+        <v-card-title v-if="taskCreatedMode">새로운 작업 추가</v-card-title>
+        <v-card-title v-else>작업 정보 보기 / 수정</v-card-title>
         <task-info-form v-model="newTaskFormData"></task-info-form>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -86,7 +99,12 @@
               @click="onAddNewTaskButtonClicked()"
               :loading="isCalling>0"
           >
-            작업 추가
+            <span v-if="taskCreatedMode">
+              추가
+            </span>
+            <span v-else>
+              수정
+            </span>
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -104,7 +122,15 @@ export default {
       selectedDate: new Date(),
       taskList: [],
       isShowNewTaskdialog: false,
-      newTaskFormData: null,
+      taskCreatedMode: true,
+      newTaskFormData: {
+        title: "",
+        dueDate: null,
+        estimatedTime: 0,
+        priority: 1,
+        location: null
+      },
+      updateTargetTask: null,
       isCalling: 0, //현재 통신 진행중인지 나타내는 변수, 1 이상이면 통신 진행중이라는 뜻
       taskViewMode: "dueDate",//현재 작업의 보기 모드, dueDate와 doDate가 있음.
       schedulePreset: [0,0,0,0,0,0,0]
@@ -114,6 +140,14 @@ export default {
   components: {
     taskInfoForm,
     taskCard
+  },
+
+  watch: {
+    isShowNewTaskdialog(newVal){
+      if(newVal === false){
+        this.formClear();
+      }
+    }
   },
 
   computed: {
@@ -148,6 +182,29 @@ export default {
       }
 
       throw new Error(`알 수 없는 taskViewMode: ${this.taskViewMode}`);
+    },
+
+    todayPresetTime(){
+      let day = this.selectedDate.getDay();
+      let time = this.schedulePreset[day];
+      return time
+    },
+
+    todayAllocationTime(){
+      let timeSum = 0;
+      for(let task of this.displayTaskList){
+        timeSum += task.doTime
+      }
+      return timeSum;
+    },
+
+    todayFinishTime(){
+      let timeSum = 0;
+      let doneTaskList = this.displayTaskList.filter((t)=>t.progress===100);
+      for(let task of doneTaskList) {
+        timeSum += task.doTime;
+      }
+      return timeSum;
     }
   },
 
@@ -159,12 +216,12 @@ export default {
       this.isCalling--;
     },
 
-    // async getSchedulePreset(){
-    //   this.isCalling++;
-    //   let res = await this.$axios.get("/preset");
-    //   this.schedulePreset = res.data;
-    //   this.isCalling--;
-    // },
+    async getSchedulePreset(){
+      this.isCalling++;
+      let res = await this.$axios.get("/preset");
+      this.schedulePreset = res.data.schedulePreset;
+      this.isCalling--;
+    },
 
     async onDateSelectorButtonSelected(selectedButtonIndex) {
       this.selectedDate = this.dateSelectorButtonDisplayList.date[selectedButtonIndex];
@@ -197,16 +254,22 @@ export default {
     },
 
     async onAddNewTaskButtonClicked(){
+      let requestBody = {
+        title: this.newTaskFormData.title,
+        priority: this.newTaskFormData.priority,
+        dueDate: this.newTaskFormData.dueDate,
+        estimatedTime: this.newTaskFormData.estimatedTime,
+        location: this.newTaskFormData.location
+      }
       try{
         this.isCalling++;
-        await this.$axios.post("/task", {
-          title: this.newTaskFormData.title,
-          priority: this.newTaskFormData.priority,
-          progress: 0,
-          dueDate: this.newTaskFormData.dueDate,
-          estimatedTime: this.newTaskFormData.estimatedTime,
-          location: this.newTaskFormData.location
-        });
+        if(this.taskCreatedMode){
+          await this.$axios.post("/task", requestBody);
+        }
+        else{
+          await this.$axios.put(`/task/${this.updateTargetTask.uid}`, requestBody);
+        }
+
         await this.getTaskList();
         this.isCalling--
         this.isShowNewTaskdialog = false;
@@ -265,6 +328,30 @@ export default {
       }
 
       return dispalyTaskList;
+    },
+
+    onTaskClicked(taskUid){
+      let task = this.taskList.find(item => item.uid === taskUid);
+      this.updateTargetTask = task;
+      this.isShowNewTaskdialog = true;
+      this.taskCreatedMode = false;
+      this.newTaskFormData = {
+        dueDate: task.dueDate,
+        estimatedTime: task.estimatedTime,
+        location: task.location,
+        priority: task.priority,
+        title: task.title
+      }
+    },
+
+    formClear(){
+      this.newTaskFormData = {
+        dueDate: null,
+        title: "",
+        priority: 1,
+        location: null,
+        estimatedTime: 0
+      }
     }
   },
 
