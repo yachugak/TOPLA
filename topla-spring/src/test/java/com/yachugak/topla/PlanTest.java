@@ -3,6 +3,7 @@ package com.yachugak.topla;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -11,7 +12,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
 import com.yachugak.topla.entity.Task;
+import com.yachugak.topla.plan.Day;
 import com.yachugak.topla.plan.Planizer;
+import com.yachugak.topla.plan.TaskItem;
 import com.yachugak.topla.plan.TimeTable;
 
 @SpringBootTest
@@ -26,10 +29,10 @@ public class PlanTest {
 		}
 		ArrayList<Task> tasks = new ArrayList<>();
 		Task task1 = new Task();
-		task1.setUid(1L); task1.setDueDate(today); task1.setEstimatedTime(120);
+		task1.setUid(1L); task1.setDueDate(today); task1.setEstimatedTime(120); task1.setPriority(2);
 
 		Task task2 = new Task();
-		task2.setUid(2L); task2.setDueDate(today); task2.setEstimatedTime(180);
+		task2.setUid(2L); task2.setDueDate(today); task2.setEstimatedTime(180); task2.setPriority(3);
 
 		tasks.add(task1);
 		tasks.add(task2);
@@ -44,5 +47,49 @@ public class PlanTest {
 		assertEquals(120, tt.getDay(0).getTaskItems().get(0).getTime());
 		assertEquals(120, tt.getDay(0).getTaskItems().get(1).getTime());
 		assertEquals(60, tt.getDay(1).getTaskItems().get(0).getTime());
+	}
+	
+	@Test
+	public void totalLossPriorityTest() {
+		TimeTable tb = new TimeTable();
+		
+		for(int i=0; i<=8; i++) {
+			tb.getDays().add(new Day());
+		}
+
+		tb.addTaskItem(0, new TaskItem(1L, 120, 1, makeDate(2020, 11, 13)));
+
+		tb.addTaskItem(1, new TaskItem(1L, 60, 1, makeDate(2020, 11, 13)));
+		tb.addTaskItem(1, new TaskItem(2L, 120, 3, makeDate(2020, 11, 14)));
+
+		tb.addTaskItem(2, new TaskItem(2L, 120, 3, makeDate(2020, 11, 14)));
+
+		tb.addTaskItem(3, new TaskItem(3L, 120, 2, makeDate(2020, 11, 15)));
+		tb.addTaskItem(3, new TaskItem(4L, 120, 2, makeDate(2020, 11, 15)));
+
+		tb.addTaskItem(4, new TaskItem(4L, 240, 2, makeDate(2020, 11, 15)));
+
+		tb.addTaskItem(5, new TaskItem(5L, 120, 1, makeDate(2020, 11, 16)));
+		tb.addTaskItem(5, new TaskItem(6L, 60, 2, makeDate(2020, 11, 17)));
+		tb.addTaskItem(5, new TaskItem(7L, 60, 3, makeDate(2020, 11, 19)));
+
+		tb.addTaskItem(6, new TaskItem(7L, 60, 3, makeDate(2020, 11, 19)));
+		
+		tb.addTaskItem(7, new TaskItem(7L, 60, 3, makeDate(2020, 11, 19)));
+
+		tb.addTaskItem(8, new TaskItem(7L, 60, 3, makeDate(2020, 11, 19)));
+		
+		double totalLossPriority = tb.getTotalLossPriority(makeDate(2020,11,12));
+		
+		assertEquals(5.333333, totalLossPriority, 0.001);
+	}
+	
+	private Date makeDate(int year, int month, int date) {
+		Date d = new Date();
+		d.setYear(year);
+		d.setMonth(month-1);
+		d.setDate(date-1);
+		
+		return d;
 	}
 }
