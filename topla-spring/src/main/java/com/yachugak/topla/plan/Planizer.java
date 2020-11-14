@@ -43,11 +43,11 @@ public class Planizer {
 		int nowDayOffset = 0;//현재 작업중인 날짜
 		for(Task task : tasks) {
 			boolean allocationFlag = false;//현 task의 할당이 성공했는지 기록하는 플래그 변수, flag면 아직 할당 못 했다는 뜻
-			long taskId = task.getUid();
 			int taskLeftTime = task.getEstimatedTime(); //이 작업의 남은 할당 시간
+			this.timeTable.registerTask(task);
 
 			while(allocationFlag == false) {
-				int allocatedTime = allocateTask(nowDayOffset, taskId, taskLeftTime, task.getPriority(), task.getDueDate());
+				int allocatedTime = allocateTask(nowDayOffset, task, taskLeftTime);
 				
 				if(allocatedTime < taskLeftTime) {
 					//task가 남은 시간보다 더 커서 일부만 들어갔다면(즉 쪼개졌다면)
@@ -69,10 +69,12 @@ public class Planizer {
 	
 	//오늘 날짜에 작업을 할당하는 함수
 	//반환값은 오늘 할당에 성공한 시간이다.
-	private int allocateTask(int nowDayOffset, long taskId, int taskLeftTime, int priority, Date dueDate) {
+	private int allocateTask(int nowDayOffset, Task targetTask, int taskLeftTime) {
 		int nowTodayTaskTime = getTodayTaskTime(nowDayOffset);
 		int todaySchedulePreset = getTodaySchedulePreset();
 		int allocableTime = todaySchedulePreset - nowTodayTaskTime;
+		
+		long taskId = targetTask.getUid();
 		
 		if(allocableTime == 0) {
 			//오늘 더이상 남은 시간이 없으면 할당하지 않고 넘김
@@ -81,12 +83,12 @@ public class Planizer {
 		
 		if(allocableTime < taskLeftTime) {
 			//남은 시간이 부족하면 남은시간 만큼 할당하고 넘김
-			this.timeTable.addTaskItem(nowDayOffset, new TaskItem(taskId, allocableTime, priority, dueDate));
+			this.timeTable.addTaskItem(nowDayOffset, new TaskItem(taskId, allocableTime));
 			return allocableTime;
 		}
 		else {
 			//남은 시간이 충분하면 전부 할당하고 넘김
-			this.timeTable.addTaskItem(nowDayOffset, new TaskItem(taskId, taskLeftTime, priority, dueDate));
+			this.timeTable.addTaskItem(nowDayOffset, new TaskItem(taskId, taskLeftTime));
 			return taskLeftTime;
 		}
 	}
