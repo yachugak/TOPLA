@@ -30,7 +30,7 @@ public class Planizer {
 		this.day = day;
 	}
 	
-	public TimeTable plan() {
+	public TimeTable greedyPlan() {
 		//일정 계산 과정을 저장하는 임시 시간표
 		this.timeTable = new TimeTable();
 		this.timeTable.getDays().add(new Day());
