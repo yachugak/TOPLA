@@ -21,7 +21,7 @@
             <v-row no-gutters>
               <v-col cols="6">
                 <v-icon>mdi-map-marker-outline</v-icon>
-                <span v-if="displayLocation !== null">
+                <span v-if="displayLocation !== 'null (nullm)'">
                   {{displayLocation}}
                 </span>
                 <span v-else>
@@ -68,7 +68,8 @@ export default {
       doneColor: "brown lighten-3",
       isDone: null,
       isCallDoing: false, //현재 뭔가 요청이 진행중인가?,
-      addr: null
+      addr: null,
+      distance:null
     }
   },
   
@@ -141,28 +142,15 @@ export default {
       if(gpsString.isGpsString(this.location)){
         let latLng = gpsString.parse(this.location);
         this.loadAddr(latLng.lat, latLng.lng);
-        return this.addr
-        // console.log(this.addr)
-        //
-        // navigator.geolocation.getCurrentPosition(function(pos) {
-        //   var lat = pos.coords.latitude;
-        //   var lng = pos.coords.longitude;
-        //   console.log(lat + " "+lng)
-        // });
-        //
-        // let polyline = new window.kakao.maps.Polyline({
-        //   path:[
-        //     new window.kakao.maps.LatLng(37.3561595, 126.92228879999999),
-        //     new window.kakao.maps.LatLng(latLng.lat, latLng.lng),
-        //   ]
-        // })
-        //
-        // return polyline.getLength();
-        // return "testing"
+        this.loadDistance(latLng)
+
+        return `${this.addr} (${this.distance}m)`
       }
 
       else{
-        return this.location;
+        let keyword=this.location
+        this.calculateDistanceByKeyword(keyword)
+        return `${this.addr} (${this.distance}m)`
       }
     },
 
@@ -224,7 +212,7 @@ export default {
         }
         catch(e){
           console.log(e)
-          console.info(`${lat}, ${lng}의 주소 변환 시도 실패, 3초후 재시도`);
+          console.info(`${lat}, ${lng}의 주소 변환 시도 실패, 1초후 재시도`);
           await wait(1000);
         }
       }
@@ -236,6 +224,54 @@ export default {
       // else{
       //   this.addr = addrObject.address;
       // }
+    },
+
+    async loadDistance(latLng){
+
+      let devicePostion
+      let polyline = null
+
+      while(polyline ===null){
+        try{
+
+          devicePostion=await this.$refs.map.getDevicePosition()
+          polyline = new window.kakao.maps.Polyline({
+            path:[
+              devicePostion,
+              new window.kakao.maps.LatLng(latLng.lat, latLng.lng),
+            ]
+          })
+        }
+        catch (e) {
+          console.log(e)
+          console.info(`실패, 1초후 재시도`);
+          await wait(1000)
+        }
+      }
+
+      let distance=parseInt(polyline.getLength());
+      this.distance=distance
+    },
+
+    async calculateDistanceByKeyword(keyword){
+      let searchList=null
+      while(searchList === null){
+        try {
+          searchList = await this.$refs.map.search(keyword);
+        }
+        catch(e){
+          console.log(e)
+          await wait(1000);
+        }
+      }
+      let destination = searchList[0]
+
+      this.addr=keyword
+      let destinationLatLng={
+        lat:destination.y,
+        lng:destination.x
+      }
+      await this.loadDistance(destinationLatLng)
     }
   }
 }
