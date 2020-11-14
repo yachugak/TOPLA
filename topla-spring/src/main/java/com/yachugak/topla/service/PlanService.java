@@ -29,7 +29,7 @@ public class PlanService {
 	
 	public void plan(User user, Date planStartDate) {
 		logger.debug("plan 시작합니다.");
-		int planStartDay = planStartDate.getDay();
+//		int planStartDay = planStartDate.getDay();
 		List<SchedulePresetDataFormat> schedulePresetList = presetService.getAllPreset(user);
 		
 		//TODO: 후에 선택된 프리셋을 가져오는 API가 생기면 그거 반영할 것
@@ -45,7 +45,7 @@ public class PlanService {
 		
 		List<Task> taskList = taskService.getTaskListToPlan(user.getUid(), planStartDate);
 		
-		Planizer planizer = new Planizer(selectedPreset, taskList, planStartDay);
+		Planizer planizer = new Planizer(selectedPreset, taskList, planStartDate);
 		TimeTable calculatedPlan = planizer.greedyPlan();
 		
 		//task의 기존 일정 초기화

@@ -13,6 +13,9 @@ import org.slf4j.LoggerFactory;
 
 import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
 import com.yachugak.topla.entity.Task;
+import com.yachugak.topla.util.HalfMinutesTime;
+
+import net.bytebuddy.description.type.TypeDescription.Generic.Visitor.Reducing;
 
 //일정을 짜는 클래스입니다.
 public class Planizer {
@@ -20,14 +23,16 @@ public class Planizer {
 	private SchedulePresetDataFormat schedulePreset;
 	private List<Task> tasks;
 	private int day; //0이 일요일
+	private Date planStartDate;
 	
 	//계산용
 	private TimeTable timeTable;
 	
-	public Planizer(SchedulePresetDataFormat schedulePreset, List<Task> tasks, int day) {
+	public Planizer(SchedulePresetDataFormat schedulePreset, List<Task> tasks, Date planStartDate) {
 		this.schedulePreset = schedulePreset;
 		this.tasks = tasks;
-		this.day = day;
+		this.planStartDate = planStartDate;
+		this.day = planStartDate.getDay();
 	}
 	
 	public TimeTable greedyPlan() {
@@ -65,8 +70,57 @@ public class Planizer {
 		
 		return this.timeTable;
 	}
-	
-	
+
+	public TimeTable naivelyOptimizedPlan() {
+		Planizer planizer = new Planizer(this.schedulePreset, this.tasks, this.planStartDate);
+		//일단 마감일 순으로 일정 짜 보고 일정이 터지는지 확인
+		TimeTable greedyResult = planizer.greedyPlan();
+		if(greedyResult.getTotalLossPriority(this.planStartDate) <= 0.0) {
+			return greedyResult;
+		}
+		
+		//일정이 터졌다면 줄일 것을 찾는다.
+		/* loss effect value는 특정 task가 손실 중요도에 얼마나 영향을 미치지는지를 나타내는 지수입니다.
+		 * task는 시간이 길고 중요도가 낮을 수록 축소되었을 때 손실 중요도에 영향을 적게 미칩니다.
+		 * 따라서 줄일 작업을 선택할 때는 그러한 작업을 선택하는 것이 좋습니다.
+		 * loss effect value는 (estimatedTime/priority)로 계산되어 이 수치가 높을수록 줄여도 영향이 작은 task임을 나타냅니다.
+		 */
+		double maxLossEffectValue = -1.0; //
+		Task maxLossEffectTask = null;
+		for(Task testTask : this.tasks) {
+			int priority = testTask.getPriority();
+			int estimatedTime = testTask.getEstimatedTime();
+			double lossEffectValue = (double)estimatedTime/(double)priority;
+			if(lossEffectValue > maxLossEffectValue) {
+				maxLossEffectValue = lossEffectValue;
+				maxLossEffectTask = testTask;
+			}
+		}
+		
+		logger.debug("축소할 작업: " + maxLossEffectTask.getUid());
+		
+		//줄일 일정부터 시작해서 그 이후의 일정을 당긴다.
+		int originalEstimatedTime = maxLossEffectTask.getEstimatedTime();
+		int halfEstimatedTime = HalfMinutesTime.roundUpAndDown(originalEstimatedTime/2);
+		if(originalEstimatedTime == halfEstimatedTime) {
+			return greedyResult;
+		}
+		maxLossEffectTask.setEstimatedTime(halfEstimatedTime);
+		planizer = new Planizer(this.schedulePreset, this.tasks, this.planStartDate);
+		TimeTable reducedResult = planizer.greedyPlan();
+		maxLossEffectTask.setEstimatedTime(originalEstimatedTime);
+		reducedResult.setEstimateTimeOfTask(maxLossEffectTask.getUid(), originalEstimatedTime);
+		
+		for(int dayOffset = 0; dayOffset < reducedResult.getDays().size(); dayOffset++) {
+			Day d = reducedResult.getDay(dayOffset);
+			for(TaskItem ti : d.getTaskItems()) {
+				logger.debug("["+dayOffset+"일차] " + ti.getTaskId() + "번 작업을 " + ti.getTime() + "분 합니다.");
+			}
+		}
+
+		return reducedResult;
+	}
+
 	//오늘 날짜에 작업을 할당하는 함수
 	//반환값은 오늘 할당에 성공한 시간이다.
 	private int allocateTask(int nowDayOffset, Task targetTask, int taskLeftTime) {
@@ -115,9 +169,6 @@ public class Planizer {
 	private int getTodaySchedulePreset() {
 		return this.schedulePreset.getTimeByHour(this.day);
 	}
-	
-	
-	
 
 	private void sortTaskByDueDate() {
 		Collections.sort(tasks, new Comparator<Task>() {

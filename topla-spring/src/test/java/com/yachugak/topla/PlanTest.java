@@ -1,6 +1,8 @@
 package com.yachugak.topla;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 
 import java.time.LocalDate;
@@ -12,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
 import com.yachugak.topla.entity.Task;
+import com.yachugak.topla.exception.ToplaException;
 import com.yachugak.topla.plan.Day;
 import com.yachugak.topla.plan.Planizer;
 import com.yachugak.topla.plan.TaskItem;
@@ -37,7 +40,7 @@ public class PlanTest {
 		tasks.add(task1);
 		tasks.add(task2);
 		
-		Planizer planizer = new Planizer(sp, tasks, 0);
+		Planizer planizer = new Planizer(sp, tasks, makeDate(2020,11,14));
 		TimeTable tt = planizer.greedyPlan();
 		
 		
@@ -120,6 +123,46 @@ public class PlanTest {
 		assertEquals(5.333333, totalLossPriority, 0.001);
 	}
 	
+	@Test()
+	public void notRegisterdTaskExceptionTest() {
+		Task taskA = makeTask(1, 1, 120, makeDate(2020,11,14));
+		TimeTable tt = new TimeTable();
+		
+		assertThrows(ToplaException.class, ()->tt.addTaskItem(0, new TaskItem(taskA.getUid(), 60)));
+	}
+	
+	@Test
+	public void naivelyOptimizedPlanTest() {
+		SchedulePresetDataFormat schedulePreset = new SchedulePresetDataFormat();
+		schedulePreset.decode("0000018001800000018002400120");
+		ArrayList<Task> testTaskList = new ArrayList<>();
+		testTaskList.add(makeTask(1L, 2, 120, makeDate(2020,6,18)));
+		testTaskList.add(makeTask(2L, 1, 60, makeDate(2020,6,19)));
+		testTaskList.add(makeTask(3L, 2, 300, makeDate(2020,6,21)));
+		testTaskList.add(makeTask(4L, 2, 60, makeDate(2020,6,22)));
+		testTaskList.add(makeTask(5L, 3, 240, makeDate(2020,6,22)));
+		testTaskList.add(makeTask(6L, 1, 120, makeDate(2020,6,23)));
+		testTaskList.add(makeTask(7L, 2, 120, makeDate(2020,6,24)));
+		testTaskList.add(makeTask(8L, 2, 120, makeDate(2020,6,25)));
+		testTaskList.add(makeTask(9L, 3, 60, makeDate(2020,6,25)));
+		
+		Date planStartDate = makeDate(2020,6,18);
+		
+		Planizer planizer = new Planizer(schedulePreset, testTaskList, planStartDate);
+
+		TimeTable oldTimeTable = planizer.greedyPlan();
+		double oldTotalLoss = oldTimeTable.getTotalLossPriority(planStartDate);
+		
+		assertEquals(9.0, oldTotalLoss, 0.0001);
+
+		TimeTable timeTable = planizer.naivelyOptimizedPlan();
+		double newTotalLoss = timeTable.getTotalLossPriority(planStartDate);
+		System.out.println("totalLoss = " + newTotalLoss);
+
+		assertEquals(1.0, newTotalLoss, 0.0001);
+		
+	}
+
 	private Date makeDate(int year, int month, int date) {
 		Date d = new Date();
 		d.setYear(year);

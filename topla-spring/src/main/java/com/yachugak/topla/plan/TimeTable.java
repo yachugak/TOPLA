@@ -105,6 +105,16 @@ public class TimeTable {
 		this.registerTaskInfo(task.getUid(), task.getEstimatedTime(), task.getPriority(), task.getDueDate());
 	}
 	
+	//임시로 estimateTime을 변경한 task의 estimateTime을 사후 조정할 수 있게 해 주는 함수입니다.
+	public void setEstimateTimeOfTask(long taskId, int estimatedTime) {
+		TaskInfo taskInfo = this.taskInfoDict.get(taskId);
+		if(taskInfo == null) {
+			throw new NotRegisteredTaskException("사전에 등록되지 않은 taskId:"+taskId);
+		}
+		
+		taskInfo.totalTime = estimatedTime;
+	}
+	
 	private void registerTaskInfo(long taskId, int totalTime, int priority, Date dueDate) {
 		TaskInfo taskInfo = new TaskInfo();
 		taskInfo.successTime = 0;
