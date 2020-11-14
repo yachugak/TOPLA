@@ -133,7 +133,6 @@ export default {
 
       return this.dueDate;
     },
-
     displayLocation(){
       if(this.location === null){
         return "장소 미지정";
@@ -142,8 +141,26 @@ export default {
       if(gpsString.isGpsString(this.location)){
         let latLng = gpsString.parse(this.location);
         this.loadAddr(latLng.lat, latLng.lng);
-        return this.addr;
+        return this.addr
+        // console.log(this.addr)
+        //
+        // navigator.geolocation.getCurrentPosition(function(pos) {
+        //   var lat = pos.coords.latitude;
+        //   var lng = pos.coords.longitude;
+        //   console.log(lat + " "+lng)
+        // });
+        //
+        // let polyline = new window.kakao.maps.Polyline({
+        //   path:[
+        //     new window.kakao.maps.LatLng(37.3561595, 126.92228879999999),
+        //     new window.kakao.maps.LatLng(latLng.lat, latLng.lng),
+        //   ]
+        // })
+        //
+        // return polyline.getLength();
+        // return "testing"
       }
+
       else{
         return this.location;
       }
@@ -206,6 +223,7 @@ export default {
           addr = await this.$refs.map.geoToAddress(lat, lng);
         }
         catch(e){
+          console.log(e)
           console.info(`${lat}, ${lng}의 주소 변환 시도 실패, 3초후 재시도`);
           await wait(1000);
         }
