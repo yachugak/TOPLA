@@ -266,7 +266,7 @@ export default {
       }
       let destination = searchList[0]
 
-      this.addr=keyword
+      this.addr=destination.place_name
       let destinationLatLng={
         lat:destination.y,
         lng:destination.x
