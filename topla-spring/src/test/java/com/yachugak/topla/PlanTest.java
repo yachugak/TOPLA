@@ -38,7 +38,7 @@ public class PlanTest {
 		tasks.add(task2);
 		
 		Planizer planizer = new Planizer(sp, tasks, 0);
-		TimeTable tt = planizer.plan();
+		TimeTable tt = planizer.greedyPlan();
 		
 		
 		assertEquals(1L, tt.getDay(0).getTaskItems().get(0).getTaskId());
