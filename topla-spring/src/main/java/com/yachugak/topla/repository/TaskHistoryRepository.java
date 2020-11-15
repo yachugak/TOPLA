@@ -14,5 +14,5 @@ public interface TaskHistoryRepository extends JpaRepository<TaskHistory, Long>{
 	
 	public List<TaskHistory> findByTaskUid(long TaskUid);
 	
-	//public List<TaskHistory> findByReport(long ReportUid);
+	public List<TaskHistory> findByReport(long ReportUid);
 }
