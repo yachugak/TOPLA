@@ -53,14 +53,15 @@
         <span id="dayText" class="pl-2">{{selectedDate.getMonth()+1}}월 {{selectedDate.getDate()}}일 {{getDayName(selectedDate.getDay())}}요일</span>
         <span id="taskCountText" class="pr-2">{{displayTaskList.length}}개의 작업</span>
       </div>
-      <task-card class="mx-2 mb-4" v-for="task in displayTaskList" :key="task.uid"
+      <task-card class="mx-2 mb-4" v-for="task in displayTaskList" :key="taskViewMode === 'dueDate' ? task.uid : task.planUid"
                  :title="task.title"
                  :priority="task.priority"
                  :uid="task.uid"
-                 :progress="task.progress"
+                 :progress="taskViewMode === 'dueDate' ? task.progress : task.planProgress"
                  :estimated-time="taskViewMode === 'dueDate' ? task.estimatedTime : task.doTime"
                  :due-date="task.dueDate"
                  :location="task.location"
+                 :plan-uid="taskViewMode === 'dueDate' ? -1 : task.planUid"
                  @update="getTaskList()"
                  @click="onTaskClicked(task.uid)"
       ></task-card>
@@ -200,7 +201,7 @@ export default {
 
     todayFinishTime(){
       let timeSum = 0;
-      let doneTaskList = this.displayTaskList.filter((t)=>t.progress===100);
+      let doneTaskList = this.displayTaskList.filter((t)=>t.planProgress===t.doTime);
       for(let task of doneTaskList) {
         timeSum += task.doTime;
       }
@@ -310,7 +311,9 @@ export default {
             todayIsDoDatePlan.push({
               index: i,
               doTime: plan.doTime,
-              order: planList.indexOf(plan)+1
+              order: planList.indexOf(plan)+1,
+              planUid: plan.planUid,
+              planProgress: plan.progress
             });
           }
         }
@@ -323,7 +326,9 @@ export default {
         if(totalPlanCount > 1){
           tempTask.title = `${tempTask.title}(${totalPlanCount} 중 ${item.order})`;
         }
+        tempTask.planProgress = item.planProgress;
         tempTask.doTime = item.doTime;
+        tempTask.planUid = item.planUid;
         dispalyTaskList.push(tempTask);
       }
 
