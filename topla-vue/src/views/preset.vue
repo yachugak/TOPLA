@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container class="secondary vh-100">
     <v-row>
       <schedule-preset
           :max="1440"
@@ -96,6 +96,10 @@ export default {
 <style>
   .centered-input input{
     text-align: center;
+  }
+
+  .vh-100 {
+    height: 93vh;
   }
 </style>
 
