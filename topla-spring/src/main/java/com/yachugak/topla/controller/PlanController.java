@@ -46,7 +46,9 @@ public class PlanController {
 	@Transactional(readOnly = false)
 	public String updateProgress(@PathVariable("planUid") long planUid, @RequestBody CheckAsFinishedRequestFormat req) {
 		Plan targetPlan = planService.findPlanById(planUid);
-		planService.setProgress(targetPlan, req.getProgress());
+		
+		int progress = req.getProgress();
+		planService.setProgress(targetPlan, progress);
 		
 		return "ok";
 	}
