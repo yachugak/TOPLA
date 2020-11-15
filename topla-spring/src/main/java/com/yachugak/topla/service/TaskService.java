@@ -189,4 +189,9 @@ public class TaskService {
 		return result;
 
 	}
+
+	public void addProgress(Task task, int cappedProgress) {
+		int prevProgress = task.getProgress();
+		task.setProgress(prevProgress + cappedProgress);
+	}
 }

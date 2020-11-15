@@ -10,11 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
+import com.yachugak.topla.entity.Plan;
 import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.entity.User;
+import com.yachugak.topla.exception.InvalidArgumentException;
 import com.yachugak.topla.plan.Planizer;
 import com.yachugak.topla.plan.TaskItem;
 import com.yachugak.topla.plan.TimeTable;
+import com.yachugak.topla.repository.PlanRepository;
 
 
 @Service
@@ -26,6 +29,9 @@ public class PlanService {
 	
 	@Autowired
 	private TaskService taskService;
+	
+	@Autowired
+	private PlanRepository planRepository;
 	
 	public void plan(User user, Date planStartDate) {
 		logger.debug("plan 시작합니다.");
@@ -90,4 +96,32 @@ public class PlanService {
 		c.add(Calendar.DATE, 1);
 		return c.getTime();
 	}
+
+	public Plan findPlanById(long planUid) {
+		return planRepository.findById(planUid).get();
+	}
+	
+	// Plan과 task의 progress 동시 업데이트.
+	public void setProgress(Plan targetPlan, int progress) {
+		int assignedTime = targetPlan.getDoTime();		
+		int cappedProgress = this.getCappedProgress(assignedTime, progress);
+		int prevProgress = targetPlan.getProgress(); // TOOD: 오류 시, 얘가 문제일 가능성 농후. null값으로 초기화되는지 확인		
+		int progressDiff = cappedProgress - prevProgress;
+		
+		targetPlan.setProgress(cappedProgress);
+		taskService.addProgress(targetPlan.getTask(), progressDiff);
+	}
+
+	// 만약, 배정시간보다 많이 했을 경우에 값 조절. 0 <= progress <= doTime
+	public int getCappedProgress(int assignedTime, int progress) {
+		int cappedProgress = progress;
+		if(progress < 0) {
+			throw new InvalidArgumentException("progress", "0 이상", progress+"");
+		}
+		if(progress > assignedTime) {
+			cappedProgress = assignedTime;
+		}
+		return cappedProgress;
+	}
+
 }

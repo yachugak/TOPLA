@@ -41,6 +41,7 @@ public class TaskResponseFormat {
 		planList = new ArrayList<>();
 		for(Plan plan : task.getPlans()) {
 			PlanResponseFormat temp = new PlanResponseFormat();
+			temp.setPlanUid(plan.getUid());
 			temp.setDoDate(plan.getDoDate());
 			temp.setDoTime(plan.getDoTime());
 			planList.add(temp);
