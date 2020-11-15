@@ -44,6 +44,7 @@ public class TaskResponseFormat {
 			temp.setPlanUid(plan.getUid());
 			temp.setDoDate(plan.getDoDate());
 			temp.setDoTime(plan.getDoTime());
+			temp.setProgress(plan.getProgress());
 			planList.add(temp);
 		}
 	}

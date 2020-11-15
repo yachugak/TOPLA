@@ -106,12 +106,17 @@ export default {
     location: {
       type: String,
       default: null
+    },
+
+    planUid: {
+      type: Number,
+      default: -1
     }
   },
 
   computed: {
     bgColor(){
-      if(this.progress >= 100){
+      if(this.progress >= this.estimatedTime){
         return this.doneColor;
       }
 
@@ -155,7 +160,7 @@ export default {
   },
 
   created() {
-    if(this.progress >= 100){
+    if(this.progress >= this.estimatedTime){
       this.isDone = true;
     }
     else{
@@ -187,12 +192,30 @@ export default {
         return;
       }
 
+
       this.isCallDoing = true;
-      await this.$axios.put(`/task/${this.uid}/finish`, {
-        progress: newProgress
-      })
-      this.isCallDoing = false;
-      this.$emit("update");
+      try {
+        if(this.planUid === -1){
+          //task 끝내기 모드
+          await this.$axios.put(`/task/${this.uid}/finish`, {
+            progress: newProgress
+          })
+        }
+        else {
+          // paln id가 있으면 plan을 표시중이라는 것으로  plan 완료 처리
+          console.log(`plan/${this.planUid}/finish`);
+          await this.$axios.put(`/plan/${this.planUid}/finish`, {
+            progress: newProgress
+          })
+        }
+        this.$emit("update");
+      }
+      catch(e){
+        console.error(e.response.data);
+      }
+      finally {
+        this.isCallDoing = false;
+      }
     },
 
     onCardClicked(){

@@ -6,6 +6,7 @@ public class PlanResponseFormat {
 	private Date doDate;
 	private int doTime;
 	private long planUid;
+	private int progress;
 	
 	public Date getDoDate() {
 		return doDate;
@@ -24,5 +25,11 @@ public class PlanResponseFormat {
 	}
 	public void setPlanUid(long planUid) {
 		this.planUid = planUid;
+	}
+	public int getProgress() {
+		return progress;
+	}
+	public void setProgress(int progress) {
+		this.progress = progress;
 	}
 }
