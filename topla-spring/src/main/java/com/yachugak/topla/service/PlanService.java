@@ -84,6 +84,8 @@ public class PlanService {
 			currentDate = nextDate(currentDate);
 		}
 		
+		user.setTotalLossPriority(calculatedPlan.getTotalLossPriority(planStartDate));
+		
 		logger.debug("일정 반영 끝");
 	}
 	
