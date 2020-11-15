@@ -1,6 +1,7 @@
 package com.yachugak.topla.controller;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,5 +32,23 @@ public class PlanController {
 		planService.plan(user, new Date());
 		
 		return "ok";
+	}
+	
+	@GetMapping("/loss")
+	@Transactional(readOnly = true)
+	public HashMap<String, Double> getUserLossPriority() {
+		
+		//userUid를 현재는 받아올수 없으므로 임시로 1로 지정해서 사용
+		long userUid = 1;
+		
+		HashMap<String, Double> res = new HashMap<String, Double>();
+		
+		User targetUser = userService.findUserById(userUid);
+		
+		Double lossPriority = userService.getLossPriority(targetUser);
+		
+		res.put("totalLossPriority", lossPriority);
+		
+		return res;
 	}
 }
