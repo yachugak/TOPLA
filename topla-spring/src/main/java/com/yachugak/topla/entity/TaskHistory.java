@@ -32,7 +32,7 @@ public class TaskHistory {
 	@Column
 	private Integer realTime;
 	
-	@Column
+	@ManyToOne
 	@JoinColumn(name = "report_uid")
 	private Report report;
 	

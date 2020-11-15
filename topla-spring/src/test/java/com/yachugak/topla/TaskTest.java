@@ -20,7 +20,7 @@ import com.yachugak.topla.service.TaskHistoryService;
 import com.yachugak.topla.service.TaskService;
 
 @SpringBootTest
-public class TaskApiTest {
+public class TaskTest {
 	@Autowired
 	private TaskService taskService;
 	
