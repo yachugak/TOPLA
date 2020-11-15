@@ -89,4 +89,8 @@ public class UserService {
 		targetUser.setDeviceToken(deviceToken);
 	}
 	
+	public Double getLossPriority(User targetUser) {
+		return targetUser.getTotalLossPriority();
+	}
+	
 }

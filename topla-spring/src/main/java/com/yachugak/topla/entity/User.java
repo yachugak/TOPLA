@@ -38,6 +38,9 @@ public class User {
 	@Column
 	private String deviceToken;
 	
+	@Column
+	private Double totalLossPriority;
+	
 	public String getDeviceToken() {
 		return deviceToken;
 	}
@@ -93,5 +96,14 @@ public class User {
 	public void setSchedulePreset(SchedulePreset schedule_preset) {
 		this.schedulePreset = schedule_preset;
 	}
+
+	public Double getTotalLossPriority() {
+		return totalLossPriority;
+	}
+
+	public void setTotalLossPriority(Double totalLossPriority) {
+		this.totalLossPriority = totalLossPriority;
+	}
+	
 	
 }
