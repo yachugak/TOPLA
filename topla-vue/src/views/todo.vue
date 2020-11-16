@@ -40,7 +40,7 @@
 
       <v-row>
         <v-col cols="12">
-          <schedule-alert-box></schedule-alert-box>
+          <schedule-alert-box ref="alertBox"></schedule-alert-box>
         </v-col>
       </v-row>
 
@@ -224,6 +224,7 @@ export default {
       this.isCalling++;
       let res = await this.$axios.get("/task/list");
       this.taskList = res.data;
+      this.$refs.alertBox.getTotalLoss();
       this.isCalling--;
     },
 
