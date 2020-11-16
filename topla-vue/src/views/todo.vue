@@ -334,7 +334,7 @@ export default {
         let tempTask = JSON.parse(JSON.stringify(taskList[item.index]));//객체 깊은 복사
         let totalPlanCount = tempTask.planList.length;
         if(totalPlanCount > 1){
-          tempTask.title = `${tempTask.title}(${totalPlanCount} 중 ${item.order})`;
+          tempTask.title = `${tempTask.title} ( ${item.order} / ${totalPlanCount} )`;
         }
         tempTask.planProgress = item.planProgress;
         tempTask.doTime = item.doTime;
