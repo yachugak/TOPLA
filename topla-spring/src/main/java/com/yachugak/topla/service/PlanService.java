@@ -52,7 +52,7 @@ public class PlanService {
 		List<Task> taskList = taskService.getTaskListToPlan(user.getUid(), planStartDate);
 		
 		Planizer planizer = new Planizer(selectedPreset, taskList, planStartDate);
-		TimeTable calculatedPlan = planizer.greedyPlan();
+		TimeTable calculatedPlan = planizer.naivelyOptimizedPlan();
 		
 		//task의 기존 일정 초기화
 		int lastDayOffset = calculatedPlan.getLastDayOffset();
