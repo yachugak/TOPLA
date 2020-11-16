@@ -23,6 +23,9 @@
                 <v-icon>mdi-map-marker-outline</v-icon>
                 <span v-if="displayLocation !==null">
                   {{displayLocation}}
+                  <v-btn v-if="lat !== null" small icon @click="goToKakaoMapSite()">
+                    <v-icon>mdi-map-search-outline</v-icon>
+                  </v-btn>
                 </span>
                 <span v-else>
                   <v-progress-circular color="primary" :size="20" indeterminate></v-progress-circular>
@@ -69,7 +72,9 @@ export default {
       isDone: null,
       isCallDoing: false, //현재 뭔가 요청이 진행중인가?,
       addr: null,
-      distance:null
+      distance:null,
+      lat: null,
+      lng: null
     }
   },
   
@@ -238,6 +243,8 @@ export default {
       while(addr === null){
         try {
           addr = await this.$refs.map.geoToAddress(lat, lng);
+          this.lat = lat;
+          this.lng = lng;
         }
         catch(e){
           console.log(e)
@@ -295,15 +302,19 @@ export default {
       }
       let destination = searchList[0]
 
-      this.addr=destination.place_name
+      this.addr=destination.place_name;
       let destinationLatLng={
         lat:destination.y,
         lng:destination.x
       }
+      this.lat = destinationLatLng.lat;
+      this.lng = destinationLatLng.lng;
       await this.loadDistance(destinationLatLng)
     },
 
-
+    goToKakaoMapSite(){
+      window.open(`https://map.kakao.com/link/to/${this.displayLocation},${this.lat},${this.lng}`);
+    }
   }
 }
 
