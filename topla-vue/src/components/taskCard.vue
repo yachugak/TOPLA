@@ -21,7 +21,7 @@
             <v-row no-gutters>
               <v-col cols="6">
                 <v-icon>mdi-map-marker-outline</v-icon>
-                <span v-if="displayLocation !== 'null (nullm)'">
+                <span v-if="displayLocation !==null">
                   {{displayLocation}}
                 </span>
                 <span v-else>
@@ -149,12 +149,18 @@ export default {
         this.loadAddr(latLng.lat, latLng.lng);
         this.loadDistance(latLng)
 
+        if(this.addr===null || this.distance ===null)
+          return null
         return `${this.addr} (${this.distance}m)`
       }
 
       else{
         let keyword=this.location
         this.calculateDistanceByKeyword(keyword)
+
+        if(this.addr===null || this.distance ===null)
+          return null
+
         return `${this.addr} (${this.distance}m)`
       }
     },
@@ -295,7 +301,9 @@ export default {
         lng:destination.x
       }
       await this.loadDistance(destinationLatLng)
-    }
+    },
+
+
   }
 }
 
