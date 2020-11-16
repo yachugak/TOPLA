@@ -37,6 +37,13 @@
           </v-btn>
         </v-col>
       </v-row>
+
+      <v-row>
+        <v-col cols="12">
+          <schedule-alert-box></schedule-alert-box>
+        </v-col>
+      </v-row>
+
       <v-row v-if="taskViewMode === 'doDate'">
         <v-progress-linear
             :buffer-value="(todayAllocationTime/todayPresetTime)*100"
@@ -116,6 +123,8 @@
 <script>
 import taskInfoForm from "@/components/taskInfoForm";
 import taskCard from "@/components/taskCard";
+import scheduleAlertBox from "@/components/scheduleAlertBox";
+
 export default {
   data() {
     return {
@@ -140,7 +149,8 @@ export default {
 
   components: {
     taskInfoForm,
-    taskCard
+    taskCard,
+    scheduleAlertBox
   },
 
   watch: {
