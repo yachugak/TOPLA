@@ -101,11 +101,15 @@ public class PlanService {
 		return planRepository.findById(planUid).get();
 	}
 	
-	// Plan과 task의 progress 동시 업데이트.
+	// Plan과 task의 progress 동시 업데이트. 언체크시 progress == -1
 	public void setProgress(Plan targetPlan, int progress) {
+		if(progress < 0) {
+			progress = 0;
+		}
+		
 		int assignedTime = targetPlan.getDoTime();		
 		int cappedProgress = this.getCappedProgress(assignedTime, progress);
-		int prevProgress = targetPlan.getProgress(); // TOOD: 오류 시, 얘가 문제일 가능성 농후. null값으로 초기화되는지 확인		
+		int prevProgress = targetPlan.getProgress();		
 		int progressDiff = cappedProgress - prevProgress;
 		
 		targetPlan.setProgress(cappedProgress);
@@ -123,5 +127,6 @@ public class PlanService {
 		}
 		return cappedProgress;
 	}
+
 
 }
