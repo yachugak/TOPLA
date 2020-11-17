@@ -52,18 +52,10 @@ export default {
       let time=[]
       let timeHint=''
       for (let i =0;i<7;i++){
-        let hour=Number.parseInt(this.value[i]/60)
-        let min=this.value[i]%60
-
-        if(hour==0){
-          timeHint=`${min}분`
-        }
-        else {
-          timeHint = `${hour}시간 ${min}분`
-        }
+        let hour=this.value[i]/60
+        timeHint = `${hour}h`
         time.push(timeHint)
       }
-
       return time
     }
   }

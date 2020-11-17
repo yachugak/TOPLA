@@ -87,7 +87,7 @@ export default {
     },
 
     check(){
-      console.log(this.daydata)
+      console.log("hello")
     }
   }
 }
