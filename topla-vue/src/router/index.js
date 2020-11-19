@@ -22,6 +22,11 @@ const routes = [
     name: 'preset mode',
     component: () => import(/* webpackChunkName: "about" */ '../views/preset.vue')
   },
+  {
+    path: '/calendar',
+    name: 'calendar mode',
+    component: () => import(/* webpackChunkName: "about" */ '../views/calendar.vue')
+  }
 ]
 
 const router = new VueRouter({
