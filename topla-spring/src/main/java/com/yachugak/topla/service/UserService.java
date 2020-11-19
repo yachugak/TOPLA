@@ -26,6 +26,12 @@ public class UserService {
 	}
 	
 	public User findUserByEmail(String email) {
+		if(email == null) {
+			throw new InvalidArgumentException("email", "null값이 아닌 String", email+"");
+		}
+		if(email.isBlank()) {
+			throw new InvalidArgumentException("email", "빈 값이 아닌 String", email+"");
+		}
 		return userRepository.findByEmail(email).get();
 	}
 

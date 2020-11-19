@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.yachugak.topla.entity.Task;
+import com.yachugak.topla.entity.User;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long>{
@@ -21,4 +22,6 @@ public interface TaskRepository extends JpaRepository<Task, Long>{
 	public List<Task> findByTitleContains(String keyword);
 	
 	public List<Task> findByDueDate(Date date);
+	
+	public List<Task> findByUser(User user);
 }
