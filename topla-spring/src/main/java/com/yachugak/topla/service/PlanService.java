@@ -36,10 +36,9 @@ public class PlanService {
 	public void plan(User user, Date planStartDate) {
 		logger.debug("plan 시작합니다.");
 //		int planStartDay = planStartDate.getDay();
-		List<SchedulePresetDataFormat> schedulePresetList = presetService.getAllPreset(user);
+	
+		SchedulePresetDataFormat selectedPreset = presetService.getSelectedPresetInDataFormat(user);
 		
-		//TODO: 후에 선택된 프리셋을 가져오는 API가 생기면 그거 반영할 것
-		SchedulePresetDataFormat selectedPreset = schedulePresetList.get(0);
 		logger.debug("선택된 프리셋 정보");
 		logger.debug("일요일 " + selectedPreset.getTimeByHour(0)+"분");
 		logger.debug("월요일 " + selectedPreset.getTimeByHour(1)+"분");
