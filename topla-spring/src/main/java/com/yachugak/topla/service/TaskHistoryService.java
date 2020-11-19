@@ -60,7 +60,7 @@ public class TaskHistoryService {
 	
 	//todo 리포트부분에서 체크 해줘야 하는 부분
 	public List<TaskHistory> findByReportUid(Report report){
-		List<TaskHistory> search = taskHistoryRepository.findByReport(report.getUid());
+		List<TaskHistory> search = taskHistoryRepository.findByReport(report);
 		
 		return search;
 	}

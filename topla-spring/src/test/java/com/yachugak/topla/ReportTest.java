@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Date;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.yachugak.topla.entity.Report;
+import com.yachugak.topla.entity.TaskHistory;
 import com.yachugak.topla.repository.ReportRepository;
+import com.yachugak.topla.repository.TaskHistoryRepository;
 import com.yachugak.topla.service.ReportService;
 
 @SpringBootTest
@@ -22,6 +25,9 @@ public class ReportTest {
 	
 	@Autowired
 	private ReportRepository reportRepository;
+	
+	@Autowired
+	private TaskHistoryRepository taskHistoryRepository;
 	
 	@Test
 	@Transactional(readOnly = false)
@@ -60,4 +66,13 @@ public class ReportTest {
 		
 		assertEquals(test.getReviewScore(), 5);
 	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	public void findHistory() {
+		List<TaskHistory> test = taskHistoryRepository.findByReport(reportService.findReportById(3L));
+		
+		assertEquals(2, test.size());
+	}
+	
 }

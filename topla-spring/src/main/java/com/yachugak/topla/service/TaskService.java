@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yachugak.topla.entity.Plan;
-import com.yachugak.topla.entity.Report;
 import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.exception.EntityNotFoundException;
