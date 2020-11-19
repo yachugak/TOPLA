@@ -1,5 +1,7 @@
 package com.yachugak.topla.plan;
 
+import java.util.Date;
+
 public class TaskItem {
 	private long taskId;
 	private int time;

@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container class="secondary vh-100">
     <v-row>
       <schedule-preset
           :max="1440"
@@ -55,9 +55,7 @@ import schedulePreset from "@/components/schedulePreset";
 export default {
   data () {
     return {
-      day:['일', '월', '화', '수', '목', '금', '토'],
       dayData:[],
-      min:0,
       showPresetList:false,
     }
   },
@@ -98,6 +96,10 @@ export default {
 <style>
   .centered-input input{
     text-align: center;
+  }
+
+  .vh-100 {
+    height: 93vh;
   }
 </style>
 

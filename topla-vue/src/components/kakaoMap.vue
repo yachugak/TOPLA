@@ -106,7 +106,6 @@ export default {
       //검색 서비스 연결
       this.place = new window.kakao.maps.services.Places();
       this.place.setMap(this.map);
-      this.search("넥슨");
 
       //그리기 서비스 연결
       this. marker = new window.kakao.maps.Marker({
@@ -122,8 +121,12 @@ export default {
     },
 
     async search(keyword){
-      let res = await keywordSearchPromise(this.place, keyword);
-      return res;
+      let position= new Object()
+      position.location=await this.getDevicePosition()
+      let res = await keywordSearchPromise(this.place, keyword, position);
+
+      return res
+
     },
 
     setCenterLatLng(lat, lng){
@@ -144,8 +147,9 @@ export default {
     },
 
     async getDevicePosition(){
+      let position=null
       try{
-        let position = await getLocationPromise();
+        position = await getLocationPromise();
         this.devicePosition = {
           lat: position.latitude,
           lng: position.longitude
@@ -153,6 +157,8 @@ export default {
       }catch(e){
         console.error(e);
       }
+
+      return latLng(position.latitude,position.longitude)
     },
 
     async geoToAddress(lat, lng){

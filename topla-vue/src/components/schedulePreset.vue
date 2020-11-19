@@ -7,6 +7,7 @@
       :label="labelList[i-1]"
       :hint="displayTime[i-1]"
       vertical
+      step="30"
       :max="max"
       :min="0">
     <template v-slot:append>

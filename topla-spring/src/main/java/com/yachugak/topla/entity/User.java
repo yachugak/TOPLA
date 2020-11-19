@@ -35,6 +35,20 @@ public class User {
 	@Column
 	private OffsetTime eveningReportTime;
 	
+	@Column
+	private String deviceToken;
+	
+	@Column
+	private Double totalLossPriority;
+	
+	public String getDeviceToken() {
+		return deviceToken;
+	}
+
+	public void setDeviceToken(String deviceToken) {
+		this.deviceToken = deviceToken;
+	}
+
 	public OffsetTime getEveningReportTime() {
 		return eveningReportTime;
 	}
@@ -82,5 +96,14 @@ public class User {
 	public void setSchedulePreset(SchedulePreset schedule_preset) {
 		this.schedulePreset = schedule_preset;
 	}
+
+	public Double getTotalLossPriority() {
+		return totalLossPriority;
+	}
+
+	public void setTotalLossPriority(Double totalLossPriority) {
+		this.totalLossPriority = totalLossPriority;
+	}
+	
 	
 }

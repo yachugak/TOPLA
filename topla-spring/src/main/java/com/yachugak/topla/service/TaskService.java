@@ -31,6 +31,9 @@ public class TaskService {
 	@Autowired
 	private UserRepository userRepository;
 	
+	@Autowired
+	private PlanService planService;
+	
 	public List<Task> getAllTask(){
 		// TODO: 현재 리포짓 전부 가져옴. 각 유저에 대한 task로 수정필요.
 		return taskRepository.findAll();
@@ -43,7 +46,7 @@ public class TaskService {
 		this.setPriority(newTask, priority);
 		this.setEstimatedTime(newTask, 0);
 		this.setCreatedDate(newTask, new Date());
-		this.setProgress(newTask, 0);
+		newTask.setProgress(0);	// TODO: initiate 메서드로 나중에 분리?
 		taskRepository.saveAndFlush(newTask);
 		
 		return newTask;
@@ -99,9 +102,34 @@ public class TaskService {
 		if(task.getEstimatedTime() == null) {
 			throw new InvalidArgumentException("EstimatedTime", "예상시간값", task.getEstimatedTime()+"");
 		}
-		if(progress < 0 || progress > task.getEstimatedTime()) {
+		if(progress < -1 || progress > task.getEstimatedTime()) {
 			throw new InvalidArgumentException("progress", "0"+task.getEstimatedTime(), progress+"");
-		} 
+		}
+		
+		// 미완/해제 시
+		if(progress < task.getEstimatedTime()) {
+			this.setFinishTime(task, null);
+		}
+		// 완료시
+		else {
+			Date time = new Date();
+			this.setFinishTime(task, time);
+			
+			// task 완료시 plan도 완료
+			for(Plan p : task.getPlans()) {
+				p.setProgress(p.getDoTime());
+			}
+		}
+		
+		// 예상시간 0인 작업은 0을 받으면 완료/미완을 구별 불가. 그러므로, task uncheck시 -1 전송.
+		if(progress < 0) {
+			List<Plan> planList = task.getPlans();
+			for(Plan p : planList) {
+				p.setProgress(0);
+			}
+			progress = 0;
+		}
+		
 		task.setProgress(progress);
 	}
 
@@ -188,7 +216,13 @@ public class TaskService {
 		result.setUid((long)-1);;
 		
 		return result;
+	}
 
+	// task와 progress 추가감소량을 받아 덧셈뺄셈.
+	public void addProgress(Task task, int progressDiff) {
+		int prevProgress = task.getProgress();
+		int actualProgress = prevProgress + progressDiff;
+		this.setProgress(task,  actualProgress);
 	}
 	
 }

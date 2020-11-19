@@ -1,6 +1,5 @@
 package com.yachugak.topla.service;
 
-import java.time.LocalTime;
 import java.time.OffsetTime;
 import java.util.Optional;
 
@@ -24,6 +23,10 @@ public class UserService {
 	
 	public User findUserById(long uid) {
 		return userRepository.findById(uid).get();
+	}
+	
+	public User findUserByEmail(String email) {
+		return userRepository.findByEmail(email).get();
 	}
 
 	public void setPresetCode(User user, long presetUid) {
@@ -71,21 +74,23 @@ public class UserService {
 	}
 	
 	public void setEveningReportTime(User user, OffsetTime eveningReportTime) {
-		if(eveningReportTime == null) {
-			throw new InvalidArgumentException("eveningReportTime", "값 있음", null);
-		}
 		user.setEveningReportTime(eveningReportTime);
 	}
 	
 	public void setMorningReportTime(User user, OffsetTime morningReportTime) {
-		if(morningReportTime == null) {
-			throw new InvalidArgumentException("morningReportTime", "값 있음", null);
-		}
 		user.setMorningReportTime(morningReportTime);
 	}
 
 	public void deleteUser(User targetUser) {
 		userRepository.delete(targetUser);
+	}
+
+	public void setDeviceToken(User targetUser, String deviceToken) {
+		targetUser.setDeviceToken(deviceToken);
+	}
+	
+	public Double getLossPriority(User targetUser) {
+		return targetUser.getTotalLossPriority();
 	}
 	
 }

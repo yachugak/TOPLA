@@ -21,8 +21,11 @@
             <v-row no-gutters>
               <v-col cols="6">
                 <v-icon>mdi-map-marker-outline</v-icon>
-                <span v-if="displayLocation !== null">
+                <span v-if="displayLocation !==null">
                   {{displayLocation}}
+                  <v-btn v-if="lat !== null" small icon @click="goToKakaoMapSite()">
+                    <v-icon>mdi-map-search-outline</v-icon>
+                  </v-btn>
                 </span>
                 <span v-else>
                   <v-progress-circular color="primary" :size="20" indeterminate></v-progress-circular>
@@ -68,7 +71,10 @@ export default {
       doneColor: "brown lighten-3",
       isDone: null,
       isCallDoing: false, //현재 뭔가 요청이 진행중인가?,
-      addr: null
+      addr: null,
+      distance:null,
+      lat: null,
+      lng: null
     }
   },
   
@@ -106,12 +112,17 @@ export default {
     location: {
       type: String,
       default: null
+    },
+
+    planUid: {
+      type: Number,
+      default: -1
     }
   },
 
   computed: {
     bgColor(){
-      if(this.progress >= 100){
+      if(this.progress >= this.estimatedTime){
         return this.doneColor;
       }
 
@@ -133,7 +144,6 @@ export default {
 
       return this.dueDate;
     },
-
     displayLocation(){
       if(this.location === null){
         return "장소 미지정";
@@ -142,10 +152,21 @@ export default {
       if(gpsString.isGpsString(this.location)){
         let latLng = gpsString.parse(this.location);
         this.loadAddr(latLng.lat, latLng.lng);
-        return this.addr;
+        this.loadDistance(latLng)
+
+        if(this.addr===null || this.distance ===null)
+          return null
+        return `${this.addr} (${this.distance}m)`
       }
+
       else{
-        return this.location;
+        let keyword=this.location
+        this.calculateDistanceByKeyword(keyword)
+
+        if(this.addr===null || this.distance ===null)
+          return null
+
+        return `${this.addr} (${this.distance}m)`
       }
     },
 
@@ -155,7 +176,7 @@ export default {
   },
 
   created() {
-    if(this.progress >= 100){
+    if(this.progress >= this.estimatedTime){
       this.isDone = true;
     }
     else{
@@ -187,12 +208,30 @@ export default {
         return;
       }
 
+
       this.isCallDoing = true;
-      await this.$axios.put(`/task/${this.uid}/finish`, {
-        progress: newProgress
-      })
-      this.isCallDoing = false;
-      this.$emit("update");
+      try {
+        if(this.planUid === -1){
+          //task 끝내기 모드
+          await this.$axios.put(`/task/${this.uid}/finish`, {
+            progress: newProgress
+          })
+        }
+        else {
+          // paln id가 있으면 plan을 표시중이라는 것으로  plan 완료 처리
+          console.log(`plan/${this.planUid}/finish`);
+          await this.$axios.put(`/plan/${this.planUid}/finish`, {
+            progress: newProgress
+          })
+        }
+        this.$emit("update");
+      }
+      catch(e){
+        console.error(e.response.data);
+      }
+      finally {
+        this.isCallDoing = false;
+      }
     },
 
     onCardClicked(){
@@ -204,9 +243,12 @@ export default {
       while(addr === null){
         try {
           addr = await this.$refs.map.geoToAddress(lat, lng);
+          this.lat = lat;
+          this.lng = lng;
         }
         catch(e){
-          console.info(`${lat}, ${lng}의 주소 변환 시도 실패, 3초후 재시도`);
+          console.log(e)
+          console.info(`${lat}, ${lng}의 주소 변환 시도 실패, 1초후 재시도`);
           await wait(1000);
         }
       }
@@ -218,6 +260,60 @@ export default {
       // else{
       //   this.addr = addrObject.address;
       // }
+    },
+
+    async loadDistance(latLng){
+
+      let devicePostion
+      let polyline = null
+
+      while(polyline ===null){
+        try{
+
+          devicePostion=await this.$refs.map.getDevicePosition()
+          polyline = new window.kakao.maps.Polyline({
+            path:[
+              devicePostion,
+              new window.kakao.maps.LatLng(latLng.lat, latLng.lng),
+            ]
+          })
+        }
+        catch (e) {
+          console.log(e)
+          console.info(`실패, 1초후 재시도`);
+          await wait(1000)
+        }
+      }
+
+      let distance=parseInt(polyline.getLength());
+      this.distance=distance
+    },
+
+    async calculateDistanceByKeyword(keyword){
+      let searchList=null
+      while(searchList === null){
+        try {
+          searchList = await this.$refs.map.search(keyword);
+        }
+        catch(e){
+          console.log(e)
+          await wait(1000);
+        }
+      }
+      let destination = searchList[0]
+
+      this.addr=destination.place_name;
+      let destinationLatLng={
+        lat:destination.y,
+        lng:destination.x
+      }
+      this.lat = destinationLatLng.lat;
+      this.lng = destinationLatLng.lng;
+      await this.loadDistance(destinationLatLng)
+    },
+
+    goToKakaoMapSite(){
+      window.open(`https://map.kakao.com/link/to/${this.displayLocation},${this.lat},${this.lng}`);
     }
   }
 }

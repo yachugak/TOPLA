@@ -10,11 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
+import com.yachugak.topla.entity.Plan;
 import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.entity.User;
+import com.yachugak.topla.exception.InvalidArgumentException;
 import com.yachugak.topla.plan.Planizer;
 import com.yachugak.topla.plan.TaskItem;
 import com.yachugak.topla.plan.TimeTable;
+import com.yachugak.topla.repository.PlanRepository;
 
 
 @Service
@@ -27,9 +30,12 @@ public class PlanService {
 	@Autowired
 	private TaskService taskService;
 	
+	@Autowired
+	private PlanRepository planRepository;
+	
 	public void plan(User user, Date planStartDate) {
 		logger.debug("plan 시작합니다.");
-		int planStartDay = planStartDate.getDay();
+//		int planStartDay = planStartDate.getDay();
 		List<SchedulePresetDataFormat> schedulePresetList = presetService.getAllPreset(user);
 		
 		//TODO: 후에 선택된 프리셋을 가져오는 API가 생기면 그거 반영할 것
@@ -45,8 +51,8 @@ public class PlanService {
 		
 		List<Task> taskList = taskService.getTaskListToPlan(user.getUid(), planStartDate);
 		
-		Planizer planizer = new Planizer(selectedPreset, taskList, planStartDay);
-		TimeTable calculatedPlan = planizer.plan();
+		Planizer planizer = new Planizer(selectedPreset, taskList, planStartDate);
+		TimeTable calculatedPlan = planizer.naivelyOptimizedPlan();
 		
 		//task의 기존 일정 초기화
 		int lastDayOffset = calculatedPlan.getLastDayOffset();
@@ -78,6 +84,8 @@ public class PlanService {
 			currentDate = nextDate(currentDate);
 		}
 		
+		user.setTotalLossPriority(calculatedPlan.getTotalLossPriority(planStartDate));
+		
 		logger.debug("일정 반영 끝");
 	}
 	
@@ -88,4 +96,37 @@ public class PlanService {
 		c.add(Calendar.DATE, 1);
 		return c.getTime();
 	}
+
+	public Plan findPlanById(long planUid) {
+		return planRepository.findById(planUid).get();
+	}
+	
+	// Plan과 task의 progress 동시 업데이트. 언체크시 progress == -1
+	public void setProgress(Plan targetPlan, int progress) {
+		if(progress < 0) {
+			progress = 0;
+		}
+		
+		int assignedTime = targetPlan.getDoTime();		
+		int cappedProgress = this.getCappedProgress(assignedTime, progress);
+		int prevProgress = targetPlan.getProgress();		
+		int progressDiff = cappedProgress - prevProgress;
+		
+		targetPlan.setProgress(cappedProgress);
+		taskService.addProgress(targetPlan.getTask(), progressDiff);
+	}
+
+	// 만약, 배정시간보다 많이 했을 경우에 값 조절. 0 <= progress <= doTime
+	public int getCappedProgress(int assignedTime, int progress) {
+		int cappedProgress = progress;
+		if(progress < 0) {
+			throw new InvalidArgumentException("progress", "0 이상", progress+"");
+		}
+		if(progress > assignedTime) {
+			cappedProgress = assignedTime;
+		}
+		return cappedProgress;
+	}
+
+
 }

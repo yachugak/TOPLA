@@ -45,9 +45,12 @@ Notification.requestPermission()
 
 // TODO: Send token to server for send notification
 messaging.getToken()
-    .then(function(key){
+    .then(async function(key){
         console.log(`device key = ${key}`);
         window.myDeviceKey = key;
+        await window.axios.put("/user/1/token", {
+            "deviceToken": key
+        })
     })
 
 // // Handle received push notification at foreground
