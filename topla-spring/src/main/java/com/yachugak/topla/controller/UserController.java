@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,17 +37,18 @@ public class UserController {
 		User newUser = userService.createUser(req.getEmail(), req.getPassword());		
 		userService.setMorningReportTime(newUser, req.getMorningReportTime());
 		userService.setEveningReportTime(newUser, req.getEveningReportTime());
-
+		
 		SchedulePreset newPreset = presetService.createSchedulePreset(newUser, presetService.createDefaultSchedulePreset());
 		userService.setPresetCode(newUser, newPreset);
 	
 		return "ok";
 	}
 	
-	@GetMapping("/{uid}")
+	
+	@GetMapping("")
 	@Transactional(readOnly = false)
-	public GetUserResponseFormat getUserInfo(@PathVariable("uid") long uid) {
-		User targetUser = userService.findUserById(uid);
+	public GetUserResponseFormat getUserInfo(@RequestHeader("Authorization") String email) {
+		User targetUser = userService.findUserByEmail(email);
 		GetUserResponseFormat res = new GetUserResponseFormat();
 		res.setEmail(targetUser.getEmail());
 		res.setMorningReportTime(targetUser.getMorningReportTime());
@@ -56,11 +58,11 @@ public class UserController {
 		return res;
 	}
 	
-	@PutMapping("/{uid}")
+	@PutMapping("")
 	@Transactional(readOnly = false)
-	public String updateUserInfo(@PathVariable("uid") long uid, @RequestBody CreateUserRequestFormat req) {
-		// TODO: 리뷰필요. getUserInfo 이후에 호출된다고 가정?
-		User updateTarget = userService.findUserById(uid);
+	public String updateUserInfo(@RequestHeader("Authorization") String email, @RequestBody CreateUserRequestFormat req) {
+		User updateTarget = userService.findUserByEmail(email);
+		
 		userService.setEmail(updateTarget, req.getEmail());
 		userService.setPassword(updateTarget, req.getPassword());
 		userService.setMorningReportTime(updateTarget, req.getMorningReportTime());
@@ -69,19 +71,19 @@ public class UserController {
 		return "ok";
 	}
 	
-	@DeleteMapping("/{uid}")
+	@DeleteMapping("")
 	@Transactional(readOnly = false)
-	public String deleteUser(@PathVariable("uid") long uid) {
-		User targetUser = userService.findUserById(uid);
+	public String deleteUser(@RequestHeader("Authorization") String email) {
+		User targetUser = userService.findUserByEmail(email);
 		userService.deleteUser(targetUser);
 		
 		return "ok";
 	}
 	
-	@PutMapping("/{uid}/token")
+	@PutMapping("/token")
 	@Transactional(readOnly = false)
-	public String updateDeviceToken(@PathVariable("uid") long uid, @RequestBody UpdateDeviceTokenRequestFormat req) {
-		User targetUser = userService.findUserById(uid);
+	public String updateDeviceToken(@RequestHeader("Authorization") String email, @RequestBody UpdateDeviceTokenRequestFormat req) {
+		User targetUser = userService.findUserByEmail(email);
 		userService.setDeviceToken(targetUser, req.getDeviceToken());
 		
 		return "ok";
