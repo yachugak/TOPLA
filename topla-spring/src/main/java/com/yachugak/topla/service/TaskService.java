@@ -222,4 +222,5 @@ public class TaskService {
 		int actualProgress = prevProgress + progressDiff;
 		this.setProgress(task,  actualProgress);
 	}
+	
 }

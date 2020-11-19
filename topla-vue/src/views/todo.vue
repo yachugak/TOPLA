@@ -97,10 +97,17 @@
           <v-spacer></v-spacer>
           <v-btn
               color="error"
+              @click="deleteRequest(updateTargetTask.uid)"
+              :loading="isCalling>0"
+          >
+            <v-icon>mdi-trash-can-outline</v-icon>
+          </v-btn>
+          <v-btn
+              color="secondary"
               @click="isShowNewTaskdialog = false"
               :loading="isCalling>0"
           >
-            취소
+            <v-icon>mdi-undo</v-icon>
           </v-btn>
           <v-btn
               color="primary"
@@ -108,10 +115,10 @@
               :loading="isCalling>0"
           >
             <span v-if="taskCreatedMode">
-              추가
+              <v-icon>mdi-note-plus-outline</v-icon>
             </span>
             <span v-else>
-              수정
+              <v-icon>mdi-pencil-box-outline</v-icon>
             </span>
           </v-btn>
         </v-card-actions>
@@ -367,6 +374,20 @@ export default {
         priority: 1,
         location: null,
         estimatedTime: 0
+      }
+    },
+
+    async deleteRequest(){
+      this.isCalling += 1;
+      try {
+        await this.$axios.delete(`/task/${this.updateTargetTask.uid}`);
+        await this.getTaskList();
+        this.isShowNewTaskdialog = false;
+      }catch(e){
+        alert(e.response.message);
+      }
+      finally {
+        this.isCalling -= 1;
       }
     }
   },
