@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.yachugak.topla.entity.Report;
 import com.yachugak.topla.exception.EntityNotFoundException;
 import com.yachugak.topla.request.CreateReportRequestFormat;
+import com.yachugak.topla.request.TaskRealtime;
 import com.yachugak.topla.service.ReportService;
 
 @RestController
@@ -24,6 +25,11 @@ public class ReportController {
 	@PostMapping("")
 	@Transactional(readOnly = false)
 	public String createNewReport(@RequestBody CreateReportRequestFormat req) {
+		for(TaskRealtime rt : req.getTaskRealtime()) {
+			if(rt.getRealTime() == null) {
+				throw new NullPointerException();
+			}
+		}
 		Report newReport = reportService.createNewReport(req.getReportedDate());
 		
 		return "ok";
