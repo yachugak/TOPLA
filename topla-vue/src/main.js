@@ -7,7 +7,7 @@ import './registerServiceWorker'
 import vuetify from './plugins/vuetify';
 import firebase from "firebase/app";
 import "firebase/messaging";
-
+import "./plugins/dialog.js";
 Vue.config.productionTip = false
 
 new Vue({
