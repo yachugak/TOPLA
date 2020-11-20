@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.yachugak.topla.entity.Report;
 import com.yachugak.topla.entity.TaskHistory;
 import com.yachugak.topla.exception.EntityNotFoundException;
+import com.yachugak.topla.exception.InvalidArgumentException;
 import com.yachugak.topla.request.CreateReportRequestFormat;
 import com.yachugak.topla.request.TaskRealtime;
 import com.yachugak.topla.service.ReportService;
@@ -32,6 +33,9 @@ public class ReportController {
 	@PostMapping("")
 	@Transactional(readOnly = false)
 	public String createNewReport(@RequestBody CreateReportRequestFormat req) {
+		if(req.getReviewScore()<1 || req.getReviewScore()>5) {
+			throw new InvalidArgumentException("reviewScore", "1~5 사이값", "벗어난 값 ");
+		}
 		for(TaskRealtime rt : req.getTaskRealtime()) {
 			if(rt.getRealTime() == null) {
 				throw new NullPointerException();

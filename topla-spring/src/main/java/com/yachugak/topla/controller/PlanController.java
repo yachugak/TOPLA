@@ -2,6 +2,7 @@ package com.yachugak.topla.controller;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,9 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yachugak.topla.entity.Plan;
+import com.yachugak.topla.entity.Task;
+import com.yachugak.topla.entity.TaskHistory;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.request.CheckAsFinishedRequestFormat;
 import com.yachugak.topla.service.PlanService;
+import com.yachugak.topla.service.TaskHistoryService;
 import com.yachugak.topla.service.UserService;
 
 @RestController
@@ -29,6 +33,9 @@ public class PlanController {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private TaskHistoryService taskHistoryService;
 	
 	@GetMapping("")
 	@Transactional(readOnly = false)
@@ -55,9 +62,23 @@ public class PlanController {
 	@Transactional(readOnly = false)
 	public String updateProgress(@PathVariable("planUid") long planUid, @RequestBody CheckAsFinishedRequestFormat req) {
 		Plan targetPlan = planService.findPlanById(planUid);
-		
+		Task targetTask = targetPlan.getTask();
 		int progress = req.getProgress();
 		planService.setProgress(targetPlan, progress);
+		
+		if(req.getProgress() < 0) {
+			List<TaskHistory> historyList = taskHistoryService.findByTaskUid(targetTask.getUid());
+			
+			for(TaskHistory history : historyList) {
+				if(history.getDoTime() == targetPlan.getDoTime()) {
+					taskHistoryService.deleteHistory(history);
+					break;
+				}
+			}
+		}
+		else {
+			taskHistoryService.createNewHistory(targetTask, progress);
+		}
 		
 		return "ok";
 	}

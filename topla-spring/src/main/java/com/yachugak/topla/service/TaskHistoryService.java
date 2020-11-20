@@ -16,11 +16,11 @@ public class TaskHistoryService {
 	@Autowired
 	private TaskHistoryRepository taskHistoryRepository;
 	
-	public TaskHistory createNewHistory(Task task, int realTime) {
+	public TaskHistory createNewHistory(Task task, int doTime) {
 		TaskHistory newHistory = new TaskHistory();
 		this.setTaskUid(newHistory, task);
 		this.setRecordedTime(newHistory, new Date());
-		this.setRealTime(newHistory, realTime);
+		this.setDoTime(newHistory, doTime);
 		taskHistoryRepository.saveAndFlush(newHistory);
 		
 		return newHistory;
@@ -33,6 +33,10 @@ public class TaskHistoryService {
 	
 	public void setRecordedTime(TaskHistory history, Date recordedTime) {
 		history.setRecordedTime(recordedTime);
+	}
+	
+	public void setDoTime(TaskHistory history, int doTime) {
+		history.setDoTime(doTime);
 	}
 
 	public void setRealTime(TaskHistory history, int realTime) {

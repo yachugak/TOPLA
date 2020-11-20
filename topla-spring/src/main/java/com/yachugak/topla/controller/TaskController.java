@@ -117,7 +117,7 @@ public class TaskController {
 			}
 		}
 		else {
-			taskHistoryService.createNewHistory(updateTarget, 0);
+			taskHistoryService.createNewHistory(updateTarget, progress);
 		}
 		
 		return "ok";
