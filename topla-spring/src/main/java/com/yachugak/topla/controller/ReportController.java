@@ -1,5 +1,7 @@
 package com.yachugak.topla.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -10,10 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yachugak.topla.entity.Report;
+import com.yachugak.topla.entity.TaskHistory;
 import com.yachugak.topla.exception.EntityNotFoundException;
 import com.yachugak.topla.request.CreateReportRequestFormat;
 import com.yachugak.topla.request.TaskRealtime;
 import com.yachugak.topla.service.ReportService;
+import com.yachugak.topla.service.TaskHistoryService;
 
 @RestController
 @RequestMapping(path = "${apiUriPrefix}/report")
@@ -21,6 +25,9 @@ import com.yachugak.topla.service.ReportService;
 public class ReportController {
 	@Autowired
 	private ReportService reportService;
+	
+	@Autowired
+	private TaskHistoryService taskHistoryService;
 	
 	@PostMapping("")
 	@Transactional(readOnly = false)
@@ -31,6 +38,18 @@ public class ReportController {
 			}
 		}
 		Report newReport = reportService.createNewReport(req.getReportedDate());
+		reportService.setReviewScore(newReport, req.getReviewScore());
+		
+		List<TaskHistory> historyList = taskHistoryService.findByRecordedTime(req.getReportedDate());
+		
+		for (TaskHistory th : historyList) {
+			th.setReport(newReport);
+			for(TaskRealtime update : req.getTaskRealtime()) {
+				if(th.getTask().getUid() == update.getTaskUid()) {
+					th.setRealTime(update.getRealTime());
+				}
+			}
+		}
 		
 		return "ok";
 	}
