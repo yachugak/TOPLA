@@ -17,6 +17,7 @@ import com.yachugak.topla.entity.SchedulePreset;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.request.CreateUserRequestFormat;
 import com.yachugak.topla.request.UpdateDeviceTokenRequestFormat;
+import com.yachugak.topla.request.userLogInFormat;
 import com.yachugak.topla.response.GetUserResponseFormat;
 import com.yachugak.topla.service.PresetService;
 import com.yachugak.topla.service.UserService;
@@ -85,6 +86,16 @@ public class UserController {
 	public String updateDeviceToken(@RequestHeader("Authorization") String email, @RequestBody UpdateDeviceTokenRequestFormat req) {
 		User targetUser = userService.findUserByEmail(email);
 		userService.setDeviceToken(targetUser, req.getDeviceToken());
+		
+		return "ok";
+	}
+	
+	@PostMapping("/login")
+	@Transactional(readOnly = false)
+	public String userLogIn(@RequestBody userLogInFormat req) {
+		String email = req.getEmail();
+		String password = req.getPassword();
+		User targetUser = userService.userLogin(email, password);
 		
 		return "ok";
 	}

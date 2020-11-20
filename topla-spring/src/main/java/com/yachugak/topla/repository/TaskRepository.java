@@ -25,6 +25,6 @@ public interface TaskRepository extends JpaRepository<Task, Long>{
 	
 	public List<Task> findByUser(User user);
 	
-  public List<Task> findByFinishDate(Date finishDate);
+	public List<Task> findByFinishDate(Date finishDate);
 
 }
