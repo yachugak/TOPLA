@@ -1,5 +1,6 @@
 package com.yachugak.topla.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,4 +17,6 @@ public interface TaskHistoryRepository extends JpaRepository<TaskHistory, Long>{
 	public List<TaskHistory> findByTaskUid(long TaskUid);
 	
 	public List<TaskHistory> findByReport(Report report);
+	
+	public List<TaskHistory> findByRecordedTime(Date recordedTime);
 }

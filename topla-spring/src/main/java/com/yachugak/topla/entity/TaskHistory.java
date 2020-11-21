@@ -30,6 +30,9 @@ public class TaskHistory {
 	private Date recordedTime;
 	
 	@Column
+	private Integer doTime;
+	
+	@Column
 	private Integer realTime;
 	
 	@ManyToOne
@@ -76,5 +79,13 @@ public class TaskHistory {
 		this.realTime = realTime;
 	}
 
+	public Integer getDoTime() {
+		return doTime;
+	}
+
+	public void setDoTime(Integer doTime) {
+		this.doTime = doTime;
+	}
 	
+		
 }

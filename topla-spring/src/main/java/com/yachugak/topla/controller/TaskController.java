@@ -19,12 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.yachugak.topla.entity.Plan;
 import com.yachugak.topla.entity.Task;
+import com.yachugak.topla.entity.TaskHistory;
 import com.yachugak.topla.exception.DuplicatedException;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.request.CheckAsFinishedRequestFormat;
 import com.yachugak.topla.request.CreateTaskRequestFormat;
 import com.yachugak.topla.response.TaskResponseFormat;
 import com.yachugak.topla.service.PlanService;
+import com.yachugak.topla.service.TaskHistoryService;
 import com.yachugak.topla.service.TaskService;
 import com.yachugak.topla.service.UserService;
 
@@ -40,6 +42,9 @@ public class TaskController {
 	
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private TaskHistoryService taskHistoryService;
 	
 	@PostMapping("")
 	@Transactional(readOnly = false)
@@ -103,6 +108,17 @@ public class TaskController {
 		Task updateTarget = taskService.findTaskById(uid);
 		int progress = req.getProgress();
 		taskService.setProgress(updateTarget, progress);
+		
+		if(req.getProgress() < 0) {
+			List<TaskHistory> historyList = taskHistoryService.findByTaskUid(uid);
+			
+			for(TaskHistory history : historyList) {
+				taskHistoryService.deleteHistory(history);
+			}
+		}
+		else {
+			taskHistoryService.createNewHistory(updateTarget, progress);
+		}
 		
 		return "ok";
 	}

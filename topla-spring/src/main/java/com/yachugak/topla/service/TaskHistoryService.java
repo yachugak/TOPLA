@@ -16,11 +16,11 @@ public class TaskHistoryService {
 	@Autowired
 	private TaskHistoryRepository taskHistoryRepository;
 	
-	public TaskHistory createNewHistory(Task task, int realTime) {
+	public TaskHistory createNewHistory(Task task, int doTime) {
 		TaskHistory newHistory = new TaskHistory();
 		this.setTaskUid(newHistory, task);
 		this.setRecordedTime(newHistory, new Date());
-		this.setRealTime(newHistory, realTime);
+		this.setDoTime(newHistory, doTime);
 		taskHistoryRepository.saveAndFlush(newHistory);
 		
 		return newHistory;
@@ -34,11 +34,14 @@ public class TaskHistoryService {
 	public void setRecordedTime(TaskHistory history, Date recordedTime) {
 		history.setRecordedTime(recordedTime);
 	}
+	
+	public void setDoTime(TaskHistory history, int doTime) {
+		history.setDoTime(doTime);
+	}
 
 	public void setRealTime(TaskHistory history, int realTime) {
 		history.setRealTime(realTime);
 	}
-	
 	
 	
 	//todo 리포트부분에서 체크 해줘야하는부분
@@ -51,16 +54,21 @@ public class TaskHistoryService {
 		taskHistoryRepository.delete(history);
 	}
 	
-	public List<TaskHistory> findByTaskUid(Task task){
-		List<TaskHistory> search = taskHistoryRepository.findByTaskUid(task.getUid());
+	public List<TaskHistory> findByTaskUid(Long taskUid){
+		List<TaskHistory> search = taskHistoryRepository.findByTaskUid(taskUid);
 		
 		return search;
 	}
 	
 	
-	//todo 리포트부분에서 체크 해줘야 하는 부분
 	public List<TaskHistory> findByReportUid(Report report){
 		List<TaskHistory> search = taskHistoryRepository.findByReport(report);
+		
+		return search;
+	}
+	
+	public List<TaskHistory> findByRecordedTime(Date recordedTime){
+		List<TaskHistory> search = taskHistoryRepository.findByRecordedTime(recordedTime);
 		
 		return search;
 	}

@@ -1,16 +1,16 @@
 package com.yachugak.topla.request;
 
 public class TaskRealtime {
-	private Integer taskUid;
+	private Long taskUid;
 	private Integer realTime;
 	
-	public Integer getTaskUid() {
+	public Long getTaskUid() {
 		return taskUid;
 	}
 	public Integer getRealTime() {
 		return realTime;
 	}
-	public void setTaskUid(Integer taskUid) {
+	public void setTaskUid(Long taskUid) {
 		this.taskUid = taskUid;
 	}
 	public void setRealTime(Integer realTime) {
