@@ -11,6 +11,7 @@
       <v-spacer></v-spacer>
       <v-btn icon @click="pushPage('/')"><v-icon>mdi-desk</v-icon></v-btn>
       <v-btn icon @click="pushPage('/preset')"><v-icon>mdi-calendar-heart</v-icon></v-btn>
+      <v-btn icon @click="onLogoutButtonClicked" v-if="!isLoginPage"><v-icon>mdi-logout</v-icon></v-btn>
     </v-app-bar>
 
     <v-main>
@@ -20,12 +21,20 @@
 </template>
 
 <script>
+import loginInfo from "@/plugins/loginInfo";
+
 export default {
   name: 'App',
 
   data() {
     return {
     };
+  },
+
+  computed: {
+    isLoginPage(){
+      return this.$route.name === "login page";
+    }
   },
 
   methods: {
@@ -37,6 +46,11 @@ export default {
         //아무것도 안 함.
         //같은 페이지로 이동시 예외가 던저지기 때문에 이렇게 함.
       }
+    },
+
+    onLogoutButtonClicked(){
+      loginInfo.clearLoginInfo();
+      this.pushPage("/");
     }
   }
 };

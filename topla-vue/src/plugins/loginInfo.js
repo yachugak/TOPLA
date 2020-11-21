@@ -21,5 +21,9 @@ export default {
         }
 
         return true;
+    },
+
+    clearLoginInfo(){
+        window.localStorage.removeItem("loginInfo");
     }
 }
