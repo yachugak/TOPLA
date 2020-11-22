@@ -1,6 +1,47 @@
 <template>
   <div>
     <v-sheet height="600">
+      <v-toolbar
+          flat
+      >
+        <v-btn
+            outlined
+            class="mr-4"
+            color="grey darken-2"
+            @click="setToday"
+        >
+          Today
+        </v-btn>
+
+        <v-btn
+            fab
+            text
+            small
+            color="grey darken-2"
+            @click="prev"
+        >
+          <v-icon small>
+            mdi-chevron-left
+          </v-icon>
+        </v-btn>
+
+        <v-btn
+            fab
+            text
+            small
+            color="grey darken-2"
+            @click="next"
+        >
+          <v-icon small>
+            mdi-chevron-right
+          </v-icon>
+        </v-btn>
+
+        <v-toolbar-title v-if="$refs.calendar">
+          {{ $refs.calendar.title }}
+        </v-toolbar-title>
+
+      </v-toolbar>
       <v-btn color="primary" block
              @click="toggleTaskViewMode()"
       >
@@ -16,6 +57,7 @@
           :event-overlap-threshold="30"
           :event-color="getEventColor"
           @change="getEvents"
+          @click:date="viewDay"
       ></v-calendar>
     </v-sheet>
   </div>
@@ -28,12 +70,22 @@ export default {
     weekday: [0, 1, 2, 3, 4, 5, 6],
     value: '',
     tasks: [],
-    duetasks:[],
-    dotasks:[],
+    dueTasks:[],
+    doTasks:[],
     colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
     taskViewMode: "dueDate",
   }),
   methods: {
+    setToday(){
+      this.value=''
+    },
+    prev () {
+      this.$refs.calendar.prev()
+    },
+    next () {
+      this.$refs.calendar.next()
+    },
+
     async getEvents () {
       let dueTasks=[]
       let doTasks=[]
@@ -49,8 +101,6 @@ export default {
           timed: false,
         })
       }
-      this.tasks=dueTasks
-      this.duetasks = dueTasks
 
       for (let i = 0;i<task.data.length;i++)
       {
@@ -66,24 +116,36 @@ export default {
         }
       }
 
-      this.dotasks=doTasks
+      this.dueTasks = dueTasks
+      this.doTasks=doTasks
+
+      if(this.taskViewMode === "dueDate"){
+        this.tasks=dueTasks
+      }
+      else if(this.taskViewMode === "doDate"){
+        this.tasks=doTasks
+      }
 
     },
     getEventColor (event) {
       return event.color
     },
-    async toggleTaskViewMode(){
+    toggleTaskViewMode(){
       if(this.taskViewMode === "dueDate"){
         this.taskViewMode = "doDate";
-        this.tasks=this.dotasks
+        this.tasks=this.doTasks
       }
       else if(this.taskViewMode === "doDate"){
         this.taskViewMode = "dueDate";
-        this.tasks=this.duetasks
+        this.tasks=this.dueTasks
       }
       else{
         throw new Error(`알 수 없는 taskViewMode: ${this.taskViewMode}`);
       }
+    },
+    async viewDay(){
+      console.log(this.value)
+      await this.$router.push('/')
     },
   },
 }

@@ -48,7 +48,7 @@ messaging.getToken()
     .then(async function(key){
         console.log(`device key = ${key}`);
         window.myDeviceKey = key;
-        await window.axios.put("/user/1/token", {
+        await window.axios.put("/user/token", {
             "deviceToken": key
         })
     })
