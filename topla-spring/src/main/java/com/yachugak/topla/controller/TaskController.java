@@ -13,17 +13,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yachugak.topla.entity.Plan;
 import com.yachugak.topla.entity.Task;
+import com.yachugak.topla.entity.TaskHistory;
 import com.yachugak.topla.exception.DuplicatedException;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.request.CheckAsFinishedRequestFormat;
 import com.yachugak.topla.request.CreateTaskRequestFormat;
 import com.yachugak.topla.response.TaskResponseFormat;
 import com.yachugak.topla.service.PlanService;
+import com.yachugak.topla.service.TaskHistoryService;
 import com.yachugak.topla.service.TaskService;
 import com.yachugak.topla.service.UserService;
 
@@ -40,9 +43,12 @@ public class TaskController {
 	@Autowired
 	private UserService userService;
 	
+	@Autowired
+	private TaskHistoryService taskHistoryService;
+	
 	@PostMapping("")
 	@Transactional(readOnly = false)
-	public String createNewTask(@RequestBody CreateTaskRequestFormat req) {
+	public String createNewTask(@RequestHeader("Authorization") String email, @RequestBody CreateTaskRequestFormat req) {
 		Task dup = new Task();
 		taskService.setTitle(dup, req.getTitle());
 		taskService.setDueDate(dup, req.getDueDate());
@@ -52,22 +58,21 @@ public class TaskController {
 			throw new DuplicatedException(req.getTitle(), result.getTitle());
 		}
 		
-		Task newTask = taskService.createNewTask(1L, req.getTitle(), req.getPriority());
+		User targetUser = userService.findUserByEmail(email);
+		Task newTask = taskService.createNewTask(targetUser.getUid(), req.getTitle(), req.getPriority());
 		taskService.setDueDate(newTask, req.getDueDate());
 		taskService.setEstimatedTime(newTask, req.getEstimatedTime());
 		taskService.setLocation(newTask, req.getLocation());
 		taskService.setRemindingTiming(newTask, req.getRemindingTiming());
 		
-		// 유저1에만 대응. 변경예정
-		User user = userService.findUserById(1L);
-		planService.plan(user, new Date());
+		planService.plan(targetUser, new Date());
 
 		return "ok";
 	}
 
 	@PutMapping("/{uid}")
 	@Transactional(readOnly = false)
-	public String updateTask(@PathVariable("uid") long uid, @RequestBody CreateTaskRequestFormat req) {		
+	public String updateTask(@PathVariable("uid") long uid, @RequestHeader("Authorization") String email, @RequestBody CreateTaskRequestFormat req) {		
 		Task updateTarget = taskService.findTaskById(uid);
 		taskService.setTitle(updateTarget, req.getTitle());
 		taskService.setPriority(updateTarget, req.getPriority());
@@ -76,19 +81,20 @@ public class TaskController {
 		taskService.setLocation(updateTarget, req.getLocation());
 		taskService.setRemindingTiming(updateTarget, req.getRemindingTiming());
 
-		// 유저1에만 대응.
-		User user = userService.findUserById(1L);
+		User user = userService.findUserByEmail(email);
 		planService.plan(user, new Date());
 
 		return "ok";
 	}
 	
+	// 각 유저별로 모든 task 물러옴.
 	@GetMapping("/list")
 	@Transactional(readOnly = true)
-	public List<TaskResponseFormat> taskList(){
-		List<Task> taskList = taskService.getAllTask();
-		ArrayList<TaskResponseFormat> resList = new ArrayList<>();
+	public List<TaskResponseFormat> taskList(@RequestHeader("Authorization") String email) {
+		User targetUser = userService.findUserByEmail(email);
+		List<Task> taskList = taskService.getAllTask(targetUser);
 		
+		ArrayList<TaskResponseFormat> resList = new ArrayList<>();
 		for(Task task : taskList) {
 			resList.add(new TaskResponseFormat(task));
 		}
@@ -103,6 +109,17 @@ public class TaskController {
 		int progress = req.getProgress();
 		taskService.setProgress(updateTarget, progress);
 		
+		if(req.getProgress() < 0) {
+			List<TaskHistory> historyList = taskHistoryService.findByTaskUid(uid);
+			
+			for(TaskHistory history : historyList) {
+				taskHistoryService.deleteHistory(history);
+			}
+		}
+		else {
+			taskHistoryService.createNewHistory(updateTarget, progress);
+		}
+		
 		return "ok";
 	}
 	
@@ -111,7 +128,6 @@ public class TaskController {
 	public String deleteTask(@PathVariable("uid") long uid) {
 		Task targetTask = taskService.findTaskById(uid);
 		taskService.deleteTask(targetTask);
-		
 		
 		return "ok";
 	}

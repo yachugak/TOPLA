@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,9 +36,8 @@ public class PresetController {
 	
 	@GetMapping("")
 	@Transactional(readOnly = true)
-	public SchedulePresetResponseFormat getSelectedSchedulePreset() {
-		// TODO: 현재 유저1만 가리킴. 이후 spring security 세팅후에 변경 예정.		
-		User user = userService.findUserById(1L);
+	public SchedulePresetResponseFormat getSelectedSchedulePreset(@RequestHeader("Authorization") String email) {
+		User user = userService.findUserByEmail(email);
 		SchedulePresetDataFormat presetFormat = presetService.getSelectedPresetInDataFormat(user);
 		
 		SchedulePresetResponseFormat response = new SchedulePresetResponseFormat();
@@ -48,10 +48,8 @@ public class PresetController {
 	
 	@GetMapping("/list")
 	@Transactional(readOnly = true)
-	public List<SchedulePresetResponseFormat> getAllSchedulePreset() {
-		// TODO: 현재 유저1만 가리킴. 이후 spring security 세팅후에 변경 예정.
-		User user = userService.findUserById(1L);
-		
+	public List<SchedulePresetResponseFormat> getAllSchedulePreset(@RequestHeader("Authorization") String email) {
+		User user = userService.findUserByEmail(email);
 		ArrayList<SchedulePresetResponseFormat> res= new ArrayList<>();
 		
 		List<SchedulePresetDataFormat> plistDataFormats = presetService.getAllPreset(user);
@@ -66,18 +64,25 @@ public class PresetController {
 	
 	@PostMapping("/create")
 	@Transactional(readOnly = false)
-	public String createSchedulePreset(@RequestBody CreateSchedulePresetRequestFormat req) {
-		// TODO: 현재 유저1의 스케줄 프리셋만 생성함. 이후 spring security 세팅후에 변경예정		
-		User user = userService.findUserById(1L);
+	public String createSchedulePreset2(@RequestHeader("Authorization") String email , @RequestBody CreateSchedulePresetRequestFormat req) {
+		this.createSchedulePreset(email, req);
+		return "ok";
+	}
+	
+	// TODO: URI 변경을 위한 오버로딩. 프론트 대응 후 /create 삭제 예정
+	@PostMapping("")
+	@Transactional(readOnly = false)
+	public String createSchedulePreset(@RequestHeader("Authorization") String email , @RequestBody CreateSchedulePresetRequestFormat req) {
+		User user = userService.findUserByEmail(email);
 		
 		SchedulePresetDataFormat presetFormat = new SchedulePresetDataFormat();
 		presetFormat.setHourList(req.getSchedulePreset());
 		SchedulePreset preset = presetService.createSchedulePreset(user, presetFormat);
 			
 		// TODO: 리뷰 필요. 프리셋 생성시 새 프리셋을 기본값으로.
-		return "redirect:/api/preset/select?presetUid=" + preset.getUid();
-		
+		return "redirect:/api/preset/select?presetUid=" + preset.getUid();		
 	}
+	
 	
 	@DeleteMapping("/{uid}")
 	@Transactional(readOnly = false)
@@ -101,9 +106,8 @@ public class PresetController {
 	
 	@PutMapping("/select")
 	@Transactional(readOnly = false)
-	public String selectSchedulePreset(@RequestParam("presetUid") long presetUid) {
-		// TODO: 유저1에만 대응
-		User user = userService.findUserById(1L);
+	public String selectSchedulePreset(@RequestHeader("Authorization") String email, @RequestParam("presetUid") long presetUid) {
+		User user = userService.findUserByEmail(email);
 		userService.setPresetCode(user, presetUid);
 		
 		return "ok";

@@ -1,11 +1,17 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import loginInfo from "@/plugins/loginInfo";
 
 Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/',
+    path: "/",
+    name: "login page",
+    component: () => import("../views/loginPage")
+  },
+  {
+    path: '/todolist',
     name: 'todolist mode',
     component: () => import(/* webpackChunkName: "about" */ '../views/todo.vue')
   },
@@ -31,6 +37,21 @@ const routes = [
 
 const router = new VueRouter({
   routes
+})
+
+router.beforeEach(function(to, from, next){
+    if(to.name === "login page"){
+        next();
+        return;
+    }
+
+    if(loginInfo.isThereLoginInfo() === false){
+        next("/");
+        return;
+    }
+
+    window.axios.defaults.headers.common["Authorization"] = loginInfo.getLoginInfo();
+    next();
 })
 
 export default router

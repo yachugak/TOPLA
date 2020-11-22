@@ -30,12 +30,12 @@ public class TaskService {
 	@Autowired
 	private UserRepository userRepository;
 	
-	@Autowired
-	private PlanService planService;
-	
-	public List<Task> getAllTask(){
-		// TODO: 현재 리포짓 전부 가져옴. 각 유저에 대한 task로 수정필요.
-		return taskRepository.findAll();
+	public List<Task> getAllTask(User targetUser){
+		if(targetUser == null) {
+			throw new InvalidArgumentException("targetUser", "User 객체", null);
+		}
+		
+		return taskRepository.findByUser(targetUser);
 	}
 
 	public Task createNewTask(String title, int priority) {
@@ -60,7 +60,6 @@ public class TaskService {
 		}
 		
 		newTask.setUser(owner.get());
-		
 		taskRepository.saveAndFlush(newTask);
 
 		return newTask;
@@ -223,4 +222,5 @@ public class TaskService {
 		int actualProgress = prevProgress + progressDiff;
 		this.setProgress(task,  actualProgress);
 	}
+	
 }
