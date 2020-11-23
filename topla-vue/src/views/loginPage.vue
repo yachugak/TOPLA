@@ -90,6 +90,12 @@ export default {
         });
 
         loginInfo.setLoginInfo(accountCopy);
+        window.axios.defaults.headers.common["Authorization"] = loginInfo.getLoginInfo();
+
+        await window.axios.put("/user/token", {
+          "deviceToken": window.myDeviceKey
+        })
+
         await this.$router.push("/todolist");
       }
       catch(e){

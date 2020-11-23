@@ -51,10 +51,10 @@
       <v-calendar
           ref="calendar"
           v-model="value"
+          color="primary"
           :weekdays="weekday"
           :type="type"
           :events="tasks"
-          :event-overlap-threshold="30"
           :event-color="getEventColor"
           @change="getEvents"
           @click:date="viewDay"
@@ -144,8 +144,12 @@ export default {
       }
     },
     async viewDay(){
-      console.log(this.value)
-      await this.$router.push('/')
+      await this.$router.push({
+        name : 'todolist mode',
+        params:{
+          date : this.value,
+          viewMode : this.taskViewMode
+        }})
     },
   },
 }
