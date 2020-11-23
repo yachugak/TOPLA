@@ -10,6 +10,7 @@
       </div>
       <v-spacer></v-spacer>
       <v-btn icon @click="pushPage('/')"><v-icon>mdi-desk</v-icon></v-btn>
+      <v-btn icon @click="pushPage('/calendar')"><v-icon>mdi-calendar-month</v-icon></v-btn>
       <v-btn icon @click="pushPage('/preset')"><v-icon>mdi-calendar-heart</v-icon></v-btn>
       <v-btn icon @click="onLogoutButtonClicked" v-if="!isLoginPage"><v-icon>mdi-logout</v-icon></v-btn>
     </v-app-bar>
