@@ -1,10 +1,12 @@
 package com.yachugak.topla.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +19,7 @@ import com.yachugak.topla.exception.EntityNotFoundException;
 import com.yachugak.topla.exception.InvalidArgumentException;
 import com.yachugak.topla.request.CreateReportRequestFormat;
 import com.yachugak.topla.request.TaskRealtime;
+import com.yachugak.topla.response.ReportResponseFormat;
 import com.yachugak.topla.service.ReportService;
 import com.yachugak.topla.service.TaskHistoryService;
 
@@ -68,5 +71,13 @@ public class ReportController {
 		}
 		
 		return "ok";
+	}
+	
+	@GetMapping("/statisticsReport")
+	@Transactional(readOnly = true)
+	public ReportResponseFormat statisticsReport() {
+		ReportResponseFormat result = new ReportResponseFormat(new Date());
+		
+		return result;
 	}
 }
