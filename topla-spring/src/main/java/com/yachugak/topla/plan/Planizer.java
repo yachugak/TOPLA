@@ -82,8 +82,11 @@ public class Planizer {
 	}
 
 	public TimeTable naivelyOptimizedPlan() {
-		Planizer planizer = new Planizer(this.schedulePreset, this.tasks, this.planStartDate);
 		//일단 마감일 순으로 일정 짜 보고 일정이 터지는지 확인
+		Planizer planizer = new Planizer(this.schedulePreset, this.tasks, this.planStartDate);
+		if(this.timeTable != null) {
+			planizer.setDoneTimeTable(this.timeTable);
+		}
 		TimeTable greedyResult = planizer.greedyPlan();
 		if(greedyResult.getTotalLossPriority(this.planStartDate) <= 0.0) {
 			return greedyResult;
@@ -112,11 +115,22 @@ public class Planizer {
 		//줄일 일정부터 시작해서 그 이후의 일정을 당긴다.
 		int originalEstimatedTime = maxLossEffectTask.getEstimatedTime();
 		int halfEstimatedTime = HalfMinutesTime.roundUpAndDown(originalEstimatedTime/2);
+
+		//30분 이하라 줄일 수 없으면 그냥 greedyResult를 반환한다.
 		if(originalEstimatedTime == halfEstimatedTime) {
 			return greedyResult;
 		}
+		
+		//줄였는데 이미 완료된만큼이면 그냥 greedyResult를 반환한다.
+		if(halfEstimatedTime <= maxLossEffectTask.getProgress()) {
+			return greedyResult;
+		}
+
 		maxLossEffectTask.setEstimatedTime(halfEstimatedTime);
 		planizer = new Planizer(this.schedulePreset, this.tasks, this.planStartDate);
+		if(this.timeTable != null) {
+			planizer.setDoneTimeTable(this.timeTable);
+		}
 		TimeTable reducedResult = planizer.greedyPlan();
 		maxLossEffectTask.setEstimatedTime(originalEstimatedTime);
 		reducedResult.setEstimateTimeOfTask(maxLossEffectTask.getUid(), originalEstimatedTime);

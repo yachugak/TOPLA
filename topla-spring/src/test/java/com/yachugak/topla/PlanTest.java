@@ -169,6 +169,8 @@ public class PlanTest {
 		double oldTotalLoss = oldTimeTable.getTotalLossPriority(planStartDate);
 		
 		assertEquals(9.0, oldTotalLoss, 0.0001);
+		
+		planizer = new Planizer(schedulePreset, testTaskList, planStartDate);
 
 		TimeTable timeTable = planizer.naivelyOptimizedPlan();
 		double newTotalLoss = timeTable.getTotalLossPriority(planStartDate);
@@ -345,27 +347,9 @@ public class PlanTest {
 		
 		Planizer planizer = new Planizer(schedulePreset, testTaskList, planStartDate);
 		planizer.setDoneTimeTable(doneTimeTable);
-		TimeTable greedyTimeTable = planizer.naivelyOptimizedPlan();
+		TimeTable naiveTimeTable = planizer.naivelyOptimizedPlan();
 		
-		//첫 날 검증
-		ArrayList<TaskItem> day0List = greedyTimeTable.getDay(0).getTaskItemsOrderByTaskId();
-		assertEquals(1L, day0List.get(0).getTaskId());
-		assertEquals(60, day0List.get(0).getTime());
-		assertEquals(3L, day0List.get(1).getTaskId());
-		assertEquals(120, day0List.get(1).getTime());
-		assertEquals(1L, day0List.get(1).getPlnaUid());
-		
-		//둘 째날 검증
-		ArrayList<TaskItem> day1List = greedyTimeTable.getDay(1).getTaskItemsOrderByTaskId();
-		assertEquals(1L, day1List.get(0).getTaskId());
-		assertEquals(60, day1List.get(0).getTime());
-		assertEquals(2L, day1List.get(1).getTaskId());
-		assertEquals(60, day1List.get(1).getTime());
-		assertEquals(3L, day1List.get(2).getTaskId());
-		assertEquals(120, day1List.get(2).getTime());
-		assertEquals(null, day1List.get(2).getPlnaUid());
-		
-		//셋 째날부터는 greedy plan과 동일하여 굳이 검증하지 않음.
+		assertEquals(2.0, naiveTimeTable.getTotalLossPriority(planStartDate), 0.001);
 	}
 
 	@Test
