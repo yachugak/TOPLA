@@ -33,12 +33,19 @@ public class Planizer {
 		this.tasks = tasks;
 		this.planStartDate = planStartDate;
 		this.day = planStartDate.getDay();
+		this.timeTable = null;
+	}
+	
+	public void setDoneTimeTable(TimeTable doneTimeTable) {
+		this.timeTable = doneTimeTable.copy();
 	}
 	
 	public TimeTable greedyPlan() {
 		//일정 계산 과정을 저장하는 임시 시간표
-		this.timeTable = new TimeTable();
-		this.timeTable.getDays().add(new Day());
+		if(this.timeTable == null) {
+			this.timeTable = new TimeTable();
+			this.timeTable.getDays().add(new Day());
+		}
 		
 		logger.debug(tasks.size() + "개의 작업에 대해 일정을 계산합니다.");
 		
@@ -48,7 +55,10 @@ public class Planizer {
 		int nowDayOffset = 0;//현재 작업중인 날짜
 		for(Task task : tasks) {
 			boolean allocationFlag = false;//현 task의 할당이 성공했는지 기록하는 플래그 변수, flag면 아직 할당 못 했다는 뜻
-			int taskLeftTime = task.getEstimatedTime(); //이 작업의 남은 할당 시간
+			int taskLeftTime = task.getEstimatedTime() - task.getProgress(); //이 작업의 남은 할당 시간
+			if(taskLeftTime <= 0) {
+				continue;
+			}
 			this.timeTable.registerTask(task);
 
 			while(allocationFlag == false) {

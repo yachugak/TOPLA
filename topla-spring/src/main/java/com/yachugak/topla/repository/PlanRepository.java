@@ -1,5 +1,6 @@
 package com.yachugak.topla.repository;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,5 +12,5 @@ import com.yachugak.topla.entity.Task;
 @Repository
 public interface PlanRepository extends JpaRepository<Plan, Long> {
 	public List<Plan> findByTask(Task task);
-
+	public List<Plan> findByDoDateGreaterThanEqual(Date date);
 }

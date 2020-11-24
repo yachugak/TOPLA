@@ -1,8 +1,11 @@
 package com.yachugak.topla.service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +38,6 @@ public class PlanService {
 	
 	public void plan(User user, Date planStartDate) {
 		logger.debug("plan 시작합니다.");
-//		int planStartDay = planStartDate.getDay();
 	
 		SchedulePresetDataFormat selectedPreset = presetService.getSelectedPresetInDataFormat(user);
 		
@@ -126,6 +128,30 @@ public class PlanService {
 		}
 		return cappedProgress;
 	}
+	
+	public TimeTable recoverDoneTimeTable(Date startDate){
+		TimeTable doneTimeTable = new TimeTable();
 
+		List<Plan> planList = planRepository.findByDoDateGreaterThanEqual(startDate);
 
+		for(Plan plan : planList) {
+			if(plan.getDoTime() <= plan.getProgress()) { //progress는 doTime을 넘을 수 없지만 혹시 몰라서
+				TaskItem newTaskItem = new TaskItem();
+				newTaskItem.setTaskId(plan.getTask().getUid());
+				newTaskItem.setPlnaUid(plan.getUid());
+				newTaskItem.setTime(plan.getDoTime());
+				int dayOffset = calDayOffset(startDate, plan.getDoDate());
+				doneTimeTable.addTaskItem(dayOffset, newTaskItem);
+			}
+		}
+		
+		return doneTimeTable;
+	}
+	
+	public int calDayOffset(Date planStartDate, Date taskDoDate) {
+		long diffInMillies = taskDoDate.getTime() - planStartDate.getTime();
+	    long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+	    
+	    return (int)diff;
+	}
 }
