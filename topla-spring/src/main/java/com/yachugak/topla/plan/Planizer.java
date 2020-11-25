@@ -182,6 +182,9 @@ public class Planizer {
 	
 	private int getTodayTaskTime(int nowDayOffset) {
 		int timeSum = 0;
+		if(nowDayOffset >= this.timeTable.getDays().size()) {
+			return 0;
+		}
 		List<TaskItem> taskList = this.timeTable.getDay(nowDayOffset).getTaskItems();
 		for(TaskItem task : taskList) {
 			timeSum += task.getTime();

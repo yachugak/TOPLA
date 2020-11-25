@@ -53,10 +53,13 @@ public class PlanService {
 		List<Task> taskList = taskService.getTaskListToPlan(user.getUid(), planStartDate);
 		
 		Planizer planizer = new Planizer(selectedPreset, taskList, planStartDate);
+		TimeTable doneTimeTable = this.recoverDoneTimeTable(planStartDate);
+		planizer.setDoneTimeTable(doneTimeTable);
 		TimeTable calculatedPlan = planizer.naivelyOptimizedPlan();
 		
 		//task의 기존 일정 초기화
 		int lastDayOffset = calculatedPlan.getLastDayOffset();
+		List<Long> withoutList = calculatedPlan.getPlanUidList();
 		logger.debug("TimeTable에는 " + (lastDayOffset+1) + "일간의 일정이 담겨 있습니다.");
 		for(int dayOffset = 0; dayOffset <= lastDayOffset; dayOffset++) {
 			List<TaskItem> todayTaskList = calculatedPlan.getDay(dayOffset).getTaskItems();
@@ -64,8 +67,8 @@ public class PlanService {
 			for(TaskItem ti : todayTaskList) {
 				long taskUid = ti.getTaskId();
 				Task targetTask = taskService.findTaskById(taskUid);
-				taskService.clearPlan(targetTask);
-				logger.debug(taskUid + "번 작업의 일정을 초기화함.");
+				taskService.clearPlanWithout(targetTask, withoutList);
+				logger.debug(taskUid + "번 작업의 일정을 일부(또는 전부) 초기화함.");
 			}
 			
 		}
@@ -75,6 +78,10 @@ public class PlanService {
 		for(int dayOffset = 0; dayOffset <= lastDayOffset; dayOffset++) {
 			List<TaskItem> todayTaskList = calculatedPlan.getDay(dayOffset).getTaskItems();
 			for(TaskItem ti : todayTaskList) {
+				if(ti.getPlnaUid() != null) {
+					//이미 등록되어 있는 plan이므로 스킵
+					continue;
+				}
 				long taskUid = ti.getTaskId();
 				int doTime = ti.getTime();
 				Task targetTask = taskService.findTaskById(taskUid);
@@ -141,6 +148,7 @@ public class PlanService {
 				newTaskItem.setPlnaUid(plan.getUid());
 				newTaskItem.setTime(plan.getDoTime());
 				int dayOffset = calDayOffset(startDate, plan.getDoDate());
+				doneTimeTable.registerTask(plan.getTask());
 				doneTimeTable.addTaskItem(dayOffset, newTaskItem);
 			}
 		}
@@ -153,5 +161,9 @@ public class PlanService {
 	    long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
 	    
 	    return (int)diff;
+	}
+	
+	public List<Plan> findByTask(Task task){
+		return planRepository.findByTask(task);
 	}
 }

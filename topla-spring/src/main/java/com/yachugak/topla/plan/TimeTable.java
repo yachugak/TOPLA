@@ -182,6 +182,18 @@ public class TimeTable {
 		
 		return copyedTimeTable;
 	}
+
+	//이 시간표에 들어있는 plan들의 uid를 구합니다.
+	public List<Long> getPlanUidList(){
+		ArrayList<Long> planUidList = new ArrayList<Long>();
+		for(Day day : this.days) {
+			for(TaskItem ti : day.getTaskItems()) {
+				planUidList.add(ti.getPlnaUid());
+			}
+		}
+		
+		return planUidList;
+	}
 }
 
 class TaskInfo{

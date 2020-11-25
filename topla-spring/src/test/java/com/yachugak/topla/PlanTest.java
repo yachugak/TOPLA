@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
 import com.yachugak.topla.entity.Plan;
 import com.yachugak.topla.entity.Task;
+import com.yachugak.topla.entity.User;
 import com.yachugak.topla.exception.ToplaException;
 import com.yachugak.topla.plan.Day;
 import com.yachugak.topla.plan.Planizer;
@@ -26,6 +28,7 @@ import com.yachugak.topla.plan.TimeTable;
 import com.yachugak.topla.repository.PlanRepository;
 import com.yachugak.topla.service.PlanService;
 import com.yachugak.topla.service.TaskService;
+import com.yachugak.topla.service.UserService;
 
 @SpringBootTest
 public class PlanTest {
@@ -37,6 +40,9 @@ public class PlanTest {
 	
 	@Autowired
 	private PlanService planService;
+	
+	@Autowired
+	private UserService userService;
 	
 	@Test
 	public void planTest() {
@@ -204,6 +210,16 @@ public class PlanTest {
 		}
 		
 		assertTrue(findFlag);
+	}
+
+	public void indexOfTest() {
+		List<Long> list = new ArrayList<Long>();
+		list.add(1L);
+		list.add(2L);
+		
+		assertTrue(list.indexOf(1L)>= 0);
+		assertTrue(list.indexOf(2L)>= 0);
+		assertTrue(list.indexOf(3L) < 0);
 	}
 
 	private Date makeDate(int year, int month, int date) {
@@ -374,5 +390,58 @@ public class PlanTest {
 		
 		assertEquals(1L, sortedResult.get(0).getTaskId());
 		assertEquals(2L, sortedResult.get(1).getTaskId());
+	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	public void realPlanFixTest() {
+		User user = userService.findUserByEmail("test@acount.net");
+		Date today = makeDate(2020, 11, 25);
+		Date nextDay = makeDate(2020, 11, 26);
+		
+		Task task1 = taskService.createNewTask(user.getUid(), "작업1", 2);
+		task1.setEstimatedTime(120);
+		task1.setDueDate(nextDay);
+		
+		planService.plan(user, today);
+		
+		List<Plan> task1PlanList = planService.findByTask(task1);
+		task1.setPlans(task1PlanList);
+		long planUid = task1PlanList.get(0).getUid();
+		
+		planService.setProgress(task1PlanList.get(0), 120);
+		
+		Task task2 = taskService.createNewTask(user.getUid(), "작업2", 1);
+		task2.setEstimatedTime(120);
+		task2.setDueDate(today);
+		
+		planService.plan(user, today);
+		
+		task1PlanList = planService.findByTask(task1);
+		task1.setPlans(task1PlanList);
+		List<Plan> task2PlanList = planService.findByTask(task2);
+		task2.setPlans(task2PlanList);
+		
+		assertEquals(planUid, task1PlanList.get(0).getUid());
+		assertEquals(120, task1PlanList.get(0).getDoTime());
+		assertEquals(120, task1PlanList.get(0).getProgress());
+		assertTrue(dateEqual(makeDate(2020, 11, 25), task1PlanList.get(0).getDoDate()));
+
+		assertEquals(60, task2PlanList.get(0).getDoTime());
+		assertTrue(dateEqual(makeDate(2020, 11, 25), task2PlanList.get(0).getDoDate()));
+	}
+	
+	private boolean dateEqual(Date date1, Date date2) {
+		if(date1.getYear() != date2.getYear()) {
+			return false;
+		}
+		if(date1.getMonth() != date2.getMonth()) {
+			return false;
+		}
+		if(date1.getDate() != date2.getDate()) {
+			return false;
+		}
+		
+		return true;
 	}
 }
