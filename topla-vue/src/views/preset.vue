@@ -2,19 +2,27 @@
   <v-container class="secondary vh-100">
     <v-row>
       <schedule-preset
-          :max="1440"
+          :max="max"
           v-model="dayData"
+          :preset-change="modify"
       ></schedule-preset>
     </v-row>
     <br>
     <v-card-actions>
       <v-spacer></v-spacer>
-    <v-btn @click="check()">
-      확인
-    </v-btn>
-    <v-btn @click="showPresetList = true">
-      프리셋 교환
-    </v-btn>
+      <v-btn
+          v-if="modify"
+          @click="modifyPreset()">
+        수정
+      </v-btn>
+      <v-btn
+          v-if="save"
+          @click="savePreset()">
+        저장
+      </v-btn>
+      <v-btn @click="showPresetList = true">
+        프리셋 교환
+      </v-btn>
     </v-card-actions>
 
     <v-dialog
@@ -53,17 +61,19 @@ import presetList from "@/components/presetList";
 import schedulePreset from "@/components/schedulePreset";
 
 export default {
-  data () {
+  data() {
     return {
-      dayData:[],
-      showPresetList:false,
+      dayData: [],
+      presetUid: null,
+      showPresetList: false,
+      max: 1440,
+      modify: true,
+      save: false,
     }
   },
 
-  async created(){
-    let res = await this.$axios.get("/preset")
-
-    this.dayData = res.data.schedulePreset;
+  async created() {
+    await this.presetSetting()
   },
 
   components: {
@@ -71,36 +81,52 @@ export default {
     schedulePreset
   },
 
-  methods:{
-    async addPreset(){
+  methods: {
+    async presetSetting() {
+      let res = await this.$axios.get("/preset")
+      this.dayData = res.data.schedulePreset;
+      this.max = Math.max.apply(null, this.dayData) + 240
+      this.presetUid = res.data.presetUid
+    },
 
-      await this.$axios.post("/preset/create",{
-          "schedulePreset":[0,0,0,0,0,0,0]
+    async addPreset() {
+
+      await this.$axios.post("/preset/create", {
+        "schedulePreset": [0, 0, 0, 0, 0, 0, 0]
       })
 
       await this.$refs["dialog"].getPresetList();
     },
 
-    change(){
+    change() {
       this.showPresetList = false
       window.location.reload()
     },
 
-    check(){
-      console.log("hello")
+    modifyPreset() {
+      this.modify = false
+      this.save=true
+    },
+    async savePreset() {
+      this.modify = true
+      this.save=false
+
+      await this.$axios.put(`/preset/${this.presetUid}`,{
+        "schedulePreset":this.dayData
+      })
     }
   }
 }
 
 </script>
 <style>
-  .centered-input input{
-    text-align: center;
-  }
+.centered-input input {
+  text-align: center;
+}
 
-  .vh-100 {
-    height: 93vh;
-  }
+.vh-100 {
+  height: 93vh;
+}
 </style>
 
 
