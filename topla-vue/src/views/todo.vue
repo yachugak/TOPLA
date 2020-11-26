@@ -280,6 +280,12 @@ export default {
         estimatedTime: this.newTaskFormData.estimatedTime,
         location: this.newTaskFormData.location
       }
+
+      let validationResultFlag = this.$refs.form.validate();
+      if(validationResultFlag === false){
+        return;
+      }
+
       try{
         this.isCalling++;
         if(this.taskCreatedMode){
@@ -292,7 +298,9 @@ export default {
         await this.getTaskList();
         this.isCalling--
         this.isShowNewTaskdialog = false;
-      }catch(e){
+      }
+
+      catch(e){
         console.log(e);
         console.log(requestBody)
       }

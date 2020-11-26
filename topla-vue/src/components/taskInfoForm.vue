@@ -1,6 +1,7 @@
 <template>
   <v-form>
     <v-container fluid>
+      <v-form ref="form">
       <v-row>
         <v-col cols="12">
           <v-text-field
@@ -124,6 +125,8 @@
           </div>
         </v-col>
       </v-row>
+      </v-form>
+      <v-btn @click="formValue">hello</v-btn>
     </v-container>
     <kakao-map v-show="false" ref="map" :is-load-gps="false"></kakao-map>
   </v-form>
@@ -161,7 +164,7 @@ export default {
           validator.rules.required("필수값입니다."),
         ],
         estimateTime:[
-          validator.rules.minLength(0,"필수값입니다."),
+          validator.rules.required("필수값입니다."),
         ],
         location:[
 
@@ -253,7 +256,12 @@ export default {
       }
 
       this.addr = addr;
-    }
+    },
+
+    formValue(){
+      console.log(this.$refs.form.validate())
+      return this.$refs.form.validate();
+    },
   }
 }
 
