@@ -294,6 +294,7 @@ export default {
         this.isShowNewTaskdialog = false;
       }catch(e){
         console.log(e);
+        console.log(requestBody)
       }
     },
 

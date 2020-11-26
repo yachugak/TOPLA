@@ -3,7 +3,12 @@
     <v-container fluid>
       <v-row>
         <v-col cols="12">
-          <v-text-field label="작업 이름" outlined v-model="value.title"></v-text-field>
+          <v-text-field
+              label="작업 이름"
+              outlined v-model="value.title"
+              :rules="rules.title"
+
+          ></v-text-field>
         </v-col>
       </v-row>
 
@@ -15,7 +20,6 @@
           <v-rating length="3" :color="bgColorByPriority[value.priority-1]" v-model="value.priority"></v-rating>
         </v-col>
       </v-row>
-
 
       <v-row>
         <v-col cols="3" class="leftCenter">
@@ -38,6 +42,7 @@
                   readonly
                   v-bind="attrs"
                   v-on="on"
+                  :rules="rules.dueDate"
               ></v-text-field>
             </template>
             <v-date-picker
@@ -70,7 +75,9 @@
           예상 시간 <v-icon>mdi-clock-check-outline</v-icon>
         </v-col>
         <v-col cols="9" class="leftCenter">
-          <duration-selector v-model="value.estimatedTime"></duration-selector>
+          <duration-selector v-model="value.estimatedTime"
+                             :rules="rules.estimateTime"
+          ></duration-selector>
         </v-col>
       </v-row>
 
@@ -127,11 +134,13 @@ import durationSelector from "@/components/durationSelector";
 import placeSelector from "@/components/placeSelector";
 import gpsString from "@/plugins/gpsString";
 import kakaoMap from "@/components/kakaoMap";
+import VuetifyJetValidator from "vuetify-jet-validator";
 
 export default {
   name: "taskInfoForm",
 
   data() {
+    const validator = new VuetifyJetValidator();
     return {
       isShowDatePicker: false,
       isShowDueDateButton: true,
@@ -139,6 +148,25 @@ export default {
 
       tempLocation: null,
       addr: "주소 불러오는 중",
+
+      rules:{
+        title: [
+          validator.rules.required("필수값입니다."),
+        ],
+
+        priority: [
+        ],
+
+        dueDate:[
+          validator.rules.required("필수값입니다."),
+        ],
+        estimateTime:[
+          validator.rules.minLength(0,"필수값입니다."),
+        ],
+        location:[
+
+        ],
+      },
 
       bgColorByPriority: [
         "amber lighten-3",
