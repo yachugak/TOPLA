@@ -7,7 +7,7 @@ import './registerServiceWorker'
 import vuetify from './plugins/vuetify';
 import firebase from "firebase/app";
 import "firebase/messaging";
-
+import "./plugins/dialog.js";
 Vue.config.productionTip = false
 
 new Vue({
@@ -48,9 +48,6 @@ messaging.getToken()
     .then(async function(key){
         console.log(`device key = ${key}`);
         window.myDeviceKey = key;
-        await window.axios.put("/user/1/token", {
-            "deviceToken": key
-        })
     })
 
 // // Handle received push notification at foreground

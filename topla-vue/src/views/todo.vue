@@ -37,6 +37,13 @@
           </v-btn>
         </v-col>
       </v-row>
+
+      <v-row>
+        <v-col cols="12">
+          <schedule-alert-box ref="alertBox"></schedule-alert-box>
+        </v-col>
+      </v-row>
+
       <v-row v-if="taskViewMode === 'doDate'">
         <v-progress-linear
             :buffer-value="(todayAllocationTime/todayPresetTime)*100"
@@ -53,14 +60,15 @@
         <span id="dayText" class="pl-2">{{selectedDate.getMonth()+1}}월 {{selectedDate.getDate()}}일 {{getDayName(selectedDate.getDay())}}요일</span>
         <span id="taskCountText" class="pr-2">{{displayTaskList.length}}개의 작업</span>
       </div>
-      <task-card class="mx-2 mb-4" v-for="task in displayTaskList" :key="task.uid"
+      <task-card class="mx-2 mb-4" v-for="task in displayTaskList" :key="taskViewMode === 'dueDate' ? task.uid : task.planUid"
                  :title="task.title"
                  :priority="task.priority"
                  :uid="task.uid"
-                 :progress="task.progress"
+                 :progress="taskViewMode === 'dueDate' ? task.progress : task.planProgress"
                  :estimated-time="taskViewMode === 'dueDate' ? task.estimatedTime : task.doTime"
                  :due-date="task.dueDate"
                  :location="task.location"
+                 :plan-uid="taskViewMode === 'dueDate' ? -1 : task.planUid"
                  @update="getTaskList()"
                  @click="onTaskClicked(task.uid)"
       ></task-card>
@@ -89,10 +97,17 @@
           <v-spacer></v-spacer>
           <v-btn
               color="error"
+              @click="deleteRequest(updateTargetTask.uid)"
+              :loading="isCalling>0"
+          >
+            <v-icon>mdi-trash-can-outline</v-icon>
+          </v-btn>
+          <v-btn
+              color="secondary"
               @click="isShowNewTaskdialog = false"
               :loading="isCalling>0"
           >
-            취소
+            <v-icon>mdi-undo</v-icon>
           </v-btn>
           <v-btn
               color="primary"
@@ -100,10 +115,10 @@
               :loading="isCalling>0"
           >
             <span v-if="taskCreatedMode">
-              추가
+              <v-icon>mdi-note-plus-outline</v-icon>
             </span>
             <span v-else>
-              수정
+              <v-icon>mdi-pencil-box-outline</v-icon>
             </span>
           </v-btn>
         </v-card-actions>
@@ -115,6 +130,8 @@
 <script>
 import taskInfoForm from "@/components/taskInfoForm";
 import taskCard from "@/components/taskCard";
+import scheduleAlertBox from "@/components/scheduleAlertBox";
+
 export default {
   data() {
     return {
@@ -139,7 +156,8 @@ export default {
 
   components: {
     taskInfoForm,
-    taskCard
+    taskCard,
+    scheduleAlertBox
   },
 
   watch: {
@@ -200,7 +218,7 @@ export default {
 
     todayFinishTime(){
       let timeSum = 0;
-      let doneTaskList = this.displayTaskList.filter((t)=>t.progress===100);
+      let doneTaskList = this.displayTaskList.filter((t)=>t.planProgress===t.doTime);
       for(let task of doneTaskList) {
         timeSum += task.doTime;
       }
@@ -213,6 +231,7 @@ export default {
       this.isCalling++;
       let res = await this.$axios.get("/task/list");
       this.taskList = res.data;
+      this.$refs.alertBox.getTotalLoss();
       this.isCalling--;
     },
 
@@ -310,7 +329,9 @@ export default {
             todayIsDoDatePlan.push({
               index: i,
               doTime: plan.doTime,
-              order: planList.indexOf(plan)+1
+              order: planList.indexOf(plan)+1,
+              planUid: plan.planUid,
+              planProgress: plan.progress
             });
           }
         }
@@ -321,9 +342,11 @@ export default {
         let tempTask = JSON.parse(JSON.stringify(taskList[item.index]));//객체 깊은 복사
         let totalPlanCount = tempTask.planList.length;
         if(totalPlanCount > 1){
-          tempTask.title = `${tempTask.title}(${totalPlanCount} 중 ${item.order})`;
+          tempTask.title = `${tempTask.title} ( ${item.order} / ${totalPlanCount} )`;
         }
+        tempTask.planProgress = item.planProgress;
         tempTask.doTime = item.doTime;
+        tempTask.planUid = item.planUid;
         dispalyTaskList.push(tempTask);
       }
 
@@ -352,12 +375,31 @@ export default {
         location: null,
         estimatedTime: 0
       }
+    },
+
+    async deleteRequest(){
+      this.isCalling += 1;
+      try {
+        await this.$axios.delete(`/task/${this.updateTargetTask.uid}`);
+        await this.getTaskList();
+        this.isShowNewTaskdialog = false;
+      }catch(e){
+        alert(e.response.message);
+      }
+      finally {
+        this.isCalling -= 1;
+      }
     }
   },
 
   created() {
     this.getTaskList();
     this.getSchedulePreset();
+
+    if(this.$route.params.date !==undefined && this.$route.params.viewMode!==undefined){
+      this.selectedDate=new Date(this.$route.params.date)
+      this.taskViewMode=this.$route.params.viewMode
+    }
   }
 }
 </script>

@@ -1,6 +1,7 @@
 package com.yachugak.topla.service;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +16,7 @@ import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.exception.EntityNotFoundException;
 import com.yachugak.topla.exception.InvalidArgumentException;
+import com.yachugak.topla.plan.TaskItem;
 import com.yachugak.topla.repository.PlanRepository;
 import com.yachugak.topla.repository.TaskRepository;
 import com.yachugak.topla.repository.UserRepository;
@@ -30,9 +32,12 @@ public class TaskService {
 	@Autowired
 	private UserRepository userRepository;
 	
-	public List<Task> getAllTask(){
-		// TODO: 현재 리포짓 전부 가져옴. 각 유저에 대한 task로 수정필요.
-		return taskRepository.findAll();
+	public List<Task> getAllTask(User targetUser){
+		if(targetUser == null) {
+			throw new InvalidArgumentException("targetUser", "User 객체", null);
+		}
+		
+		return taskRepository.findByUser(targetUser);
 	}
 
 	public Task createNewTask(String title, int priority) {
@@ -42,7 +47,7 @@ public class TaskService {
 		this.setPriority(newTask, priority);
 		this.setEstimatedTime(newTask, 0);
 		this.setCreatedDate(newTask, new Date());
-		this.setProgress(newTask, 0);
+		newTask.setProgress(0);	// TODO: initiate 메서드로 나중에 분리?
 		taskRepository.saveAndFlush(newTask);
 		
 		return newTask;
@@ -57,7 +62,6 @@ public class TaskService {
 		}
 		
 		newTask.setUser(owner.get());
-		
 		taskRepository.saveAndFlush(newTask);
 
 		return newTask;
@@ -98,9 +102,34 @@ public class TaskService {
 		if(task.getEstimatedTime() == null) {
 			throw new InvalidArgumentException("EstimatedTime", "예상시간값", task.getEstimatedTime()+"");
 		}
-		if(progress < 0 || progress > task.getEstimatedTime()) {
+		if(progress < -1 || progress > task.getEstimatedTime()) {
 			throw new InvalidArgumentException("progress", "0"+task.getEstimatedTime(), progress+"");
-		} 
+		}
+		
+		// 미완/해제 시
+		if(progress < task.getEstimatedTime()) {
+			this.setFinishTime(task, null);
+		}
+		// 완료시
+		else {
+			Date time = new Date();
+			this.setFinishTime(task, time);
+			
+			// task 완료시 plan도 완료
+			for(Plan p : task.getPlans()) {
+				p.setProgress(p.getDoTime());
+			}
+		}
+		
+		// 예상시간 0인 작업은 0을 받으면 완료/미완을 구별 불가. 그러므로, task uncheck시 -1 전송.
+		if(progress < 0) {
+			List<Plan> planList = task.getPlans();
+			for(Plan p : planList) {
+				p.setProgress(0);
+			}
+			progress = 0;
+		}
+		
 		task.setProgress(progress);
 	}
 
@@ -148,6 +177,17 @@ public class TaskService {
 		}
 	}
 	
+	// task에 할당된 plan을 지우되 목록으로 주어진 list에 존재하는 plan은 지우지 않습니다. witoutList는 삭제하지 않을 plan의 uid를 가집니다.
+	public void clearPlanWithout(Task task, List<Long> withoutList) {
+		List<Plan> planList = task.getPlans();
+
+		for(Plan p : planList) {
+			if(withoutList.indexOf(p.getUid()) < 0) {//witout목록에 없으면 삭제
+				planRepository.delete(p);
+			}
+		}
+	}
+	
 	public void addPlan(Task task, Date doDate, int doTime) {
 		if(doTime < 0 || doTime > 1440) {
 			throw new InvalidArgumentException("doTime", "0~1440", ""+doTime);
@@ -160,6 +200,15 @@ public class TaskService {
 		newPlan.setTask(task);
 		
 		planRepository.saveAndFlush(newPlan);
+		
+		if(task.getPlans() == null) {
+			List<Plan> temp = new ArrayList<Plan>();
+			temp.add(newPlan);
+			task.setPlans(temp);
+		}
+		else {
+			task.getPlans().add(newPlan);
+		}
 	}
 	
 	public List<Task> getTaskListToPlan(long userUid, Date planStartDate){
@@ -187,6 +236,13 @@ public class TaskService {
 		result.setUid((long)-1);;
 		
 		return result;
-
 	}
+
+	// task와 progress 추가감소량을 받아 덧셈뺄셈.
+	public void addProgress(Task task, int progressDiff) {
+		int prevProgress = task.getProgress();
+		int actualProgress = prevProgress + progressDiff;
+		this.setProgress(task,  actualProgress);
+	}
+	
 }

@@ -14,4 +14,12 @@ public class EntityNotFoundException extends ToplaException {
 		list.add(uid+"");
 		this.setArguments(list);
 	}
+	
+	public EntityNotFoundException(String entityName, String msg) {
+		super("ENF", entityName + ": "+ msg);
+		ArrayList<String> list = new ArrayList<>();
+		list.add(entityName);
+		list.add(msg);
+		this.setArguments(list);
+	}
 }

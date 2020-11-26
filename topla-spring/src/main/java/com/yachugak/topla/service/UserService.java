@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.yachugak.topla.entity.SchedulePreset;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.exception.DuplicatedException;
+import com.yachugak.topla.exception.EntityNotFoundException;
 import com.yachugak.topla.exception.InvalidArgumentException;
 import com.yachugak.topla.repository.PresetRepository;
 import com.yachugak.topla.repository.UserRepository;
@@ -26,7 +27,19 @@ public class UserService {
 	}
 	
 	public User findUserByEmail(String email) {
-		return userRepository.findByEmail(email).get();
+		if(email == null) {
+			throw new InvalidArgumentException("email", "null값이 아닌 String", email+"");
+		}
+		if(email.isBlank()) {
+			throw new InvalidArgumentException("email", "빈 값이 아닌 String", email+"");
+		}
+		
+		User targetUser = userRepository.findByEmail(email).get();
+		if(targetUser == null) {
+			throw new javax.persistence.EntityNotFoundException("해당 유저가 존재하지 않음.");
+		}
+		
+		return targetUser;
 	}
 
 	public void setPresetCode(User user, long presetUid) {
@@ -87,6 +100,18 @@ public class UserService {
 
 	public void setDeviceToken(User targetUser, String deviceToken) {
 		targetUser.setDeviceToken(deviceToken);
+	}
+	
+	public Double getLossPriority(User targetUser) {
+		return targetUser.getTotalLossPriority();
+	}
+
+	public User userLogin(String email, String password) {
+		Optional<User> targetUser = userRepository.findByEmailAndPassword(email, password);
+		if(!targetUser.isPresent()) {
+			throw new EntityNotFoundException("user", "유저: "+ email + "가 존재하지 않습니다.");
+		}
+		return targetUser.get();
 	}
 	
 }

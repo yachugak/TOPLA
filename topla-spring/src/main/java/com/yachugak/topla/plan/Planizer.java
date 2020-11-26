@@ -33,12 +33,19 @@ public class Planizer {
 		this.tasks = tasks;
 		this.planStartDate = planStartDate;
 		this.day = planStartDate.getDay();
+		this.timeTable = null;
+	}
+	
+	public void setDoneTimeTable(TimeTable doneTimeTable) {
+		this.timeTable = doneTimeTable.copy();
 	}
 	
 	public TimeTable greedyPlan() {
 		//일정 계산 과정을 저장하는 임시 시간표
-		this.timeTable = new TimeTable();
-		this.timeTable.getDays().add(new Day());
+		if(this.timeTable == null) {
+			this.timeTable = new TimeTable();
+			this.timeTable.getDays().add(new Day());
+		}
 		
 		logger.debug(tasks.size() + "개의 작업에 대해 일정을 계산합니다.");
 		
@@ -48,7 +55,10 @@ public class Planizer {
 		int nowDayOffset = 0;//현재 작업중인 날짜
 		for(Task task : tasks) {
 			boolean allocationFlag = false;//현 task의 할당이 성공했는지 기록하는 플래그 변수, flag면 아직 할당 못 했다는 뜻
-			int taskLeftTime = task.getEstimatedTime(); //이 작업의 남은 할당 시간
+			int taskLeftTime = task.getEstimatedTime() - task.getProgress(); //이 작업의 남은 할당 시간
+			if(taskLeftTime <= 0) {
+				continue;
+			}
 			this.timeTable.registerTask(task);
 
 			while(allocationFlag == false) {
@@ -72,8 +82,11 @@ public class Planizer {
 	}
 
 	public TimeTable naivelyOptimizedPlan() {
-		Planizer planizer = new Planizer(this.schedulePreset, this.tasks, this.planStartDate);
 		//일단 마감일 순으로 일정 짜 보고 일정이 터지는지 확인
+		Planizer planizer = new Planizer(this.schedulePreset, this.tasks, this.planStartDate);
+		if(this.timeTable != null) {
+			planizer.setDoneTimeTable(this.timeTable);
+		}
 		TimeTable greedyResult = planizer.greedyPlan();
 		if(greedyResult.getTotalLossPriority(this.planStartDate) <= 0.0) {
 			return greedyResult;
@@ -102,11 +115,22 @@ public class Planizer {
 		//줄일 일정부터 시작해서 그 이후의 일정을 당긴다.
 		int originalEstimatedTime = maxLossEffectTask.getEstimatedTime();
 		int halfEstimatedTime = HalfMinutesTime.roundUpAndDown(originalEstimatedTime/2);
+
+		//30분 이하라 줄일 수 없으면 그냥 greedyResult를 반환한다.
 		if(originalEstimatedTime == halfEstimatedTime) {
 			return greedyResult;
 		}
+		
+		//줄였는데 이미 완료된만큼이면 그냥 greedyResult를 반환한다.
+		if(halfEstimatedTime <= maxLossEffectTask.getProgress()) {
+			return greedyResult;
+		}
+
 		maxLossEffectTask.setEstimatedTime(halfEstimatedTime);
 		planizer = new Planizer(this.schedulePreset, this.tasks, this.planStartDate);
+		if(this.timeTable != null) {
+			planizer.setDoneTimeTable(this.timeTable);
+		}
 		TimeTable reducedResult = planizer.greedyPlan();
 		maxLossEffectTask.setEstimatedTime(originalEstimatedTime);
 		reducedResult.setEstimateTimeOfTask(maxLossEffectTask.getUid(), originalEstimatedTime);
@@ -158,6 +182,9 @@ public class Planizer {
 	
 	private int getTodayTaskTime(int nowDayOffset) {
 		int timeSum = 0;
+		if(nowDayOffset >= this.timeTable.getDays().size()) {
+			return 0;
+		}
 		List<TaskItem> taskList = this.timeTable.getDay(nowDayOffset).getTaskItems();
 		for(TaskItem task : taskList) {
 			timeSum += task.getTime();
