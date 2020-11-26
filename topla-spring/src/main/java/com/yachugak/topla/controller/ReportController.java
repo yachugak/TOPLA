@@ -76,7 +76,7 @@ public class ReportController {
 	@GetMapping("/statisticsReport")
 	@Transactional(readOnly = true)
 	public ReportResponseFormat statisticsReport() {
-		ReportResponseFormat result = new ReportResponseFormat(new Date());
+		ReportResponseFormat result = new ReportResponseFormat(new Date(), taskHistoryService, reportService);
 		
 		return result;
 	}
