@@ -40,6 +40,13 @@ public class TimeTable {
 			throw new NotRegisteredTaskException("사전에 등록되지 않은 taskId:"+taskId);
 		}
 		
+		if(this.days.size() <= dayOffset) {
+			int pushCount = dayOffset - this.days.size() + 1;
+			for(int i = 0; i < pushCount; i++) {
+				this.days.add(new Day());
+			}
+		}
+		
 		Day day = this.getDay(dayOffset);
 		
 		day.getTaskItems().add(taskItem);
@@ -105,6 +112,16 @@ public class TimeTable {
 		this.registerTaskInfo(task.getUid(), task.getEstimatedTime(), task.getPriority(), task.getDueDate());
 	}
 	
+	public void registerTask(long taskUid, TaskInfo taskInfo) {
+		TaskInfo newTaskInfo = new TaskInfo();
+		newTaskInfo.successTime = taskInfo.successTime;
+		newTaskInfo.totalTime = taskInfo.totalTime;
+		newTaskInfo.priority = taskInfo.priority;
+		newTaskInfo.dueDate = taskInfo.dueDate.plusDays(0);//복사
+		
+		this.taskInfoDict.put(taskUid, taskInfo);
+	}
+	
 	//임시로 estimateTime을 변경한 task의 estimateTime을 사후 조정할 수 있게 해 주는 함수입니다.
 	public void setEstimateTimeOfTask(long taskId, int estimatedTime) {
 		TaskInfo taskInfo = this.taskInfoDict.get(taskId);
@@ -141,6 +158,41 @@ public class TimeTable {
 		}
 		
 		return item.dueDate;
+	}
+	
+	public TimeTable copy() {
+		TimeTable copyedTimeTable = new TimeTable();
+		
+		for(int dayOffset = 0; dayOffset < this.days.size(); dayOffset++) {
+			List<TaskItem> taskItemList = this.days.get(dayOffset).getTaskItems();
+			
+			for(TaskItem ti : taskItemList) {
+				TaskItem copyedTaskItem = new TaskItem();
+				copyedTaskItem.setTaskId(ti.getTaskId());
+				copyedTaskItem.setTime(ti.getTime());
+				copyedTaskItem.setPlnaUid(ti.getPlnaUid());
+				
+				TaskInfo taskInfo = this.taskInfoDict.get(ti.getTaskId());
+				
+				copyedTimeTable.registerTask(ti.getTaskId(), taskInfo);
+				
+				copyedTimeTable.addTaskItem(dayOffset, copyedTaskItem);
+			}
+		}
+		
+		return copyedTimeTable;
+	}
+
+	//이 시간표에 들어있는 plan들의 uid를 구합니다.
+	public List<Long> getPlanUidList(){
+		ArrayList<Long> planUidList = new ArrayList<Long>();
+		for(Day day : this.days) {
+			for(TaskItem ti : day.getTaskItems()) {
+				planUidList.add(ti.getPlnaUid());
+			}
+		}
+		
+		return planUidList;
 	}
 }
 

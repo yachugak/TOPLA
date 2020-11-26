@@ -7,21 +7,42 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
+import com.yachugak.topla.entity.Plan;
 import com.yachugak.topla.entity.Task;
+import com.yachugak.topla.entity.User;
 import com.yachugak.topla.exception.ToplaException;
 import com.yachugak.topla.plan.Day;
 import com.yachugak.topla.plan.Planizer;
 import com.yachugak.topla.plan.TaskItem;
 import com.yachugak.topla.plan.TimeTable;
+import com.yachugak.topla.repository.PlanRepository;
+import com.yachugak.topla.service.PlanService;
+import com.yachugak.topla.service.TaskService;
+import com.yachugak.topla.service.UserService;
 
 @SpringBootTest
 public class PlanTest {
+	@Autowired
+	private PlanRepository planRepository;
+	
+	@Autowired
+	private TaskService taskService;
+	
+	@Autowired
+	private PlanService planService;
+	
+	@Autowired
+	private UserService userService;
 	
 	@Test
 	public void planTest() {
@@ -32,10 +53,10 @@ public class PlanTest {
 		}
 		ArrayList<Task> tasks = new ArrayList<>();
 		Task task1 = new Task();
-		task1.setUid(1L); task1.setDueDate(today); task1.setEstimatedTime(120); task1.setPriority(2);
+		task1.setUid(1L); task1.setDueDate(today); task1.setEstimatedTime(120); task1.setPriority(2); task1.setProgress(0);
 
 		Task task2 = new Task();
-		task2.setUid(2L); task2.setDueDate(today); task2.setEstimatedTime(180); task2.setPriority(3);
+		task2.setUid(2L); task2.setDueDate(today); task2.setEstimatedTime(180); task2.setPriority(3); task2.setProgress(0);
 
 		tasks.add(task1);
 		tasks.add(task2);
@@ -154,6 +175,8 @@ public class PlanTest {
 		double oldTotalLoss = oldTimeTable.getTotalLossPriority(planStartDate);
 		
 		assertEquals(9.0, oldTotalLoss, 0.0001);
+		
+		planizer = new Planizer(schedulePreset, testTaskList, planStartDate);
 
 		TimeTable timeTable = planizer.naivelyOptimizedPlan();
 		double newTotalLoss = timeTable.getTotalLossPriority(planStartDate);
@@ -161,6 +184,42 @@ public class PlanTest {
 
 		assertEquals(1.0, newTotalLoss, 0.0001);
 		
+	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	public void repositoryDateConditionTest() {
+		Task tempTask = taskService.createNewTask("aa", 1);
+		Plan p = new Plan();
+		p.setDoDate(makeDate(2020, 11, 23));
+		p.setDoTime(30);
+		p.setProgress(0);
+		p.setTask(tempTask);
+		
+		planRepository.saveAndFlush(p);
+		
+		List<Plan> resultList = planRepository.findByDoDateGreaterThanEqual(makeDate(2020, 11, 22));
+		
+		boolean findFlag = false;
+
+		for(Plan resultItem : resultList) {
+			if(resultItem.getUid() == p.getUid()) {
+				findFlag = true;
+				break;
+			}
+		}
+		
+		assertTrue(findFlag);
+	}
+
+	public void indexOfTest() {
+		List<Long> list = new ArrayList<Long>();
+		list.add(1L);
+		list.add(2L);
+		
+		assertTrue(list.indexOf(1L)>= 0);
+		assertTrue(list.indexOf(2L)>= 0);
+		assertTrue(list.indexOf(3L) < 0);
 	}
 
 	private Date makeDate(int year, int month, int date) {
@@ -178,6 +237,211 @@ public class PlanTest {
 		temp.setPriority(priority);
 		temp.setEstimatedTime(estimatedTime);
 		temp.setDueDate(dueDate);
+		temp.setProgress(0);
 		return temp;
+	}
+	
+	@Test
+	public void dayOffsetTest() {
+		Date planStartDate = makeDate(2020, 11, 23);
+		Date offset0 = makeDate(2020, 11, 23);
+		Date offset1 = makeDate(2020, 11, 24);
+		Date offset2 = makeDate(2020, 11, 25);
+		Date offsetMinus1 = makeDate(2020, 11, 22);
+		
+		assertEquals(0, planService.calDayOffset(planStartDate, offset0));
+		assertEquals(1, planService.calDayOffset(planStartDate, offset1));
+		assertEquals(2, planService.calDayOffset(planStartDate, offset2));
+		assertEquals(-1, planService.calDayOffset(planStartDate, offsetMinus1));
+	}
+	
+	@Test
+	public void alreadyFinishiedTaskPlanTest() {
+		SchedulePresetDataFormat schedulePreset = new SchedulePresetDataFormat();
+		schedulePreset.decode("0000018001800000018002400120");
+		ArrayList<Task> testTaskList = new ArrayList<>();
+		testTaskList.add(makeTask(1L, 2, 120, makeDate(2020,6,18)));
+		testTaskList.add(makeTask(2L, 1, 60, makeDate(2020,6,19)));
+
+		Task finishTargetTask = makeTask(3L, 2, 300, makeDate(2020,6,21));
+		testTaskList.add(finishTargetTask);
+
+		testTaskList.add(makeTask(4L, 2, 60, makeDate(2020,6,22)));
+		testTaskList.add(makeTask(5L, 3, 240, makeDate(2020,6,22)));
+		testTaskList.add(makeTask(6L, 1, 120, makeDate(2020,6,23)));
+		testTaskList.add(makeTask(7L, 2, 120, makeDate(2020,6,24)));
+		testTaskList.add(makeTask(8L, 2, 120, makeDate(2020,6,25)));
+		testTaskList.add(makeTask(9L, 3, 60, makeDate(2020,6,25)));
+		
+		Date planStartDate = makeDate(2020,6,18);
+		
+		//task id 3번을 19일에 미리 2시간 완료시켜 놓는다.
+		Plan alreadyFinishedPlan = new Plan();
+		alreadyFinishedPlan.setUid(1L);
+		alreadyFinishedPlan.setDoDate(makeDate(2020, 6, 19));
+		alreadyFinishedPlan.setDoTime(120);
+		alreadyFinishedPlan.setProgress(120);
+		alreadyFinishedPlan.setTask(finishTargetTask);
+		finishTargetTask.setProgress(120);
+		ArrayList<Plan> temp = new ArrayList<>();
+		temp.add(alreadyFinishedPlan);
+		finishTargetTask.setPlans(temp);
+		
+		TimeTable doneTimeTable = new TimeTable();
+		doneTimeTable.registerTask(finishTargetTask);
+		TaskItem ti = new TaskItem();
+		ti.setPlnaUid(alreadyFinishedPlan.getUid());
+		ti.setTaskId(alreadyFinishedPlan.getTask().getUid());
+		ti.setTime(120);
+		doneTimeTable.addTaskItem(0, ti);
+		
+		Planizer planizer = new Planizer(schedulePreset, testTaskList, planStartDate);
+		planizer.setDoneTimeTable(doneTimeTable);
+		TimeTable greedyTimeTable = planizer.greedyPlan();
+		
+		//첫 날 검증
+		ArrayList<TaskItem> day0List = greedyTimeTable.getDay(0).getTaskItemsOrderByTaskId();
+		assertEquals(1L, day0List.get(0).getTaskId());
+		assertEquals(60, day0List.get(0).getTime());
+		assertEquals(3L, day0List.get(1).getTaskId());
+		assertEquals(120, day0List.get(1).getTime());
+		assertEquals(1L, day0List.get(1).getPlnaUid());
+		
+		//둘 째날 검증
+		ArrayList<TaskItem> day1List = greedyTimeTable.getDay(1).getTaskItemsOrderByTaskId();
+		assertEquals(1L, day1List.get(0).getTaskId());
+		assertEquals(60, day1List.get(0).getTime());
+		assertEquals(2L, day1List.get(1).getTaskId());
+		assertEquals(60, day1List.get(1).getTime());
+		assertEquals(3L, day1List.get(2).getTaskId());
+		assertEquals(120, day1List.get(2).getTime());
+		assertEquals(null, day1List.get(2).getPlnaUid());
+		
+		//셋 째날부터는 greedy plan과 동일하여 굳이 검증하지 않음.
+	}
+	
+
+	@Test
+	public void alreadyFinishiedTaskNaivelyOptimizedPlanTest() {
+		SchedulePresetDataFormat schedulePreset = new SchedulePresetDataFormat();
+		schedulePreset.decode("0000018001800000018002400120");
+		ArrayList<Task> testTaskList = new ArrayList<>();
+		testTaskList.add(makeTask(1L, 2, 120, makeDate(2020,6,18)));
+		testTaskList.add(makeTask(2L, 1, 60, makeDate(2020,6,19)));
+
+		Task finishTargetTask = makeTask(3L, 2, 300, makeDate(2020,6,21));
+		testTaskList.add(finishTargetTask);
+
+		testTaskList.add(makeTask(4L, 2, 60, makeDate(2020,6,22)));
+		testTaskList.add(makeTask(5L, 3, 240, makeDate(2020,6,22)));
+		testTaskList.add(makeTask(6L, 1, 120, makeDate(2020,6,23)));
+		testTaskList.add(makeTask(7L, 2, 120, makeDate(2020,6,24)));
+		testTaskList.add(makeTask(8L, 2, 120, makeDate(2020,6,25)));
+		testTaskList.add(makeTask(9L, 3, 60, makeDate(2020,6,25)));
+		
+		Date planStartDate = makeDate(2020,6,18);
+		
+		//task id 3번을 19일에 미리 2시간 완료시켜 놓는다.
+		Plan alreadyFinishedPlan = new Plan();
+		alreadyFinishedPlan.setUid(1L);
+		alreadyFinishedPlan.setDoDate(makeDate(2020, 6, 19));
+		alreadyFinishedPlan.setDoTime(120);
+		alreadyFinishedPlan.setProgress(120);
+		alreadyFinishedPlan.setTask(finishTargetTask);
+		finishTargetTask.setProgress(120);
+		ArrayList<Plan> temp = new ArrayList<>();
+		temp.add(alreadyFinishedPlan);
+		finishTargetTask.setPlans(temp);
+		
+		TimeTable doneTimeTable = new TimeTable();
+		doneTimeTable.registerTask(finishTargetTask);
+		TaskItem ti = new TaskItem();
+		ti.setPlnaUid(alreadyFinishedPlan.getUid());
+		ti.setTaskId(alreadyFinishedPlan.getTask().getUid());
+		ti.setTime(120);
+		doneTimeTable.addTaskItem(0, ti);
+		
+		Planizer planizer = new Planizer(schedulePreset, testTaskList, planStartDate);
+		planizer.setDoneTimeTable(doneTimeTable);
+		TimeTable naiveTimeTable = planizer.naivelyOptimizedPlan();
+		
+		assertEquals(2.0, naiveTimeTable.getTotalLossPriority(planStartDate), 0.001);
+	}
+
+	@Test
+	public void taskItemSortTest() {
+		Task task1 = makeTask(1,1, 60, makeDate(2020, 11, 24)); 
+		Task task2 = makeTask(2,1, 60, makeDate(2020, 11, 24)); 
+
+		TaskItem ti1 = new TaskItem();
+		TaskItem ti2 = new TaskItem();
+		
+		ti1.setTaskId(1);
+		ti2.setTaskId(2);
+		
+		TimeTable tt = new TimeTable();
+		tt.registerTask(task1);
+		tt.registerTask(task2);
+
+		tt.addTaskItem(0, ti2);
+		tt.addTaskItem(0, ti1);
+		
+		ArrayList<TaskItem> sortedResult = tt.getDay(0).getTaskItemsOrderByTaskId();
+		
+		assertEquals(1L, sortedResult.get(0).getTaskId());
+		assertEquals(2L, sortedResult.get(1).getTaskId());
+	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	public void realPlanFixTest() {
+		User user = userService.findUserByEmail("test@acount.net");
+		Date today = makeDate(2020, 11, 25);
+		Date nextDay = makeDate(2020, 11, 26);
+		
+		Task task1 = taskService.createNewTask(user.getUid(), "작업1", 2);
+		task1.setEstimatedTime(120);
+		task1.setDueDate(nextDay);
+		
+		planService.plan(user, today);
+		
+		List<Plan> task1PlanList = planService.findByTask(task1);
+		task1.setPlans(task1PlanList);
+		long planUid = task1PlanList.get(0).getUid();
+		
+		planService.setProgress(task1PlanList.get(0), 120);
+		
+		Task task2 = taskService.createNewTask(user.getUid(), "작업2", 1);
+		task2.setEstimatedTime(120);
+		task2.setDueDate(today);
+		
+		planService.plan(user, today);
+		
+		task1PlanList = planService.findByTask(task1);
+		task1.setPlans(task1PlanList);
+		List<Plan> task2PlanList = planService.findByTask(task2);
+		task2.setPlans(task2PlanList);
+		
+		assertEquals(planUid, task1PlanList.get(0).getUid());
+		assertEquals(120, task1PlanList.get(0).getDoTime());
+		assertEquals(120, task1PlanList.get(0).getProgress());
+		assertTrue(dateEqual(makeDate(2020, 11, 25), task1PlanList.get(0).getDoDate()));
+
+		assertEquals(60, task2PlanList.get(0).getDoTime());
+		assertTrue(dateEqual(makeDate(2020, 11, 25), task2PlanList.get(0).getDoDate()));
+	}
+	
+	private boolean dateEqual(Date date1, Date date2) {
+		if(date1.getYear() != date2.getYear()) {
+			return false;
+		}
+		if(date1.getMonth() != date2.getMonth()) {
+			return false;
+		}
+		if(date1.getDate() != date2.getDate()) {
+			return false;
+		}
+		
+		return true;
 	}
 }
