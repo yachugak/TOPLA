@@ -30,8 +30,7 @@ public class RemindService {
 		this.restTemplate = restTemplateBuilder.build();
 	}
 	
-	public List<Task> searchTasksToRemind() {
-		Date currentTime = new Date();
+	public List<Task> searchTasksToRemind(Date currentTime) {
 		return taskService.findTaskByRemindingTiming(currentTime);
 	}
 	
