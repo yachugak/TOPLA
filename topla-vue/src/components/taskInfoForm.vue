@@ -78,14 +78,11 @@
             <v-icon>mdi-clock-check-outline</v-icon>
           </v-col>
           <v-col cols="9" class="leftCenter">
-            <duration-selector v-model="value.estimatedTime">
-            </duration-selector>
-
-            <v-text-field
-                v-show="false"
+            <duration-selector
                 v-model="value.estimatedTime"
-                :rules="rules.estimateTime"
-            ></v-text-field>
+                :rule="rules.estimateTime"
+            >
+            </duration-selector>
           </v-col>
         </v-row>
 
@@ -172,7 +169,7 @@ export default {
           validator.rules.required("마감일을 설정해 주세요."),
         ],
         estimateTime: [
-          validator.rules.required("예상시간을 설정해 주세요."),
+          validator.rules.required("예상 소요시간을 설정해 주세요."),
         ],
         location: [],
       },

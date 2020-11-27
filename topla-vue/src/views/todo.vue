@@ -83,7 +83,7 @@
         @click="isShowNewTaskdialog = true; taskCreatedMode = true"
     ><v-icon>mdi-plus-circle-outline</v-icon></v-btn>
 
-    <!--테스트 추가 창-->
+    <!--태스크 추가 창-->
     <v-dialog
         v-model="isShowNewTaskdialog"
         persistent
@@ -301,12 +301,18 @@ export default {
         }
 
         await this.getTaskList();
-        this.isCalling--
         this.isShowNewTaskdialog = false;
       }
 
       catch(e){
-        console.error(e.response.data)
+        this.$dialog.error({
+          title: "등록 실패",
+          text: e.response.data.message
+        });
+
+      }
+      finally {
+        this.isCalling--
       }
     },
 

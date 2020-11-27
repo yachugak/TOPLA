@@ -8,6 +8,7 @@
         v-model="innerModelValue"
         :hint="displayTime"
         step="30"
+        :rules="rule"
     ></v-slider>
     <v-expand-transition>
       <v-btn color="info" v-show="value>=nowTimeMax && value !== timeMax" @click="increaseMaxTime()">더 긴 시간을 원하십니까?</v-btn>
@@ -59,6 +60,11 @@ export default {
     value: {
       type: Number,
       default: 0
+    },
+
+    rule:{
+      type:Array,
+
     }
   },
 
