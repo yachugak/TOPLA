@@ -53,7 +53,7 @@ public class PlanService {
 		List<Task> taskList = taskService.getTaskListToPlan(user.getUid(), planStartDate);
 		
 		Planizer planizer = new Planizer(selectedPreset, taskList, planStartDate);
-		TimeTable doneTimeTable = this.recoverDoneTimeTable(planStartDate);
+		TimeTable doneTimeTable = this.recoverDoneTimeTable(user, planStartDate);
 		planizer.setDoneTimeTable(doneTimeTable);
 		TimeTable calculatedPlan = planizer.naivelyOptimizedPlan();
 		
@@ -136,10 +136,10 @@ public class PlanService {
 		return cappedProgress;
 	}
 	
-	public TimeTable recoverDoneTimeTable(Date startDate){
+	public TimeTable recoverDoneTimeTable(User user, Date startDate){
 		TimeTable doneTimeTable = new TimeTable();
 
-		List<Plan> planList = planRepository.findByDoDateGreaterThanEqual(startDate);
+		List<Plan> planList = planRepository.findByUserAndDoDateGreaterThanEqual(user.getUid(), startDate);
 
 		for(Plan plan : planList) {
 			if(plan.getDoTime() <= plan.getProgress()) { //progress는 doTime을 넘을 수 없지만 혹시 몰라서
