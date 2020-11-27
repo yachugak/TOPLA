@@ -27,4 +27,6 @@ public interface TaskRepository extends JpaRepository<Task, Long>{
 	
 	public List<Task> findByFinishDate(Date finishDate);
 
+	public List<Task> findByRemindingTiming(Date remindingTiming);
+	
 }
