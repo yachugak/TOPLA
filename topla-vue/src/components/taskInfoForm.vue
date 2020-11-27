@@ -136,7 +136,6 @@
           </v-col>
         </v-row>
       </v-form>
-      <v-btn @click="formValue">check</v-btn>
     </v-container>
     <kakao-map v-show="false" ref="map" :is-load-gps="false"></kakao-map>
   </v-form>
@@ -263,7 +262,6 @@ export default {
     },
 
     formValue() {
-      console.log(this.$refs.form.validate())
       return this.$refs.form.validate();
     },
   }
