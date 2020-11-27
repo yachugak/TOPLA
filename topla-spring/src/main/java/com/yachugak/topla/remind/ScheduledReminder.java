@@ -2,7 +2,9 @@ package com.yachugak.topla.remind;
 
 import java.time.OffsetTime;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,20 +29,28 @@ public class ScheduledReminder {
 		
 		this.taskRemindPush(currentTime);
 		this.userMorningPush(offsetTime);
-		this.userEveningPush(offsetTime);
+//		this.userEveningPush(offsetTime);
 	}
 	
+	// 작업별 리마인드 푸시
 	public void taskRemindPush (Date currentTime) {
 		List<Task> targetTasks = remindService.searchTasksToRemind(currentTime);
-		remindService.sendHttpsRequestToFirebase(targetTasks);
+		List<Map<String, Object>> map = remindService.prepareTaskRemindHttpBodyData(targetTasks);
+		remindService.sendHttpRequestToFirebase(map);
 	}
 	
+	// 유저별 아침 푸시 
 	public void userMorningPush(OffsetTime offsetTime) {
 		List<User> targetUsers = userService.findUserByMorningReportTime(offsetTime);
-		
+		List<Map<String, Object>> map = remindService.prepareUserMorningPushHttpBodyData(targetUsers);
+		remindService.sendHttpRequestToFirebase(map);
 	}
 	
-	public void userEveningPush(OffsetTime offsetTime) {
-		// TODO
-	}
+	// 유저별 오후 푸시
+//	public void userEveningPush(OffsetTime offsetTime) {
+//		// TODO
+//		List<User> targetUsers = userService.findUserByEveningReportTime(offsetTime);
+//		List<Map<String, Object>> map = remindService.prepareUserEveningPushHttpBodyData(targetUsers);
+//		remindService.sendHttpRequestToFirebase(map);
+//	}
 }
