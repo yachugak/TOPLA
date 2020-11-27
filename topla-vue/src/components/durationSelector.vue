@@ -29,6 +29,9 @@ export default {
 
   computed: {
     displayTime() {
+      if(this.value===0){
+        return "예상소요시간을 설정해 주세요"
+      }
       let hour = Number.parseInt(this.value / 60); //몫 구하기
       let min = this.value % 60; //나머지 구하기
 

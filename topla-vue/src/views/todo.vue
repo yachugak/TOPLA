@@ -92,7 +92,10 @@
       <v-card v-if="isShowNewTaskdialog">
         <v-card-title v-if="taskCreatedMode">새로운 작업 추가</v-card-title>
         <v-card-title v-else>작업 정보 보기 / 수정</v-card-title>
-        <task-info-form v-model="newTaskFormData"></task-info-form>
+        <task-info-form
+            v-model="newTaskFormData"
+            ref="infoForm"
+        ></task-info-form>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
@@ -273,6 +276,12 @@ export default {
     },
 
     async onAddNewTaskButtonClicked(){
+
+      let validationResultFlag = this.$refs.infoForm.formValue()
+      if(validationResultFlag === false){
+        return;
+      }
+
       let requestBody = {
         title: this.newTaskFormData.title,
         priority: this.newTaskFormData.priority,
@@ -281,10 +290,6 @@ export default {
         location: this.newTaskFormData.location
       }
 
-      let validationResultFlag = this.$refs.form.validate();
-      if(validationResultFlag === false){
-        return;
-      }
 
       try{
         this.isCalling++;
@@ -301,8 +306,7 @@ export default {
       }
 
       catch(e){
-        console.log(e);
-        console.log(requestBody)
+        console.error(e.response.data)
       }
     },
 
