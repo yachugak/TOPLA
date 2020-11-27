@@ -88,10 +88,16 @@ public class UserService {
 	}
 	
 	public void setEveningReportTime(User user, OffsetTime eveningReportTime) {
+		if(eveningReportTime == null) {
+			return;
+		}
 		user.setEveningReportTime(eveningReportTime);
 	}
 	
 	public void setMorningReportTime(User user, OffsetTime morningReportTime) {
+		if(morningReportTime == null) {
+			return;
+		}
 		user.setMorningReportTime(morningReportTime);
 	}
 
