@@ -8,13 +8,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.yachugak.topla.entity.Report;
+import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.entity.TaskHistory;
 
 @Repository
 public interface TaskHistoryRepository extends JpaRepository<TaskHistory, Long>{
 	public Optional<TaskHistory> findByUid(long uid);
 	
-	public List<TaskHistory> findByTaskUid(long TaskUid);
+	public List<TaskHistory> findByTask(Task task);
 	
 	public List<TaskHistory> findByReport(Report report);
 	

@@ -110,7 +110,7 @@ public class TaskController {
 		taskService.setProgress(updateTarget, progress);
 		
 		if(req.getProgress() < 0) {
-			List<TaskHistory> historyList = taskHistoryService.findByTaskUid(uid);
+			List<TaskHistory> historyList = taskHistoryService.findByTask(updateTarget);
 			
 			for(TaskHistory history : historyList) {
 				taskHistoryService.deleteHistory(history);
@@ -128,6 +128,8 @@ public class TaskController {
 	public String deleteTask(@PathVariable("uid") long uid) {
 		Task targetTask = taskService.findTaskById(uid);
 		taskService.deleteTask(targetTask);
+		
+		taskHistoryService.updateHistoryByTask(targetTask);
 		
 		return "ok";
 	}
