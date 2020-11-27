@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.yachugak.topla.controller.TaskController;
 import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
 import com.yachugak.topla.entity.Plan;
 import com.yachugak.topla.entity.Task;
@@ -26,6 +27,7 @@ import com.yachugak.topla.plan.Planizer;
 import com.yachugak.topla.plan.TaskItem;
 import com.yachugak.topla.plan.TimeTable;
 import com.yachugak.topla.repository.PlanRepository;
+import com.yachugak.topla.request.CreateTaskRequestFormat;
 import com.yachugak.topla.service.PlanService;
 import com.yachugak.topla.service.TaskService;
 import com.yachugak.topla.service.UserService;
@@ -43,6 +45,9 @@ public class PlanTest {
 	
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private TaskController taskController;
 	
 	@Test
 	public void planTest() {
@@ -429,6 +434,23 @@ public class PlanTest {
 
 		assertEquals(60, task2PlanList.get(0).getDoTime());
 		assertTrue(dateEqual(makeDate(2020, 11, 25), task2PlanList.get(0).getDoDate()));
+	}
+	
+	//doTime이 minus가 되던 상황을 재현
+	@Test
+	@Transactional(readOnly = false)
+	public void planDoTimeMinusCase() {
+		CreateTaskRequestFormat req = new CreateTaskRequestFormat();
+		req.setTitle("aaa");
+		req.setPriority(1);
+		req.setDueDate(makeDate(2020, 11, 27));
+		req.setEstimatedTime(240);
+		req.setDuplicated(false);
+
+		String res = this.taskController.createNewTask("test@acount.net", req);
+		
+		//예외 안 던져지면 성공
+		assertEquals("ok", res);
 	}
 	
 	private boolean dateEqual(Date date1, Date date2) {
