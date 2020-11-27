@@ -55,7 +55,8 @@ public class PlanService {
 		Planizer planizer = new Planizer(selectedPreset, taskList, planStartDate);
 		TimeTable doneTimeTable = this.recoverDoneTimeTable(planStartDate);
 		planizer.setDoneTimeTable(doneTimeTable);
-		TimeTable calculatedPlan = planizer.naivelyOptimizedPlan();
+		// TimeTable calculatedPlan = planizer.naivelyOptimizedPlan();
+		TimeTable calculatedPlan = planizer.fractionalBinPackingPlan();
 		
 		//task의 기존 일정 초기화
 		int lastDayOffset = calculatedPlan.getLastDayOffset();

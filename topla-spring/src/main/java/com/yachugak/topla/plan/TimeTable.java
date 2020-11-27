@@ -194,6 +194,16 @@ public class TimeTable {
 		
 		return planUidList;
 	}
+
+	public void deleteAllUndonTaskItemByTaskId(long uid) {
+		for(Day day : this.days) {
+			for(TaskItem ti : day.getTaskItems()) {
+				if(ti.getTaskId() == uid && ti.getPlnaUid() == null) {
+					day.getTaskItems().remove(ti);
+				}
+			}
+		}
+	}
 }
 
 class TaskInfo{

@@ -431,6 +431,60 @@ public class PlanTest {
 		assertTrue(dateEqual(makeDate(2020, 11, 25), task2PlanList.get(0).getDoDate()));
 	}
 	
+	@Test
+	public void FractionalBinPackingPlanTest() {
+		SchedulePresetDataFormat schedulePreset = new SchedulePresetDataFormat();
+		schedulePreset.decode("0000018001800000018002400120");
+		ArrayList<Task> testTaskList = new ArrayList<>();
+		testTaskList.add(makeTask(1L, 2, 120, makeDate(2020,6,18)));
+		testTaskList.add(makeTask(2L, 1, 60, makeDate(2020,6,19)));
+		testTaskList.add(makeTask(3L, 2, 300, makeDate(2020,6,21)));
+		testTaskList.add(makeTask(4L, 2, 60, makeDate(2020,6,22)));
+		testTaskList.add(makeTask(5L, 3, 240, makeDate(2020,6,22)));
+		testTaskList.add(makeTask(6L, 1, 120, makeDate(2020,6,23)));
+		testTaskList.add(makeTask(7L, 2, 120, makeDate(2020,6,24)));
+		testTaskList.add(makeTask(8L, 2, 120, makeDate(2020,6,25)));
+		testTaskList.add(makeTask(9L, 3, 60, makeDate(2020,6,25)));
+		
+		Date planStartDate = makeDate(2020,6,18);
+
+		Planizer planizer = new Planizer(schedulePreset, testTaskList, planStartDate);
+		TimeTable result = planizer.fractionalBinPackingPlan();
+		
+		assertEquals(1L, result.getDay(0).getTaskItemsOrderByTaskId().get(0).getTaskId());
+		assertEquals(120, result.getDay(0).getTaskItemsOrderByTaskId().get(0).getTime());
+
+		assertEquals(2L, result.getDay(0).getTaskItemsOrderByTaskId().get(1).getTaskId());
+		assertEquals(60, result.getDay(0).getTaskItemsOrderByTaskId().get(1).getTime());
+
+		assertEquals(4L, result.getDay(1).getTaskItemsOrderByTaskId().get(0).getTaskId());
+		assertEquals(60, result.getDay(1).getTaskItemsOrderByTaskId().get(0).getTime());
+
+		assertEquals(5L, result.getDay(1).getTaskItemsOrderByTaskId().get(1).getTaskId());
+		assertEquals(120, result.getDay(1).getTaskItemsOrderByTaskId().get(1).getTime());
+
+		assertEquals(9L, result.getDay(1).getTaskItemsOrderByTaskId().get(2).getTaskId());
+		assertEquals(60, result.getDay(1).getTaskItemsOrderByTaskId().get(2).getTime());
+
+		assertEquals(5L, result.getDay(2).getTaskItemsOrderByTaskId().get(0).getTaskId());
+		assertEquals(120, result.getDay(2).getTaskItemsOrderByTaskId().get(0).getTime());
+
+		assertEquals(7L, result.getDay(4).getTaskItemsOrderByTaskId().get(0).getTaskId());
+		assertEquals(120, result.getDay(4).getTaskItemsOrderByTaskId().get(0).getTime());
+
+		assertEquals(8L, result.getDay(4).getTaskItemsOrderByTaskId().get(1).getTaskId());
+		assertEquals(60, result.getDay(4).getTaskItemsOrderByTaskId().get(1).getTime());
+
+		assertEquals(6L, result.getDay(5).getTaskItemsOrderByTaskId().get(0).getTaskId());
+		assertEquals(120, result.getDay(5).getTaskItemsOrderByTaskId().get(0).getTime());
+
+		assertEquals(8L, result.getDay(5).getTaskItemsOrderByTaskId().get(1).getTaskId());
+		assertEquals(60, result.getDay(5).getTaskItemsOrderByTaskId().get(1).getTime());
+
+
+		assertEquals(2.0, result.getTotalLossPriority(planStartDate), 0.001);
+	}
+	
 	private boolean dateEqual(Date date1, Date date2) {
 		if(date1.getYear() != date2.getYear()) {
 			return false;
