@@ -245,4 +245,8 @@ public class TaskService {
 		this.setProgress(task,  actualProgress);
 	}
 	
+	public List<Task> findTaskByRemindingTiming(Date remindingTiming) {
+		return taskRepository.findByRemindingTiming(remindingTiming);
+	}
+	
 }

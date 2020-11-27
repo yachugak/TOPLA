@@ -395,6 +395,11 @@ export default {
   created() {
     this.getTaskList();
     this.getSchedulePreset();
+
+    if(this.$route.params.date !==undefined && this.$route.params.viewMode!==undefined){
+      this.selectedDate=new Date(this.$route.params.date)
+      this.taskViewMode=this.$route.params.viewMode
+    }
   }
 }
 </script>

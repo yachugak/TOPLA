@@ -259,7 +259,7 @@ public class Planizer {
 		
 		long taskId = targetTask.getUid();
 		
-		if(allocableTime == 0) {
+		if(allocableTime <= 0) {
 			//오늘 더이상 남은 시간이 없으면 할당하지 않고 넘김
 			return 0;
 		}

@@ -23,11 +23,17 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/test.vue')
   },
+
   {
     path: '/preset',
     name: 'preset mode',
     component: () => import(/* webpackChunkName: "about" */ '../views/preset.vue')
   },
+  {
+    path: '/calendar',
+    name: 'calendar mode',
+    component: () => import(/* webpackChunkName: "about" */ '../views/calendar.vue')
+  }
 ]
 
 const router = new VueRouter({
