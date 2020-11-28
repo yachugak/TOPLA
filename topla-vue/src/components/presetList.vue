@@ -13,14 +13,13 @@
       </v-col>
       <v-col cols="12">
         <div class="flexBox">
-          <v-btn color="primary" class="mr-2"
-                 @click="changePresetId(preset.presetUid)"
-          >적용</v-btn>
-
           <v-btn color="error"
                 @click="deletePreset(preset.presetUid)"
+                 class="mr-2"
           >삭제</v-btn>
-
+          <v-btn color="primary"
+                 @click="changePresetId(preset.presetUid)"
+          >적용</v-btn>
         </div>
       </v-col>
     </v-row>

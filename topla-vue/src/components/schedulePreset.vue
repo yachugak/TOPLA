@@ -4,7 +4,6 @@
         v-for="i in 7"
         :key="i-1"
         v-model="value[i-1]"
-        :label="labelList[i-1]"
         vertical
         :disabled=presetChange
         step="30"
@@ -20,6 +19,9 @@
             :max="max"
             :min="0"
         ></v-text-field>
+      </template>
+      <template v-slot:prepend>
+        {{labelList[i-1]}}
       </template>
     </v-slider>
 
