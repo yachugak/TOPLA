@@ -1,6 +1,7 @@
 package com.yachugak.topla.service;
 
 import java.time.OffsetTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,10 +88,16 @@ public class UserService {
 	}
 	
 	public void setEveningReportTime(User user, OffsetTime eveningReportTime) {
+		if(eveningReportTime == null) {
+			return;
+		}
 		user.setEveningReportTime(eveningReportTime);
 	}
 	
 	public void setMorningReportTime(User user, OffsetTime morningReportTime) {
+		if(morningReportTime == null) {
+			return;
+		}
 		user.setMorningReportTime(morningReportTime);
 	}
 
@@ -112,6 +119,10 @@ public class UserService {
 			throw new EntityNotFoundException("user", "유저: "+ email + "가 존재하지 않습니다.");
 		}
 		return targetUser.get();
+	}
+	
+	public List<User> findUserByMorningReportTime(OffsetTime morningTime) {
+		return userRepository.findByMorningReportTime(morningTime);
 	}
 	
 }

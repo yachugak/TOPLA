@@ -167,4 +167,11 @@ public class PlanService {
 	public List<Plan> findByTask(Task task){
 		return planRepository.findByTask(task);
 	}
+
+
+	public List<Plan> findPlanByUserUidAndDoDate(Long userUid, Date doDate) {
+		// TODO: 리뷰필요.
+		return planRepository.findPlanToMorningPush(userUid, doDate);
+		
+	}
 }
