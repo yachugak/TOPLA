@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
 import com.yachugak.topla.entity.Task;
+import com.yachugak.topla.util.DayCalculator;
 import com.yachugak.topla.util.HalfMinutesTime;
 
 import net.bytebuddy.description.type.TypeDescription.Generic.Visitor.Reducing;
@@ -144,6 +145,110 @@ public class Planizer {
 
 		return reducedResult;
 	}
+	
+	public TimeTable fractionalBinPackingPlan() {
+		//일단 마감일 순으로 일정 짜 보고 일정이 터지는지 확인
+		Planizer planizer = new Planizer(this.schedulePreset, this.tasks, this.planStartDate);
+		if(this.timeTable != null) {
+			planizer.setDoneTimeTable(this.timeTable);
+		}
+		TimeTable greedyResult = planizer.greedyPlan();
+		if(greedyResult.getTotalLossPriority(this.planStartDate) <= 0.0) {
+			return greedyResult;
+		}
+		
+		if(this.timeTable == null) {
+			this.timeTable = new TimeTable();
+			this.timeTable.getDays().add(new Day());
+		}
+		
+		//일정이 터졌다면
+		ArrayList<TaskIdValuePair> valueList = new ArrayList<TaskIdValuePair>();
+		
+		for(Task task : this.tasks) {
+			int priority = task.getPriority();
+			int estimatedTime = task.getEstimatedTime();
+			int leftDayToDueDate = DayCalculator.calDayOffset(this.planStartDate, task.getDueDate());
+			
+			double value = (double) priority / (double) estimatedTime;
+			value = value / (double) (leftDayToDueDate+1);
+			
+			valueList.add(new TaskIdValuePair(task.getUid(), value));
+		}
+		
+		//가치 순으로 정렬
+		Collections.sort(valueList, Collections.reverseOrder());
+		
+		int dayOffset0Day = this.day;
+		
+		//이제 넣자
+		for(TaskIdValuePair tivp : valueList) {
+			long taskId = tivp.taskId;
+			Task task = getTask(taskId);
+			int leftTime = 0;
+			if(task.getProgress() == null) {
+				leftTime = task.getEstimatedTime();
+			}
+			else {
+				leftTime = task.getEstimatedTime() - task.getProgress();
+			}
+			
+			boolean allocationFlag = false;
+			int nowDayOffset = 0;
+			this.day = dayOffset0Day;
+			
+			this.timeTable.registerTask(task);
+			
+			while(leftTime > 0) {
+				if(this.isDueOver(nowDayOffset, task)) {
+					if(task.getPriority() == 3) {
+						this.timeTable.deleteAllUndonTaskItemByTaskId(task.getUid());
+					}
+					break;
+				}
+				
+				int scheduleLeftTime = this.getScheduleLeftTime(nowDayOffset);
+				if(scheduleLeftTime <= 0) {
+					nowDayOffset++;
+					goNextDay();
+					continue;
+				}
+				
+				int allocateTime = this.allocateTask(nowDayOffset, task, leftTime);
+				
+				leftTime = leftTime - allocateTime;
+			}
+		}
+		
+		return this.timeTable;
+	}
+	
+	private int getScheduleLeftTime(int nowDayOffset) {
+		int nowTodayTaskTime = getTodayTaskTime(nowDayOffset);
+		int todaySchedulePreset = getTodaySchedulePreset();
+		
+		return todaySchedulePreset - nowTodayTaskTime;
+	}
+
+	private boolean isDueOver(int dayOffset, Task task) {
+		int leftDay = DayCalculator.calDayOffset(this.planStartDate, task.getDueDate());
+		
+		if(leftDay < dayOffset) {
+			return true;
+		}
+		
+		return false;
+	}
+
+	private Task getTask(long taskId) {
+		for(Task task : this.tasks) {
+			if(task.getUid() == taskId) {
+				return task;
+			}
+		}
+		
+		return null;
+	}
 
 	//오늘 날짜에 작업을 할당하는 함수
 	//반환값은 오늘 할당에 성공한 시간이다.
@@ -204,5 +309,30 @@ public class Planizer {
 				return t1.getDueDate().compareTo(t2.getDueDate());
 			}
 		});
+	}
+}
+
+
+class TaskIdValuePair implements Comparable<TaskIdValuePair>{
+	public long taskId;
+	public double value;
+	
+	public TaskIdValuePair(long taskId, double value) {
+		this.taskId = taskId;
+		this.value = value;
+	}
+	
+	@Override
+	public int compareTo(TaskIdValuePair compareTarget) {
+		if(this.value < compareTarget.value) {
+			return -1;
+		}
+		
+		if(this.value == compareTarget.value) {
+			return 0;
+		}
+		
+		return 1;
+		
 	}
 }
