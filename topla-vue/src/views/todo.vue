@@ -92,26 +92,26 @@
     >
       <v-card v-if="isShowNewTaskdialog">
         <v-card-title v-if="taskCreatedMode">새로운 작업 추가</v-card-title>
-        <v-card-title v-else>작업 정보 보기 / 수정</v-card-title>
+        <v-card-title v-else>작업 정보 수정</v-card-title>
         <task-info-form
             v-model="newTaskFormData"
             ref="infoForm"
         ></task-info-form>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
+          <v-btn v-if="taskCreatedMode===false"
               color="error"
               @click="deleteRequest(updateTargetTask.uid)"
               :loading="isCalling>0"
           >
-            <v-icon>mdi-trash-can-outline</v-icon>
+            삭제
           </v-btn>
           <v-btn
               color="secondary"
               @click="isShowNewTaskdialog = false"
               :loading="isCalling>0"
           >
-            <v-icon>mdi-undo</v-icon>
+            뒤로
           </v-btn>
           <v-btn
               color="primary"
@@ -119,10 +119,10 @@
               :loading="isCalling>0"
           >
             <span v-if="taskCreatedMode">
-              <v-icon>mdi-note-plus-outline</v-icon>
+              추가
             </span>
             <span v-else>
-              <v-icon>mdi-pencil-box-outline</v-icon>
+              수정
             </span>
           </v-btn>
         </v-card-actions>
