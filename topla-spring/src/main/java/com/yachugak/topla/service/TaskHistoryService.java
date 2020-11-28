@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.yachugak.topla.entity.Plan;
 import com.yachugak.topla.entity.Report;
 import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.entity.TaskHistory;
@@ -24,6 +25,31 @@ public class TaskHistoryService {
 		taskHistoryRepository.saveAndFlush(newHistory);
 		
 		return newHistory;
+		
+	}
+	
+	public void updateHistoryByPlan(int getProgress, Task targetTask, Plan targetPlan) {
+		if(getProgress < 0) {
+			List<TaskHistory> historyList = this.findByTask(targetTask);
+			
+			for(TaskHistory history : historyList) {
+				if(history.getDoTime() == targetPlan.getDoTime()) {
+					this.deleteHistory(history);
+					break;
+				}
+			}
+		}
+		else {
+			this.createNewHistory(targetTask, getProgress);
+		}
+	}
+	
+	public void updateHistoryByTask(Task targetTask) {
+		List<TaskHistory> searcHistorie = this.findByTask(targetTask);
+		
+		for(TaskHistory dHistory : searcHistorie) {
+			this.deleteHistory(dHistory);
+		}
 		
 	}
 	
@@ -54,8 +80,8 @@ public class TaskHistoryService {
 		taskHistoryRepository.delete(history);
 	}
 	
-	public List<TaskHistory> findByTaskUid(Long taskUid){
-		List<TaskHistory> search = taskHistoryRepository.findByTaskUid(taskUid);
+	public List<TaskHistory> findByTask(Task task){
+		List<TaskHistory> search = taskHistoryRepository.findByTask(task);
 		
 		return search;
 	}

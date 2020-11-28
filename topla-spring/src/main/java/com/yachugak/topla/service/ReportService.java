@@ -49,4 +49,13 @@ public class ReportService {
 		
 		return opReport.get();
 	}
+	
+	public Report findReportByReportedDate(Date reportedDate) {
+		Optional<Report> opReport = reportRepository.findByReportedDate(reportedDate);
+		if(opReport.isPresent() == false) {
+			throw new EntityNotFoundException("reportedDate", "존재안함");
+		}
+		
+		return opReport.get();
+	}
 }

@@ -1,6 +1,7 @@
 package com.yachugak.topla.service;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +16,7 @@ import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.exception.EntityNotFoundException;
 import com.yachugak.topla.exception.InvalidArgumentException;
+import com.yachugak.topla.plan.TaskItem;
 import com.yachugak.topla.repository.PlanRepository;
 import com.yachugak.topla.repository.TaskRepository;
 import com.yachugak.topla.repository.UserRepository;
@@ -175,6 +177,17 @@ public class TaskService {
 		}
 	}
 	
+	// task에 할당된 plan을 지우되 목록으로 주어진 list에 존재하는 plan은 지우지 않습니다. witoutList는 삭제하지 않을 plan의 uid를 가집니다.
+	public void clearPlanWithout(Task task, List<Long> withoutList) {
+		List<Plan> planList = task.getPlans();
+
+		for(Plan p : planList) {
+			if(withoutList.indexOf(p.getUid()) < 0) {//witout목록에 없으면 삭제
+				planRepository.delete(p);
+			}
+		}
+	}
+	
 	public void addPlan(Task task, Date doDate, int doTime) {
 		if(doTime < 0 || doTime > 1440) {
 			throw new InvalidArgumentException("doTime", "0~1440", ""+doTime);
@@ -187,6 +200,15 @@ public class TaskService {
 		newPlan.setTask(task);
 		
 		planRepository.saveAndFlush(newPlan);
+		
+		if(task.getPlans() == null) {
+			List<Plan> temp = new ArrayList<Plan>();
+			temp.add(newPlan);
+			task.setPlans(temp);
+		}
+		else {
+			task.getPlans().add(newPlan);
+		}
 	}
 	
 	public List<Task> getTaskListToPlan(long userUid, Date planStartDate){
@@ -221,6 +243,10 @@ public class TaskService {
 		int prevProgress = task.getProgress();
 		int actualProgress = prevProgress + progressDiff;
 		this.setProgress(task,  actualProgress);
+	}
+	
+	public List<Task> findTaskByRemindingTiming(Date remindingTiming) {
+		return taskRepository.findByRemindingTiming(remindingTiming);
 	}
 	
 }

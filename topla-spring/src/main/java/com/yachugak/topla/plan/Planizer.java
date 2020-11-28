@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
 import com.yachugak.topla.entity.Task;
+import com.yachugak.topla.util.DayCalculator;
 import com.yachugak.topla.util.HalfMinutesTime;
 
 import net.bytebuddy.description.type.TypeDescription.Generic.Visitor.Reducing;
@@ -33,12 +34,19 @@ public class Planizer {
 		this.tasks = tasks;
 		this.planStartDate = planStartDate;
 		this.day = planStartDate.getDay();
+		this.timeTable = null;
+	}
+	
+	public void setDoneTimeTable(TimeTable doneTimeTable) {
+		this.timeTable = doneTimeTable.copy();
 	}
 	
 	public TimeTable greedyPlan() {
 		//일정 계산 과정을 저장하는 임시 시간표
-		this.timeTable = new TimeTable();
-		this.timeTable.getDays().add(new Day());
+		if(this.timeTable == null) {
+			this.timeTable = new TimeTable();
+			this.timeTable.getDays().add(new Day());
+		}
 		
 		logger.debug(tasks.size() + "개의 작업에 대해 일정을 계산합니다.");
 		
@@ -48,7 +56,10 @@ public class Planizer {
 		int nowDayOffset = 0;//현재 작업중인 날짜
 		for(Task task : tasks) {
 			boolean allocationFlag = false;//현 task의 할당이 성공했는지 기록하는 플래그 변수, flag면 아직 할당 못 했다는 뜻
-			int taskLeftTime = task.getEstimatedTime(); //이 작업의 남은 할당 시간
+			int taskLeftTime = task.getEstimatedTime() - task.getProgress(); //이 작업의 남은 할당 시간
+			if(taskLeftTime <= 0) {
+				continue;
+			}
 			this.timeTable.registerTask(task);
 
 			while(allocationFlag == false) {
@@ -72,8 +83,11 @@ public class Planizer {
 	}
 
 	public TimeTable naivelyOptimizedPlan() {
-		Planizer planizer = new Planizer(this.schedulePreset, this.tasks, this.planStartDate);
 		//일단 마감일 순으로 일정 짜 보고 일정이 터지는지 확인
+		Planizer planizer = new Planizer(this.schedulePreset, this.tasks, this.planStartDate);
+		if(this.timeTable != null) {
+			planizer.setDoneTimeTable(this.timeTable);
+		}
 		TimeTable greedyResult = planizer.greedyPlan();
 		if(greedyResult.getTotalLossPriority(this.planStartDate) <= 0.0) {
 			return greedyResult;
@@ -102,11 +116,22 @@ public class Planizer {
 		//줄일 일정부터 시작해서 그 이후의 일정을 당긴다.
 		int originalEstimatedTime = maxLossEffectTask.getEstimatedTime();
 		int halfEstimatedTime = HalfMinutesTime.roundUpAndDown(originalEstimatedTime/2);
+
+		//30분 이하라 줄일 수 없으면 그냥 greedyResult를 반환한다.
 		if(originalEstimatedTime == halfEstimatedTime) {
 			return greedyResult;
 		}
+		
+		//줄였는데 이미 완료된만큼이면 그냥 greedyResult를 반환한다.
+		if(halfEstimatedTime <= maxLossEffectTask.getProgress()) {
+			return greedyResult;
+		}
+
 		maxLossEffectTask.setEstimatedTime(halfEstimatedTime);
 		planizer = new Planizer(this.schedulePreset, this.tasks, this.planStartDate);
+		if(this.timeTable != null) {
+			planizer.setDoneTimeTable(this.timeTable);
+		}
 		TimeTable reducedResult = planizer.greedyPlan();
 		maxLossEffectTask.setEstimatedTime(originalEstimatedTime);
 		reducedResult.setEstimateTimeOfTask(maxLossEffectTask.getUid(), originalEstimatedTime);
@@ -120,6 +145,110 @@ public class Planizer {
 
 		return reducedResult;
 	}
+	
+	public TimeTable fractionalBinPackingPlan() {
+		//일단 마감일 순으로 일정 짜 보고 일정이 터지는지 확인
+		Planizer planizer = new Planizer(this.schedulePreset, this.tasks, this.planStartDate);
+		if(this.timeTable != null) {
+			planizer.setDoneTimeTable(this.timeTable);
+		}
+		TimeTable greedyResult = planizer.greedyPlan();
+		if(greedyResult.getTotalLossPriority(this.planStartDate) <= 0.0) {
+			return greedyResult;
+		}
+		
+		if(this.timeTable == null) {
+			this.timeTable = new TimeTable();
+			this.timeTable.getDays().add(new Day());
+		}
+		
+		//일정이 터졌다면
+		ArrayList<TaskIdValuePair> valueList = new ArrayList<TaskIdValuePair>();
+		
+		for(Task task : this.tasks) {
+			int priority = task.getPriority();
+			int estimatedTime = task.getEstimatedTime();
+			int leftDayToDueDate = DayCalculator.calDayOffset(this.planStartDate, task.getDueDate());
+			
+			double value = (double) priority / (double) estimatedTime;
+			value = value / (double) (leftDayToDueDate+1);
+			
+			valueList.add(new TaskIdValuePair(task.getUid(), value));
+		}
+		
+		//가치 순으로 정렬
+		Collections.sort(valueList, Collections.reverseOrder());
+		
+		int dayOffset0Day = this.day;
+		
+		//이제 넣자
+		for(TaskIdValuePair tivp : valueList) {
+			long taskId = tivp.taskId;
+			Task task = getTask(taskId);
+			int leftTime = 0;
+			if(task.getProgress() == null) {
+				leftTime = task.getEstimatedTime();
+			}
+			else {
+				leftTime = task.getEstimatedTime() - task.getProgress();
+			}
+			
+			boolean allocationFlag = false;
+			int nowDayOffset = 0;
+			this.day = dayOffset0Day;
+			
+			this.timeTable.registerTask(task);
+			
+			while(leftTime > 0) {
+				if(this.isDueOver(nowDayOffset, task)) {
+					if(task.getPriority() == 3) {
+						this.timeTable.deleteAllUndonTaskItemByTaskId(task.getUid());
+					}
+					break;
+				}
+				
+				int scheduleLeftTime = this.getScheduleLeftTime(nowDayOffset);
+				if(scheduleLeftTime <= 0) {
+					nowDayOffset++;
+					goNextDay();
+					continue;
+				}
+				
+				int allocateTime = this.allocateTask(nowDayOffset, task, leftTime);
+				
+				leftTime = leftTime - allocateTime;
+			}
+		}
+		
+		return this.timeTable;
+	}
+	
+	private int getScheduleLeftTime(int nowDayOffset) {
+		int nowTodayTaskTime = getTodayTaskTime(nowDayOffset);
+		int todaySchedulePreset = getTodaySchedulePreset();
+		
+		return todaySchedulePreset - nowTodayTaskTime;
+	}
+
+	private boolean isDueOver(int dayOffset, Task task) {
+		int leftDay = DayCalculator.calDayOffset(this.planStartDate, task.getDueDate());
+		
+		if(leftDay < dayOffset) {
+			return true;
+		}
+		
+		return false;
+	}
+
+	private Task getTask(long taskId) {
+		for(Task task : this.tasks) {
+			if(task.getUid() == taskId) {
+				return task;
+			}
+		}
+		
+		return null;
+	}
 
 	//오늘 날짜에 작업을 할당하는 함수
 	//반환값은 오늘 할당에 성공한 시간이다.
@@ -130,7 +259,7 @@ public class Planizer {
 		
 		long taskId = targetTask.getUid();
 		
-		if(allocableTime == 0) {
+		if(allocableTime <= 0) {
 			//오늘 더이상 남은 시간이 없으면 할당하지 않고 넘김
 			return 0;
 		}
@@ -158,6 +287,9 @@ public class Planizer {
 	
 	private int getTodayTaskTime(int nowDayOffset) {
 		int timeSum = 0;
+		if(nowDayOffset >= this.timeTable.getDays().size()) {
+			return 0;
+		}
 		List<TaskItem> taskList = this.timeTable.getDay(nowDayOffset).getTaskItems();
 		for(TaskItem task : taskList) {
 			timeSum += task.getTime();
@@ -177,5 +309,30 @@ public class Planizer {
 				return t1.getDueDate().compareTo(t2.getDueDate());
 			}
 		});
+	}
+}
+
+
+class TaskIdValuePair implements Comparable<TaskIdValuePair>{
+	public long taskId;
+	public double value;
+	
+	public TaskIdValuePair(long taskId, double value) {
+		this.taskId = taskId;
+		this.value = value;
+	}
+	
+	@Override
+	public int compareTo(TaskIdValuePair compareTarget) {
+		if(this.value < compareTarget.value) {
+			return -1;
+		}
+		
+		if(this.value == compareTarget.value) {
+			return 0;
+		}
+		
+		return 1;
+		
 	}
 }

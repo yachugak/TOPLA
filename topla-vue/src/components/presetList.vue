@@ -6,7 +6,6 @@
     >
       <v-col cols="12">
         <schedule-preset
-            :max="1440"
             v-model="preset.schedulePreset"
             :key="preset.presetUid"
         >
@@ -14,9 +13,6 @@
       </v-col>
       <v-col cols="12">
         <div class="flexBox">
-          <v-btn color="primary" class="mr-2"
-                 @click="modifyPreset(preset.presetUid,index)"
-          >수정</v-btn>
           <v-btn color="primary" class="mr-2"
                  @click="changePresetId(preset.presetUid)"
           >적용</v-btn>
@@ -45,7 +41,6 @@ export default {
       presetList:[],
       min:0,
       changePreset:-1,
-
     }
   },
 
@@ -65,25 +60,12 @@ export default {
       await this.$axios.put(`/preset/select?presetUid=${presetUid}`,{
         presetUid:presetUid
       })
-
       this.$emit('input')
     },
-
-    async modifyPreset(presetUid,index){
-
-      let preset=[]
-      preset=this.presetList[index].schedulePreset
-
-      await this.$axios.put(`/preset/${presetUid}`,{
-        "schedulePreset":preset
-      })
-    },
-
 
     async deletePreset(presetUid){
       await this.$axios.delete(`/preset/${presetUid}`)
       await this.getPresetList();
-
     }
   },
 
