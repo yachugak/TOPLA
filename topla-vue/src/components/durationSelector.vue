@@ -8,6 +8,7 @@
         v-model="innerModelValue"
         :hint="displayTime"
         step="30"
+        :rules="rule"
     ></v-slider>
     <v-expand-transition>
       <v-btn color="info" v-show="value>=nowTimeMax && value !== timeMax" @click="increaseMaxTime()">더 긴 시간을 원하십니까?</v-btn>
@@ -29,6 +30,9 @@ export default {
 
   computed: {
     displayTime() {
+      if(this.value===0){
+        return "예상소요시간을 설정해 주세요"
+      }
       let hour = Number.parseInt(this.value / 60); //몫 구하기
       let min = this.value % 60; //나머지 구하기
 
@@ -56,6 +60,11 @@ export default {
     value: {
       type: Number,
       default: 0
+    },
+
+    rule:{
+      type:Array,
+
     }
   },
 

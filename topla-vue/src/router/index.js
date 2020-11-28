@@ -33,7 +33,12 @@ const routes = [
     path: '/calendar',
     name: 'calendar mode',
     component: () => import(/* webpackChunkName: "about" */ '../views/calendar.vue')
-  }
+  },
+    {
+        path: '/test2',
+        name: 'test mode2',
+        component: () => import(/* webpackChunkName: "about" */ '../components/taskInfoForm')
+    }
 ]
 
 const router = new VueRouter({
