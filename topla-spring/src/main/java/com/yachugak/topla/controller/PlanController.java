@@ -66,19 +66,7 @@ public class PlanController {
 		int progress = req.getProgress();
 		planService.setProgress(targetPlan, progress);
 		
-		if(req.getProgress() < 0) {
-			List<TaskHistory> historyList = taskHistoryService.findByTaskUid(targetTask.getUid());
-			
-			for(TaskHistory history : historyList) {
-				if(history.getDoTime() == targetPlan.getDoTime()) {
-					taskHistoryService.deleteHistory(history);
-					break;
-				}
-			}
-		}
-		else {
-			taskHistoryService.createNewHistory(targetTask, progress);
-		}
+		taskHistoryService.updateHistoryByPlan(progress, targetTask, targetPlan);
 		
 		return "ok";
 	}
