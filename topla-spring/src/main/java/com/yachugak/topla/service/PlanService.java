@@ -160,9 +160,10 @@ public class PlanService {
 	
 	public int calDayOffset(Date planStartDate, Date taskDoDate) {
 		Calendar firstDay = Calendar.getInstance();
-		firstDay.setTime(planStartDate);
+		firstDay.set(planStartDate.getYear(), planStartDate.getMonth(), planStartDate.getDate());
+
 		Calendar secondDay = Calendar.getInstance();
-		secondDay.setTime(taskDoDate);
+		secondDay.set(taskDoDate.getYear(), taskDoDate.getMonth(), taskDoDate.getDate());
 		
 		long dayBetween = ChronoUnit.DAYS.between(firstDay.toInstant(), secondDay.toInstant());
 		
