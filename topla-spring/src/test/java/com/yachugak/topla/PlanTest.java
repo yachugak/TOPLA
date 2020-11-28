@@ -507,6 +507,22 @@ public class PlanTest {
 		assertEquals("ok", res);
 	}
 	
+	//중요도 3작업이 마감일밖으로 나갈 때 기존 할당된 plan을 지우는 상황에서 버그가 나는 상황을 재현
+	@Test
+	public void deleteUnDonePlanOfPriority3Test() {
+		SchedulePresetDataFormat schedulePreset = new SchedulePresetDataFormat();
+		schedulePreset.decode("0240024002400240024002400240");
+		ArrayList<Task> testTaskList = new ArrayList<>();
+		testTaskList.add(makeTask(1L, 3, 300, makeDate(2020,11,28)));
+		
+		Date planStartDate = makeDate(2020, 11, 28);
+
+		Planizer planizer = new Planizer(schedulePreset, testTaskList, planStartDate);
+		TimeTable result = planizer.fractionalBinPackingPlan();
+		
+		assertEquals(0, result.getDay(0).getTaskItems().size());
+	}
+	
 	private boolean dateEqual(Date date1, Date date2) {
 		if(date1.getYear() != date2.getYear()) {
 			return false;
