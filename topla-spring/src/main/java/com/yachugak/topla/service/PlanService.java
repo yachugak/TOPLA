@@ -1,6 +1,7 @@
 package com.yachugak.topla.service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -158,10 +159,15 @@ public class PlanService {
 	}
 	
 	public int calDayOffset(Date planStartDate, Date taskDoDate) {
-		long diffInMillies = taskDoDate.getTime() - planStartDate.getTime();
-	    long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-	    
-	    return (int)diff;
+		Calendar firstDay = Calendar.getInstance();
+		firstDay.set(planStartDate.getYear(), planStartDate.getMonth(), planStartDate.getDate());
+
+		Calendar secondDay = Calendar.getInstance();
+		secondDay.set(taskDoDate.getYear(), taskDoDate.getMonth(), taskDoDate.getDate());
+		
+		long dayBetween = ChronoUnit.DAYS.between(firstDay.toInstant(), secondDay.toInstant());
+		
+		return (int) dayBetween;
 	}
 	
 	public List<Plan> findByTask(Task task){
