@@ -1,5 +1,13 @@
 <template>
-  <v-container class="secondary vh-100">
+  <v-container class="vh-100">
+    <v-row>
+      <v-col cols="12">
+        <v-alert color="info" dismissible border="left">
+          <div class="infoHeader">스케줄 프리셋이란?</div>
+          <div class="infoBody">요거예 당신이 매일매일 일할 시간을 지정할 수 있어예</div>
+        </v-alert>
+      </v-col>
+    </v-row>
     <v-row>
       <schedule-preset
           :max="max"
@@ -37,16 +45,17 @@
           <v-spacer></v-spacer>
 
           <v-btn
-              color="primary"
-              @click="addPreset()"
-          >
-            추가
-          </v-btn>
-          <v-btn
               color="error"
               @click="showPresetList = false"
           >
             취소
+          </v-btn>
+
+          <v-btn
+              color="primary"
+              @click="addPreset()"
+          >
+            추가
           </v-btn>
 
         </v-card-actions>
@@ -126,6 +135,14 @@ export default {
 
 .vh-100 {
   height: 93vh;
+}
+
+.infoHeader {
+  font-size: 20px;
+}
+
+.infoBody {
+  font-size: 15px;
 }
 </style>
 

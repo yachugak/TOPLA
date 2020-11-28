@@ -1,14 +1,14 @@
 <template lang="html">
   <div>
-    <v-container fluid class="secondary">
+    <v-container fluid class="back">
       <v-row no-gutters>
         <v-col cols="1" v-if="$vuetify.breakpoint.mdAndUp">
-          <v-btn class="arrowButton primary darken-1" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
+          <v-btn class="arrowButton sec text--primary" color="primary" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
         </v-col>
         <v-col cols="12" md="10">
           <div id="dateSelector">
-            <v-btn class="dateButton primary"
-                   :class="{'darken-4': i===3, 'darken-1': i!==3, sunday: dateSelectorButtonDisplayList.text[(i-1)*2+1]==='일', saturday: dateSelectorButtonDisplayList.text[(i-1)*2+1]==='토' }"
+            <v-btn class="dateButton primary black--text"
+                   :class="{'darken-1': i===3, '': i!==3, sunday: dateSelectorButtonDisplayList.text[(i-1)*2+1]==='일', saturday: dateSelectorButtonDisplayList.text[(i-1)*2+1]==='토' }"
                    v-for="i in 5" :key="i" @click="onDateSelectorButtonSelected(i-1)" tile>
               {{dateSelectorButtonDisplayList.text[(i-1)*2]}} <br>
               {{dateSelectorButtonDisplayList.text[(i-1)*2+1]}}
@@ -16,22 +16,23 @@
           </div>
         </v-col>
         <v-col cols="1" v-if="$vuetify.breakpoint.mdAndUp">
-          <v-btn class="arrowButton primary darken-1" @click="onArrowButtonSelected('right')" tile block><v-icon>mdi-chevron-right</v-icon></v-btn>
+          <v-btn class="arrowButton primary text--primary" @click="onArrowButtonSelected('right')" tile block><v-icon>mdi-chevron-right</v-icon></v-btn>
         </v-col>
       </v-row>
       <v-row v-if="$vuetify.breakpoint.smAndDown" no-gutters>
         <v-col cols="6">
-          <v-btn class="arrowButton primary darken-1" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
+          <v-btn class="arrowButton primary text--primary" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
         </v-col>
         <v-col cols="6">
-          <v-btn class="arrowButton primary darken-1" @click="onArrowButtonSelected('right')" tile block><v-icon>mdi-chevron-right</v-icon></v-btn>
+          <v-btn class="arrowButton primary text--primary" @click="onArrowButtonSelected('right')" tile block><v-icon>mdi-chevron-right</v-icon></v-btn>
         </v-col>
       </v-row>
 
-      <v-row>
+      <v-row class="back">
         <v-col cols="12">
           <v-btn color="primary" block
                  @click="toggleTaskViewMode()"
+                 class="text--primary"
           >
             작업을 {{taskViewMode === "dueDate" ? "마감일로" : "하는 날로"}} 보는 중
           </v-btn>
@@ -44,18 +45,30 @@
         </v-col>
       </v-row>
 
-      <v-row v-if="taskViewMode === 'doDate'">
+      <v-row v-if="taskViewMode === 'doDate'" class="back">
         <v-progress-linear
-            :buffer-value="(todayAllocationTime/todayPresetTime)*100"
-            :value="(todayFinishTime/todayPresetTime)*100"
-            stream height="10" color="info"></v-progress-linear>
-        오늘 프리셋: {{todayPresetTime/60}}시간<br>
-        할당 시간: {{todayAllocationTime/60}}시간<br>
-        한 시간: {{todayFinishTime/60}}시간<br>
+            v-if="todayAllocationTime > 0"
+            :value="(todayFinishTime/todayAllocationTime)*100"
+            stream height="20" color="primary"
+        >
+          <template v-slot>
+            {{((todayFinishTime/todayAllocationTime)*100).toFixed(0)}}%
+          </template>
+        </v-progress-linear>
+        <v-progress-linear
+            v-else
+            :buffer-value="0"
+            stream height="20" color="primary"
+        >
+          <template v-slot>
+          </template>
+        </v-progress-linear>
+<!--        할당 시간: {{todayAllocationTime/60}}시간<br>-->
+<!--        한 시간: {{todayFinishTime/60}}시간<br>-->
       </v-row>
     </v-container>
 
-    <div class="py-4 secondary" :class="{taskContainerSizeSm: isSm, taskContainerSizeMd: !isSm }">
+    <div class="py-4 back" :class="{taskContainerSizeSm: isSm, taskContainerSizeMd: !isSm }">
       <div class="mb-2">
         <span id="dayText" class="pl-2">{{selectedDate.getMonth()+1}}월 {{selectedDate.getDate()}}일 {{getDayName(selectedDate.getDay())}}요일</span>
         <span id="taskCountText" class="pr-2">{{displayTaskList.length}}개의 작업</span>
@@ -75,7 +88,7 @@
     </div>
 
     <v-btn
-        color="primary"
+        color="secondary"
         elevation="2"
         fab
         large
@@ -428,14 +441,12 @@ export default {
 #dayText {
   display: inline-block;
   width: calc((100vw - (100vw - 100%)) / 2);
-  color: white;
 }
 
 #taskCountText {
   display: inline-block;
   width: calc((100vw - (100vw - 100%)) / 2);
   text-align: right;
-  color: white;
 }
 
 .sunday {
@@ -443,7 +454,7 @@ export default {
 }
 
 .saturday{
-  color: deepskyblue !important;
+  color: #0D47A1 !important;
 }
 
 #addNewTaskbutton {

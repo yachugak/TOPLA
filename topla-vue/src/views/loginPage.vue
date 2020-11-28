@@ -1,6 +1,6 @@
 <template>
-  <div id="backgroundDiv" class="secondary">
-    <v-card>
+  <div id="backgroundDiv" class="back pa-4">
+    <v-card class="pa-4">
       <v-card-title>{{title}}</v-card-title>
       <v-form ref="form">
         <v-text-field
@@ -37,11 +37,12 @@
             label="개인 정보 처리 방침에 동의합니다."
         >
         </v-checkbox>
-        <div class="buttonGroup">
+        <v-btn block v-if="!isRegisterMode" :loading="callCount>0" color="primary" @click="onLoginButtonClicked()">로그인</v-btn>
+        <v-btn block v-else color="primary" :loading="callCount>0" @click="onRegisterButtonClicked()">회원 등록</v-btn>
+        <div class="buttonGroup mt-2">
           <v-btn v-if="!isRegisterMode" :loading="callCount>0" color="primary" class="mr-2" @click="isRegisterMode=true">회원가입</v-btn>
+          <v-btn v-if="!isRegisterMode" :loading="callCount>0" color="primary" class="mr-2" @click="isRegisterMode=true">비밀번호 찾기</v-btn>
           <v-btn v-else color="secondary" :loading="callCount>0" class="mr-2" @click="isRegisterMode = false">취소</v-btn>
-          <v-btn v-if="!isRegisterMode" :loading="callCount>0" color="primary" @click="onLoginButtonClicked()">로그인</v-btn>
-          <v-btn v-else color="primary" :loading="callCount>0" @click="onRegisterButtonClicked()">회원 등록</v-btn>
         </div>
       </v-form>
     </v-card>
