@@ -3,11 +3,11 @@
     <v-container fluid class="back">
       <v-row no-gutters>
         <v-col cols="1" v-if="$vuetify.breakpoint.mdAndUp">
-          <v-btn class="arrowButton sec text--primary" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
+          <v-btn class="arrowButton sec text--primary" color="primary" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
         </v-col>
         <v-col cols="12" md="10">
           <div id="dateSelector">
-            <v-btn class="dateButton primary text--primary"
+            <v-btn class="dateButton primary black--text"
                    :class="{'darken-1': i===3, '': i!==3, sunday: dateSelectorButtonDisplayList.text[(i-1)*2+1]==='일', saturday: dateSelectorButtonDisplayList.text[(i-1)*2+1]==='토' }"
                    v-for="i in 5" :key="i" @click="onDateSelectorButtonSelected(i-1)" tile>
               {{dateSelectorButtonDisplayList.text[(i-1)*2]}} <br>
@@ -47,12 +47,24 @@
 
       <v-row v-if="taskViewMode === 'doDate'" class="back">
         <v-progress-linear
-            :buffer-value="(todayAllocationTime/todayPresetTime)*100"
-            :value="(todayFinishTime/todayPresetTime)*100"
-            stream height="10" color="info"></v-progress-linear>
-        오늘 프리셋: {{todayPresetTime/60}}시간<br>
-        할당 시간: {{todayAllocationTime/60}}시간<br>
-        한 시간: {{todayFinishTime/60}}시간<br>
+            v-if="todayAllocationTime > 0"
+            :value="(todayFinishTime/todayAllocationTime)*100"
+            stream height="20" color="primary"
+        >
+          <template v-slot>
+            {{((todayFinishTime/todayAllocationTime)*100).toFixed(0)}}%
+          </template>
+        </v-progress-linear>
+        <v-progress-linear
+            v-else
+            :buffer-value="0"
+            stream height="20" color="primary"
+        >
+          <template v-slot>
+          </template>
+        </v-progress-linear>
+<!--        할당 시간: {{todayAllocationTime/60}}시간<br>-->
+<!--        한 시간: {{todayFinishTime/60}}시간<br>-->
       </v-row>
     </v-container>
 
@@ -442,7 +454,7 @@ export default {
 }
 
 .saturday{
-  color: deepskyblue !important;
+  color: #0D47A1 !important;
 }
 
 #addNewTaskbutton {
