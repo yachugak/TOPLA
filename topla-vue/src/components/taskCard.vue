@@ -1,11 +1,17 @@
 <template>
-  <v-card :color="bgColor" >
+  <v-card elevation="5">
     <div id="flexBox">
       <div id="leftSide" class="large-checkbox">
         <v-checkbox v-model="isDone" :disabled="isCallDoing"></v-checkbox>
       </div>
       <div id="rightSide" @click="onCardClicked($event)">
-        <v-card-title>{{title}}</v-card-title>
+        <v-card-title>
+          {{title}}
+          <v-spacer></v-spacer>
+          <v-icon v-if="priority>=1" :color="bgColor">mdi-star</v-icon>
+          <v-icon v-if="priority>=2" :color="bgColor">mdi-star</v-icon>
+          <v-icon v-if="priority>=3" :color="bgColor">mdi-star</v-icon>
+        </v-card-title>
         <v-card-text>
           <v-container fluid>
             <v-row no-gutters>
