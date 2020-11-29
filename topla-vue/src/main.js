@@ -8,6 +8,8 @@ import vuetify from './plugins/vuetify';
 import firebase from "firebase/app";
 import "firebase/messaging";
 import "./plugins/dialog.js";
+import loginInfo from "@/plugins/loginInfo";
+
 Vue.config.productionTip = false
 
 new Vue({
@@ -16,6 +18,12 @@ new Vue({
   vuetify,
   render: h => h(App)
 }).$mount('#app')
+
+if(loginInfo.isThereLoginInfo()){
+    let loginInfoString = loginInfo.getLoginInfo();
+    store.commit("setLoginInfo", loginInfoString);
+}
+
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {

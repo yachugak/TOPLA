@@ -3,13 +3,19 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-export default new Vuex.Store({
+let vuex =  new Vuex.Store({
   state: {
+    loginInfo: null
   },
   mutations: {
+    setLoginInfo(state, loginInfo){
+      state.loginInfo = loginInfo;
+    }
   },
   actions: {
   },
   modules: {
   }
 })
+
+export default vuex;
