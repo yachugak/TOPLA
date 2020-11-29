@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.yachugak.topla.entity.SchedulePreset;
+import com.yachugak.topla.entity.User;
 
 @Repository
 public interface PresetRepository extends JpaRepository<SchedulePreset, Long>{
@@ -16,5 +17,5 @@ public interface PresetRepository extends JpaRepository<SchedulePreset, Long>{
 	@Query("from SchedulePreset sp left join sp.user u where u.uid = ?1")
 	public List<SchedulePreset> findByUserUid(long userUid);
 	
-	
+	public List<SchedulePreset> findByUser(User user);
 }
