@@ -218,7 +218,7 @@ public class TaskService {
 	}
 	
 	public Task duplicated(Task task) {
-		Optional<Task> search = taskRepository.findByTitleAndDueDateAndUser(task.getTitle(), task.getDueDate(), task.getUser());
+		List<Task> search = taskRepository.findByTitleAndDueDateAndUser(task.getTitle(), task.getDueDate(), task.getUser());
 		
 		if(search.isEmpty()) {
 			Task result = new Task();
@@ -228,7 +228,7 @@ public class TaskService {
 		}
 		
 		else {
-			return search.get();
+			return search.get(0);
 		}
 	}
 
