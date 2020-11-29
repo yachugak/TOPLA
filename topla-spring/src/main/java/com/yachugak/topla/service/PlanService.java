@@ -159,15 +159,10 @@ public class PlanService {
 	}
 	
 	public int calDayOffset(Date planStartDate, Date taskDoDate) {
-		Calendar firstDay = Calendar.getInstance();
-		firstDay.set(planStartDate.getYear(), planStartDate.getMonth(), planStartDate.getDate());
-
-		Calendar secondDay = Calendar.getInstance();
-		secondDay.set(taskDoDate.getYear(), taskDoDate.getMonth(), taskDoDate.getDate());
+		LocalDate firstDay = LocalDate.of(planStartDate.getYear(), planStartDate.getMonth()+1, planStartDate.getDate());
+		LocalDate secondDay = LocalDate.of(taskDoDate.getYear(), taskDoDate.getMonth()+1, taskDoDate.getDate());
 		
-		long dayBetween = ChronoUnit.DAYS.between(firstDay.toInstant(), secondDay.toInstant());
-		
-		return (int) dayBetween;
+		return (int) firstDay.until(secondDay, ChronoUnit.DAYS);
 	}
 	
 	public List<Plan> findByTask(Task task){

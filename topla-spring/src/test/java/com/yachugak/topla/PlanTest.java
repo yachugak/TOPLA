@@ -254,10 +254,14 @@ public class PlanTest {
 		Date offset2 = makeDate(2020, 11, 25);
 		Date offsetMinus1 = makeDate(2020, 11, 22);
 		
+		Date year2020 = makeDate(2020, 12, 25);
+		Date year2021 = makeDate(2021, 1, 2);
+		
 		assertEquals(0, planService.calDayOffset(planStartDate, offset0));
 		assertEquals(1, planService.calDayOffset(planStartDate, offset1));
 		assertEquals(2, planService.calDayOffset(planStartDate, offset2));
 		assertEquals(-1, planService.calDayOffset(planStartDate, offsetMinus1));
+		assertEquals(8, planService.calDayOffset(year2020, year2021));
 	}
 	
 	@Test
