@@ -239,6 +239,7 @@ export default {
         });
 
         loginInfo.setLoginInfo(accountCopy);
+        this.$store.commit("setLoginInfo", accountCopy);
         window.axios.defaults.headers.common["Authorization"] = loginInfo.getLoginInfo();
 
         await window.axios.put("/user/token", {

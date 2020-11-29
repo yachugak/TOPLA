@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import loginInfo from "@/plugins/loginInfo";
+import store from "@/store/index.js";
 
 Vue.use(VueRouter)
 
@@ -51,7 +52,7 @@ router.beforeEach(function(to, from, next){
         return;
     }
 
-    if(loginInfo.isThereLoginInfo() === false){
+    if(store.state.loginInfo === null){
         next("/");
         return;
     }
