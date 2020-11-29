@@ -43,13 +43,16 @@ public class UserService {
 		return targetUser;
 	}
 
-	public void setPresetCode(User user, long presetUid) {
+	public void setSelectedPreset(User user, long presetUid) {
 		SchedulePreset targetPreset = presetRepository.findById(presetUid).get();
 		user.setSchedulePreset(targetPreset);
 		return;	
 	}
 	
-	public void setPresetCode(User user, SchedulePreset preset) {
+	public void setSelectedPreset(User user, SchedulePreset preset) {
+		if(preset == null) {
+			throw new InvalidArgumentException("preset", "preset 값", preset+"");
+		}
 		user.setSchedulePreset(preset);
 	}
 
