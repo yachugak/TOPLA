@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.yachugak.topla.entity.Plan;
 import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.entity.TaskHistory;
 import com.yachugak.topla.exception.DuplicatedException;

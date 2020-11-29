@@ -1,6 +1,5 @@
 package com.yachugak.topla.service;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -16,7 +15,6 @@ import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.exception.EntityNotFoundException;
 import com.yachugak.topla.exception.InvalidArgumentException;
-import com.yachugak.topla.plan.TaskItem;
 import com.yachugak.topla.repository.PlanRepository;
 import com.yachugak.topla.repository.TaskRepository;
 import com.yachugak.topla.repository.UserRepository;
@@ -220,22 +218,18 @@ public class TaskService {
 	}
 	
 	public Task duplicated(Task task) {
-		List<Task> search = taskRepository.findByTitleContains(task.getTitle());
+		Optional<Task> search = taskRepository.findByTitleAndDueDateAndUser(task.getTitle(), task.getDueDate(), task.getUser());
 		
-		SimpleDateFormat format1 = new SimpleDateFormat("YYYY-MM-DD");
-		
-		for(Task t : search) {
-			String date1 = format1.format(t.getDueDate());
-			String date2 = format1.format(task.getDueDate());
-			if(date1.equals(date2)) {
-				return t;
-			}
+		if(search.isEmpty()) {
+			Task result = new Task();
+			result.setUid((long)-1);;
+			
+			return result;
 		}
 		
-		Task result = new Task();
-		result.setUid((long)-1);;
-		
-		return result;
+		else {
+			return search.get();
+		}
 	}
 
 	// task와 progress 추가감소량을 받아 덧셈뺄셈.
