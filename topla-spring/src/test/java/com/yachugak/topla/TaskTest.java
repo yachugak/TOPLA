@@ -1,6 +1,7 @@
 package com.yachugak.topla;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -172,11 +173,29 @@ public class TaskTest {
 		taskService.setLocation(a, "");
 		
 		
-		Task dup = new Task();
-		dup.setTitle("네갈");
+		Task dup = taskService.createNewTask(1L, "네갈죽", 3);
 		dup.setDueDate(date);
 		Task result = taskService.duplicated(dup);
 		assertEquals(result.getUid(), a.getUid());
+	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	public void isnotduplicate() {
+		Task a = taskService.createNewTask(1L, "네갈죽", 3);
+		Date date = new Date();
+		date.setYear(2020);
+		date.setMonth(10);
+		date.setDate(11);
+		taskService.setDueDate(a, date);
+		taskService.setEstimatedTime(a, 80);
+		taskService.setLocation(a, "");
+		
+		
+		Task dup = taskService.createNewTask(1L, "네갈", 3);
+		dup.setDueDate(date);
+		Task result = taskService.duplicated(dup);
+		assertNotEquals(result.getUid(), a.getUid());
 	}
 	
 	@Test
