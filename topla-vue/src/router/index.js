@@ -17,6 +17,11 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ '../views/todo.vue')
   },
   {
+      path: '/search',
+      name: 'search page',
+      component: () => import(/* webpackChunkName: "about" */ '../views/taskSearch.vue')
+  },
+  {
     path: '/test',
     name: 'test mode',
     // route level code-splitting
