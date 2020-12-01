@@ -42,6 +42,7 @@
                 v-model="date"
                 type="month"
                 @input="setMonth"
+                :locale="'ko'"
             ></v-date-picker>
           </v-menu>
 
@@ -87,6 +88,7 @@
           :weekdays="weekday"
           :type="type"
           :events="tasks"
+          :locale="'ko'"
           :event-color="getEventColor"
           @change="getEvents"
           @click:date="viewDay"
