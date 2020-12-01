@@ -72,6 +72,7 @@
       <v-row>
         <v-spacer></v-spacer>
         <v-btn color="primary"
+               class="mb-1"
                @click="toggleTaskViewMode()"
         >
           작업을 {{ taskViewMode === "dueDate" ? "마감일로" : "하는 날로" }} 보는 중
