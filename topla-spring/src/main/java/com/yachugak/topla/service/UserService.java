@@ -1,6 +1,7 @@
 package com.yachugak.topla.service;
 
 import java.time.OffsetTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,6 +61,10 @@ public class UserService {
 		User newUser = new User();
 		this.setEmail(newUser, email);
 		this.setPassword(newUser, password);
+		OffsetTime morningOffsetTime = OffsetTime.of(0, 0, 0, 0, ZoneOffset.UTC);
+		OffsetTime eveningOffsetTime = OffsetTime.of(21, 0, 0, 0, ZoneOffset.UTC);
+		this.setMorningReportTime(newUser, morningOffsetTime);
+		this.setEveningReportTime(newUser, eveningOffsetTime);
 		userRepository.saveAndFlush(newUser);
 		
 		return newUser;
