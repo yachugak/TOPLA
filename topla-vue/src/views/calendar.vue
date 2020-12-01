@@ -90,6 +90,8 @@
           :event-color="getEventColor"
           @change="getEvents"
           @click:date="viewDay"
+          :day-format="dateFormat"
+          :show-month-on-first="false"
       ></v-calendar>
     </v-sheet>
   </div>
@@ -209,11 +211,14 @@ export default {
 
       this.$refs.calendar.move(nowNum - preNowNum)
       this.menu2 = false
+    },
+
+    dateFormat(dateObject){
+      return dateObject.day;
     }
   },
 }
 </script>
 
 <style scoped>
-
 </style>

@@ -9,7 +9,6 @@
       </v-col>
     </v-row>
     <v-row>
-      <v-spacer></v-spacer>
       <v-col cols="6">
         <v-select
             v-if="modify"
@@ -25,6 +24,7 @@
           >
         </v-text-field>
       </v-col>
+      <v-spacer></v-spacer>
     </v-row>
     <v-row>
       <schedule-preset
@@ -133,6 +133,7 @@ export default {
       let list=await this.$axios.get("/preset/list")
       this.presetList=list.data
 
+      this.preset=[]
       for(let i in list.data) {
         this.preset.push(list.data[i].presetName)
       }
@@ -161,8 +162,8 @@ export default {
       this.modify = true
       this.save=false
 
-      let num=this.selectedUid
-      this.preset[num]=this.selected
+      let uid=this.selectedUid
+      this.preset[uid]=this.selected
 
       await this.$axios.put(`/preset/${this.presetUid}`,{
         "schedulePreset":this.dayData,
@@ -171,15 +172,15 @@ export default {
     },
 
     async presetSelect(selected){
-      let i=0
-      for (i=0;i<this.preset.length;i++){
-        if(this.preset[i]===selected)
+      let index=0
+      for (index=0;index<this.preset.length;index++){
+        if(this.preset[index]===selected)
           break;
       }
-      this.selectedUid=i
 
-      this.dayData=this.presetList[i].schedulePreset
-      this.presetUid=this.presetList[i].presetUid
+      this.selectedUid=index
+      this.dayData=this.presetList[index].schedulePreset
+      this.presetUid=this.presetList[index].presetUid
 
       await this.$axios.put(`/preset/select?presetUid=${this.presetUid}`,{
         presetUid:this.presetUid
@@ -187,22 +188,21 @@ export default {
     },
 
     async presetAdd(){
-      let len=this.presetList.length
+      let len=this.preset.length
       await this.$axios.post(`/preset`,{
         "schedulePreset":[0,0,0,0,0,0,0],
-        "presetName":`추가된 프리셋 ${len}`
+        "presetName":`추가된 프리셋 ${len+1}`
       })
       await this.presetSetting()
       this.selectedUid=len
       this.selected=this.presetList[len].presetName
       this.dayData=this.presetList[len].schedulePreset
-
     },
 
     async presetDelete(){
-      this.preset.splice(this.selectedUid,1)
-
       await this.$axios.delete(`/preset/${this.presetUid}`)
+
+      await this.presetSetting()
       this.selected=this.preset[0]
       this.selectedUid=0
       this.presetUid=this.presetList[0].presetUid
