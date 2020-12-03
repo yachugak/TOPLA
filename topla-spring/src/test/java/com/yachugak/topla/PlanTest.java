@@ -150,6 +150,25 @@ public class PlanTest {
 		assertEquals(5.333333, totalLossPriority, 0.001);
 	}
 	
+	@Test
+	public void totalLossPriority0Test() {
+		TimeTable tb = new TimeTable();
+		
+		tb.getDays().add(new Day());
+		
+		Task taskA = makeTask(1L, 1, 180, DayCalculator.makeDate(2020, 11, 13));
+		
+		tb.registerTask(taskA);
+		tb.addTaskItem(0, new TaskItem(1L, 180));
+		
+		Date planStartDate = DayCalculator.makeDate(2020, 11, 13);
+		
+		double totalLossPriority = tb.getTotalLossPriority(planStartDate);
+		
+		assertEquals(0.0, totalLossPriority, 0.0001);
+		
+	}
+	
 	@Test()
 	public void notRegisterdTaskExceptionTest() {
 		Task taskA = makeTask(1, 1, 120, DayCalculator.makeDate(2020,11,14));
