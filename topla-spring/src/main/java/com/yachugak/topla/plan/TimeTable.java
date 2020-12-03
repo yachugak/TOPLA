@@ -10,6 +10,7 @@ import java.util.List;
 import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.exception.NotRegisteredTaskException;
 import com.yachugak.topla.service.TaskService;
+import com.yachugak.topla.util.DayCalculator;
 
 //여러 날들을 포함하는 시간표
 public class TimeTable {
@@ -58,7 +59,7 @@ public class TimeTable {
 	
 	//이 시간표의 총합 손실 중요도를 계산하여 반환합니다.
 	public double getTotalLossPriority(Date planStartDate) {
-		LocalDate currentDate = this.portToLocalDate(planStartDate);
+		LocalDate currentDate = DayCalculator.DateToLocalDate(planStartDate);
 
 		//마감일 내에 성공한 시간과 마감일 내에 성공 못한 시간 구하기
 		for(int dayOffset = 0; dayOffset < this.days.size(); dayOffset++) {
@@ -101,11 +102,6 @@ public class TimeTable {
 		}
 
 		return totalLossPriority;
-	}
-	
-	private LocalDate portToLocalDate(Date date) {
-		LocalDate ld = LocalDate.of(date.getYear(), date.getMonth(), date.getDate());
-		return ld;
 	}
 	
 	public void registerTask(Task task) {
@@ -219,6 +215,6 @@ class TaskInfo{
 	public LocalDate dueDate;
 	
 	public void setDueDate(Date dueDate) {
-		this.dueDate = LocalDate.of(dueDate.getYear(), dueDate.getMonth(), dueDate.getDate());
+		this.dueDate = DayCalculator.DateToLocalDate(dueDate);
 	}
 }
