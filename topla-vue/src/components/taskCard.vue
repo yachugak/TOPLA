@@ -1,5 +1,5 @@
 <template>
-  <v-card elevation="5">
+  <v-card elevation="5" rounded="xl">
     <div id="flexBox">
       <div id="leftSide" class="large-checkbox">
         <v-checkbox v-model="isDone" :disabled="isCallDoing"></v-checkbox>

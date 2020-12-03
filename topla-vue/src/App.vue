@@ -20,13 +20,17 @@
     >
       <v-list nav dense>
         <v-list-item-group>
+          <v-list-item value="todo" @click="onNavSelected('all')">
+            <v-list-item-icon><v-icon>mdi-desk</v-icon></v-list-item-icon>
+            <v-list-item-title>모든 작업 확인</v-list-item-title>
+          </v-list-item>
           <v-list-item value="todo" @click="onNavSelected('todo')">
             <v-list-item-icon><v-icon>mdi-desk</v-icon></v-list-item-icon>
-            <v-list-item-title>작업 확인</v-list-item-title>
+            <v-list-item-title>일간 작업 보기</v-list-item-title>
           </v-list-item>
           <v-list-item value="month" @click="onNavSelected('month')">
             <v-list-item-icon><v-icon>mdi-calendar-month</v-icon></v-list-item-icon>
-            <v-list-item-title>월간 보기</v-list-item-title>
+            <v-list-item-title>월간 작업 보기</v-list-item-title>
           </v-list-item>
           <v-list-item value="schedulePreset" @click="onNavSelected('schedulePreset')">
             <v-list-item-icon><v-icon>mdi-calendar-heart</v-icon></v-list-item-icon>
@@ -108,6 +112,9 @@ export default {
           break;
         case "logout":
           this.onLogoutButtonClicked();
+          break;
+        case "all":
+          this.pushPage("/all");
           break;
       }
 
