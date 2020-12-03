@@ -33,7 +33,7 @@ public class Planizer {
 		this.schedulePreset = schedulePreset;
 		this.tasks = tasks;
 		this.planStartDate = planStartDate;
-		this.day = planStartDate.getDay();
+		this.day = DayCalculator.getDay(planStartDate);
 		this.timeTable = null;
 	}
 	

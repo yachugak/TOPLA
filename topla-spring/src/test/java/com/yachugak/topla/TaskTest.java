@@ -216,4 +216,5 @@ public class TaskTest {
 		
 		assertEquals(testH.getTask().getUid(), a.getUid());
 	}
+	
 }
