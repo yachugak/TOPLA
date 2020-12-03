@@ -17,6 +17,9 @@ import com.yachugak.topla.entity.SchedulePreset;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.request.CreateUserRequestFormat;
 import com.yachugak.topla.request.UpdateDeviceTokenRequestFormat;
+import com.yachugak.topla.request.UpdatePasswordRequestFormat;
+import com.yachugak.topla.request.UpdatePushAlarmStatusRequestFormat;
+import com.yachugak.topla.request.UpdateReportTimeRequestFormat;
 import com.yachugak.topla.request.userLogInFormat;
 import com.yachugak.topla.response.GetUserResponseFormat;
 import com.yachugak.topla.service.PresetService;
@@ -63,16 +66,33 @@ public class UserController {
 	
 	@PutMapping("")
 	@Transactional(readOnly = false)
-	public String updateUserInfo(@RequestHeader("Authorization") String email, @RequestBody CreateUserRequestFormat req) {
+	public String updateReportTime(@RequestHeader("Authorization") String email, @RequestBody UpdateReportTimeRequestFormat req) {
 		User updateTarget = userService.findUserByEmail(email);
-		
-		userService.setEmail(updateTarget, req.getEmail());
-		userService.setPassword(updateTarget, req.getPassword());
 		userService.setMorningReportTime(updateTarget, req.getMorningReportTime());
 		userService.setEveningReportTime(updateTarget, req.getEveningReportTime());
 		
 		return "ok";
 	}
+	
+	@PutMapping("/password")
+	@Transactional(readOnly = false)
+	public String updatePassword(@RequestHeader("Authorization") String email, @RequestBody UpdatePasswordRequestFormat req) {
+		User user = userService.findUserByEmail(email);
+		if(userService.isPasswordValid(user, req.getOldPassword())) {
+			userService.setPassword(user, req.getNewPassword());
+		}
+		return "ok";
+	}
+	
+//	@PutMapping("/push")
+//	@Transactional(readOnly = false)
+//	public String updatePushAlarmStatus(@RequestHeader("Authorization") String email, @RequestBody UpdatePushAlarmStatusRequestFormat req) {
+//		User user = userService.findUserByEmail(email);
+//		userService.setPushAlarmStatus(user, req.isPushAlarmStatus());
+//		
+//		
+//		return "ok";
+//	}
 	
 	@DeleteMapping("")
 	@Transactional(readOnly = false)
