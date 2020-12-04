@@ -21,11 +21,11 @@
       <v-list nav dense>
         <v-list-item-group>
           <v-list-item value="todo" @click="onNavSelected('all')">
-            <v-list-item-icon><v-icon>mdi-desk</v-icon></v-list-item-icon>
-            <v-list-item-title>모든 작업 확인</v-list-item-title>
+            <v-list-item-icon><v-icon>mdi-magnify</v-icon></v-list-item-icon>
+            <v-list-item-title>모든 작업</v-list-item-title>
           </v-list-item>
           <v-list-item value="todo" @click="onNavSelected('todo')">
-            <v-list-item-icon><v-icon>mdi-desk</v-icon></v-list-item-icon>
+            <v-list-item-icon><v-icon>mdi-calendar-today</v-icon></v-list-item-icon>
             <v-list-item-title>일간 작업 보기</v-list-item-title>
           </v-list-item>
           <v-list-item value="month" @click="onNavSelected('month')">

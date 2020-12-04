@@ -17,6 +17,7 @@
             :due-date="task.dueDate"
             :progress="task.progress"
             class="mb-3"
+            @update="getTaskList()"
         >
         </task-card>
         <v-pagination
