@@ -22,6 +22,7 @@ import com.yachugak.topla.plan.Planizer;
 import com.yachugak.topla.plan.TaskItem;
 import com.yachugak.topla.plan.TimeTable;
 import com.yachugak.topla.repository.PlanRepository;
+import com.yachugak.topla.util.DayCalculator;
 
 
 @Service
@@ -149,7 +150,7 @@ public class PlanService {
 				newTaskItem.setTaskId(plan.getTask().getUid());
 				newTaskItem.setPlnaUid(plan.getUid());
 				newTaskItem.setTime(plan.getDoTime());
-				int dayOffset = calDayOffset(startDate, plan.getDoDate());
+				int dayOffset = DayCalculator.calDayOffset(startDate, plan.getDoDate());
 				doneTimeTable.registerTask(plan.getTask());
 				doneTimeTable.addTaskItem(dayOffset, newTaskItem);
 			}
@@ -158,12 +159,6 @@ public class PlanService {
 		return doneTimeTable;
 	}
 	
-	public int calDayOffset(Date planStartDate, Date taskDoDate) {
-		LocalDate firstDay = LocalDate.of(planStartDate.getYear(), planStartDate.getMonth()+1, planStartDate.getDate());
-		LocalDate secondDay = LocalDate.of(taskDoDate.getYear(), taskDoDate.getMonth()+1, taskDoDate.getDate());
-		
-		return (int) firstDay.until(secondDay, ChronoUnit.DAYS);
-	}
 	
 	public List<Plan> findByTask(Task task){
 		return planRepository.findByTask(task);

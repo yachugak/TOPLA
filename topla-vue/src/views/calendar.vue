@@ -42,6 +42,7 @@
                 v-model="date"
                 type="month"
                 @input="setMonth"
+                :locale="'ko'"
             ></v-date-picker>
           </v-menu>
 
@@ -72,6 +73,7 @@
       <v-row>
         <v-spacer></v-spacer>
         <v-btn color="primary"
+               class="mb-1"
                @click="toggleTaskViewMode()"
         >
           작업을 {{ taskViewMode === "dueDate" ? "마감일로" : "하는 날로" }} 보는 중
@@ -86,9 +88,12 @@
           :weekdays="weekday"
           :type="type"
           :events="tasks"
+          :locale="'ko'"
           :event-color="getEventColor"
           @change="getEvents"
           @click:date="viewDay"
+          :day-format="dateFormat"
+          :show-month-on-first="false"
       ></v-calendar>
     </v-sheet>
   </div>
@@ -208,11 +213,14 @@ export default {
 
       this.$refs.calendar.move(nowNum - preNowNum)
       this.menu2 = false
+    },
+
+    dateFormat(dateObject){
+      return dateObject.day;
     }
   },
 }
 </script>
 
 <style scoped>
-
 </style>

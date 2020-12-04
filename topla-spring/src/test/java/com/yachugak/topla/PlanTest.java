@@ -31,6 +31,7 @@ import com.yachugak.topla.request.CreateTaskRequestFormat;
 import com.yachugak.topla.service.PlanService;
 import com.yachugak.topla.service.TaskService;
 import com.yachugak.topla.service.UserService;
+import com.yachugak.topla.util.DayCalculator;
 
 @SpringBootTest
 public class PlanTest {
@@ -66,7 +67,7 @@ public class PlanTest {
 		tasks.add(task1);
 		tasks.add(task2);
 		
-		Planizer planizer = new Planizer(sp, tasks, makeDate(2020,11,14));
+		Planizer planizer = new Planizer(sp, tasks, DayCalculator.makeDate(2020,11,14));
 		TimeTable tt = planizer.greedyPlan();
 		
 		
@@ -86,13 +87,13 @@ public class PlanTest {
 			tb.getDays().add(new Day());
 		}
 		
-		Task taskA = makeTask(1L, 1, 180, makeDate(2020, 11, 13));
-		Task taskB = makeTask(2L, 3, 240, makeDate(2020, 11, 14));
-		Task taskC = makeTask(3L, 2, 120, makeDate(2020, 11, 15));
-		Task taskD = makeTask(4L, 2, 360, makeDate(2020, 11, 15));
-		Task taskE = makeTask(5L, 1, 120, makeDate(2020, 11, 16));
-		Task taskF = makeTask(6L, 2, 60, makeDate(2020, 11, 17));
-		Task taskG = makeTask(7L, 3, 240, makeDate(2020, 11, 19));
+		Task taskA = makeTask(1L, 1, 180, DayCalculator.makeDate(2020, 11, 13));
+		Task taskB = makeTask(2L, 3, 240, DayCalculator.makeDate(2020, 11, 14));
+		Task taskC = makeTask(3L, 2, 120, DayCalculator.makeDate(2020, 11, 15));
+		Task taskD = makeTask(4L, 2, 360, DayCalculator.makeDate(2020, 11, 15));
+		Task taskE = makeTask(5L, 1, 120, DayCalculator.makeDate(2020, 11, 16));
+		Task taskF = makeTask(6L, 2, 60, DayCalculator.makeDate(2020, 11, 17));
+		Task taskG = makeTask(7L, 3, 240, DayCalculator.makeDate(2020, 11, 19));
 		
 		tb.registerTask(taskA);
 		tb.registerTask(taskB);
@@ -122,36 +123,36 @@ public class PlanTest {
 		tb.addTaskItem(7, new TaskItem(taskG.getUid(), 60));
 		tb.addTaskItem(8, new TaskItem(taskG.getUid(), 60));
 
-//		tb.addTaskItem(0, new TaskItem(1L, 120, 1, makeDate(2020, 11, 13)));
+//		tb.addTaskItem(0, new TaskItem(1L, 120, 1, DayCalculator.makeDate(2020, 11, 13)));
 //
-//		tb.addTaskItem(1, new TaskItem(1L, 60, 1, makeDate(2020, 11, 13)));
-//		tb.addTaskItem(1, new TaskItem(2L, 120, 3, makeDate(2020, 11, 14)));
+//		tb.addTaskItem(1, new TaskItem(1L, 60, 1, DayCalculator.makeDate(2020, 11, 13)));
+//		tb.addTaskItem(1, new TaskItem(2L, 120, 3, DayCalculator.makeDate(2020, 11, 14)));
 //
-//		tb.addTaskItem(2, new TaskItem(2L, 120, 3, makeDate(2020, 11, 14)));
+//		tb.addTaskItem(2, new TaskItem(2L, 120, 3, DayCalculator.makeDate(2020, 11, 14)));
 //
-//		tb.addTaskItem(3, new TaskItem(3L, 120, 2, makeDate(2020, 11, 15)));
-//		tb.addTaskItem(3, new TaskItem(4L, 120, 2, makeDate(2020, 11, 15)));
+//		tb.addTaskItem(3, new TaskItem(3L, 120, 2, DayCalculator.makeDate(2020, 11, 15)));
+//		tb.addTaskItem(3, new TaskItem(4L, 120, 2, DayCalculator.makeDate(2020, 11, 15)));
 //
-//		tb.addTaskItem(4, new TaskItem(4L, 240, 2, makeDate(2020, 11, 15)));
+//		tb.addTaskItem(4, new TaskItem(4L, 240, 2, DayCalculator.makeDate(2020, 11, 15)));
 //
-//		tb.addTaskItem(5, new TaskItem(5L, 120, 1, makeDate(2020, 11, 16)));
-//		tb.addTaskItem(5, new TaskItem(6L, 60, 2, makeDate(2020, 11, 17)));
-//		tb.addTaskItem(5, new TaskItem(7L, 60, 3, makeDate(2020, 11, 19)));
+//		tb.addTaskItem(5, new TaskItem(5L, 120, 1, DayCalculator.makeDate(2020, 11, 16)));
+//		tb.addTaskItem(5, new TaskItem(6L, 60, 2, DayCalculator.makeDate(2020, 11, 17)));
+//		tb.addTaskItem(5, new TaskItem(7L, 60, 3, DayCalculator.makeDate(2020, 11, 19)));
 //
-//		tb.addTaskItem(6, new TaskItem(7L, 60, 3, makeDate(2020, 11, 19)));
+//		tb.addTaskItem(6, new TaskItem(7L, 60, 3, DayCalculator.makeDate(2020, 11, 19)));
 //		
-//		tb.addTaskItem(7, new TaskItem(7L, 60, 3, makeDate(2020, 11, 19)));
+//		tb.addTaskItem(7, new TaskItem(7L, 60, 3, DayCalculator.makeDate(2020, 11, 19)));
 //
-//		tb.addTaskItem(8, new TaskItem(7L, 60, 3, makeDate(2020, 11, 19)));
+//		tb.addTaskItem(8, new TaskItem(7L, 60, 3, DayCalculator.makeDate(2020, 11, 19)));
 		
-		double totalLossPriority = tb.getTotalLossPriority(makeDate(2020,11,12));
+		double totalLossPriority = tb.getTotalLossPriority(DayCalculator.makeDate(2020,11,12));
 		
 		assertEquals(5.333333, totalLossPriority, 0.001);
 	}
 	
 	@Test()
 	public void notRegisterdTaskExceptionTest() {
-		Task taskA = makeTask(1, 1, 120, makeDate(2020,11,14));
+		Task taskA = makeTask(1, 1, 120, DayCalculator.makeDate(2020,11,14));
 		TimeTable tt = new TimeTable();
 		
 		assertThrows(ToplaException.class, ()->tt.addTaskItem(0, new TaskItem(taskA.getUid(), 60)));
@@ -162,17 +163,17 @@ public class PlanTest {
 		SchedulePresetDataFormat schedulePreset = new SchedulePresetDataFormat();
 		schedulePreset.decode("0000018001800000018002400120");
 		ArrayList<Task> testTaskList = new ArrayList<>();
-		testTaskList.add(makeTask(1L, 2, 120, makeDate(2020,6,18)));
-		testTaskList.add(makeTask(2L, 1, 60, makeDate(2020,6,19)));
-		testTaskList.add(makeTask(3L, 2, 300, makeDate(2020,6,21)));
-		testTaskList.add(makeTask(4L, 2, 60, makeDate(2020,6,22)));
-		testTaskList.add(makeTask(5L, 3, 240, makeDate(2020,6,22)));
-		testTaskList.add(makeTask(6L, 1, 120, makeDate(2020,6,23)));
-		testTaskList.add(makeTask(7L, 2, 120, makeDate(2020,6,24)));
-		testTaskList.add(makeTask(8L, 2, 120, makeDate(2020,6,25)));
-		testTaskList.add(makeTask(9L, 3, 60, makeDate(2020,6,25)));
+		testTaskList.add(makeTask(1L, 2, 120, DayCalculator.makeDate(2020,6,18)));
+		testTaskList.add(makeTask(2L, 1, 60, DayCalculator.makeDate(2020,6,19)));
+		testTaskList.add(makeTask(3L, 2, 300, DayCalculator.makeDate(2020,6,21)));
+		testTaskList.add(makeTask(4L, 2, 60, DayCalculator.makeDate(2020,6,22)));
+		testTaskList.add(makeTask(5L, 3, 240, DayCalculator.makeDate(2020,6,22)));
+		testTaskList.add(makeTask(6L, 1, 120, DayCalculator.makeDate(2020,6,23)));
+		testTaskList.add(makeTask(7L, 2, 120, DayCalculator.makeDate(2020,6,24)));
+		testTaskList.add(makeTask(8L, 2, 120, DayCalculator.makeDate(2020,6,25)));
+		testTaskList.add(makeTask(9L, 3, 60, DayCalculator.makeDate(2020,6,25)));
 		
-		Date planStartDate = makeDate(2020,6,18);
+		Date planStartDate = DayCalculator.makeDate(2020,6,18);
 		
 		Planizer planizer = new Planizer(schedulePreset, testTaskList, planStartDate);
 
@@ -196,14 +197,14 @@ public class PlanTest {
 	public void repositoryDateConditionTest() {
 		Task tempTask = taskService.createNewTask("aa", 1);
 		Plan p = new Plan();
-		p.setDoDate(makeDate(2020, 11, 23));
+		p.setDoDate(DayCalculator.makeDate(2020, 11, 23));
 		p.setDoTime(30);
 		p.setProgress(0);
 		p.setTask(tempTask);
 		
 		planRepository.saveAndFlush(p);
 		
-		List<Plan> resultList = planRepository.findByDoDateGreaterThanEqual(makeDate(2020, 11, 22));
+		List<Plan> resultList = planRepository.findByDoDateGreaterThanEqual(DayCalculator.makeDate(2020, 11, 22));
 		
 		boolean findFlag = false;
 
@@ -227,15 +228,6 @@ public class PlanTest {
 		assertTrue(list.indexOf(3L) < 0);
 	}
 
-	private Date makeDate(int year, int month, int date) {
-		Date d = new Date();
-		d.setYear(year);
-		d.setMonth(month-1);
-		d.setDate(date-1);
-		
-		return d;
-	}
-	
 	private Task makeTask(long uid, int priority, int estimatedTime, Date dueDate) {
 		Task temp = new Task();
 		temp.setUid(uid);
@@ -246,48 +238,31 @@ public class PlanTest {
 		return temp;
 	}
 	
-	@Test
-	public void dayOffsetTest() {
-		Date planStartDate = makeDate(2020, 11, 23);
-		Date offset0 = makeDate(2020, 11, 23);
-		Date offset1 = makeDate(2020, 11, 24);
-		Date offset2 = makeDate(2020, 11, 25);
-		Date offsetMinus1 = makeDate(2020, 11, 22);
-		
-		Date year2020 = makeDate(2020, 12, 25);
-		Date year2021 = makeDate(2021, 1, 2);
-		
-		assertEquals(0, planService.calDayOffset(planStartDate, offset0));
-		assertEquals(1, planService.calDayOffset(planStartDate, offset1));
-		assertEquals(2, planService.calDayOffset(planStartDate, offset2));
-		assertEquals(-1, planService.calDayOffset(planStartDate, offsetMinus1));
-		assertEquals(8, planService.calDayOffset(year2020, year2021));
-	}
 	
 	@Test
 	public void alreadyFinishiedTaskPlanTest() {
 		SchedulePresetDataFormat schedulePreset = new SchedulePresetDataFormat();
 		schedulePreset.decode("0000018001800000018002400120");
 		ArrayList<Task> testTaskList = new ArrayList<>();
-		testTaskList.add(makeTask(1L, 2, 120, makeDate(2020,6,18)));
-		testTaskList.add(makeTask(2L, 1, 60, makeDate(2020,6,19)));
+		testTaskList.add(makeTask(1L, 2, 120, DayCalculator.makeDate(2020,6,18)));
+		testTaskList.add(makeTask(2L, 1, 60, DayCalculator.makeDate(2020,6,19)));
 
-		Task finishTargetTask = makeTask(3L, 2, 300, makeDate(2020,6,21));
+		Task finishTargetTask = makeTask(3L, 2, 300, DayCalculator.makeDate(2020,6,21));
 		testTaskList.add(finishTargetTask);
 
-		testTaskList.add(makeTask(4L, 2, 60, makeDate(2020,6,22)));
-		testTaskList.add(makeTask(5L, 3, 240, makeDate(2020,6,22)));
-		testTaskList.add(makeTask(6L, 1, 120, makeDate(2020,6,23)));
-		testTaskList.add(makeTask(7L, 2, 120, makeDate(2020,6,24)));
-		testTaskList.add(makeTask(8L, 2, 120, makeDate(2020,6,25)));
-		testTaskList.add(makeTask(9L, 3, 60, makeDate(2020,6,25)));
+		testTaskList.add(makeTask(4L, 2, 60, DayCalculator.makeDate(2020,6,22)));
+		testTaskList.add(makeTask(5L, 3, 240, DayCalculator.makeDate(2020,6,22)));
+		testTaskList.add(makeTask(6L, 1, 120, DayCalculator.makeDate(2020,6,23)));
+		testTaskList.add(makeTask(7L, 2, 120, DayCalculator.makeDate(2020,6,24)));
+		testTaskList.add(makeTask(8L, 2, 120, DayCalculator.makeDate(2020,6,25)));
+		testTaskList.add(makeTask(9L, 3, 60, DayCalculator.makeDate(2020,6,25)));
 		
-		Date planStartDate = makeDate(2020,6,18);
+		Date planStartDate = DayCalculator.makeDate(2020,6,18);
 		
 		//task id 3번을 19일에 미리 2시간 완료시켜 놓는다.
 		Plan alreadyFinishedPlan = new Plan();
 		alreadyFinishedPlan.setUid(1L);
-		alreadyFinishedPlan.setDoDate(makeDate(2020, 6, 19));
+		alreadyFinishedPlan.setDoDate(DayCalculator.makeDate(2020, 6, 19));
 		alreadyFinishedPlan.setDoTime(120);
 		alreadyFinishedPlan.setProgress(120);
 		alreadyFinishedPlan.setTask(finishTargetTask);
@@ -335,25 +310,25 @@ public class PlanTest {
 		SchedulePresetDataFormat schedulePreset = new SchedulePresetDataFormat();
 		schedulePreset.decode("0000018001800000018002400120");
 		ArrayList<Task> testTaskList = new ArrayList<>();
-		testTaskList.add(makeTask(1L, 2, 120, makeDate(2020,6,18)));
-		testTaskList.add(makeTask(2L, 1, 60, makeDate(2020,6,19)));
+		testTaskList.add(makeTask(1L, 2, 120, DayCalculator.makeDate(2020,6,18)));
+		testTaskList.add(makeTask(2L, 1, 60, DayCalculator.makeDate(2020,6,19)));
 
-		Task finishTargetTask = makeTask(3L, 2, 300, makeDate(2020,6,21));
+		Task finishTargetTask = makeTask(3L, 2, 300, DayCalculator.makeDate(2020,6,21));
 		testTaskList.add(finishTargetTask);
 
-		testTaskList.add(makeTask(4L, 2, 60, makeDate(2020,6,22)));
-		testTaskList.add(makeTask(5L, 3, 240, makeDate(2020,6,22)));
-		testTaskList.add(makeTask(6L, 1, 120, makeDate(2020,6,23)));
-		testTaskList.add(makeTask(7L, 2, 120, makeDate(2020,6,24)));
-		testTaskList.add(makeTask(8L, 2, 120, makeDate(2020,6,25)));
-		testTaskList.add(makeTask(9L, 3, 60, makeDate(2020,6,25)));
+		testTaskList.add(makeTask(4L, 2, 60, DayCalculator.makeDate(2020,6,22)));
+		testTaskList.add(makeTask(5L, 3, 240, DayCalculator.makeDate(2020,6,22)));
+		testTaskList.add(makeTask(6L, 1, 120, DayCalculator.makeDate(2020,6,23)));
+		testTaskList.add(makeTask(7L, 2, 120, DayCalculator.makeDate(2020,6,24)));
+		testTaskList.add(makeTask(8L, 2, 120, DayCalculator.makeDate(2020,6,25)));
+		testTaskList.add(makeTask(9L, 3, 60, DayCalculator.makeDate(2020,6,25)));
 		
-		Date planStartDate = makeDate(2020,6,18);
+		Date planStartDate = DayCalculator.makeDate(2020,6,18);
 		
 		//task id 3번을 19일에 미리 2시간 완료시켜 놓는다.
 		Plan alreadyFinishedPlan = new Plan();
 		alreadyFinishedPlan.setUid(1L);
-		alreadyFinishedPlan.setDoDate(makeDate(2020, 6, 19));
+		alreadyFinishedPlan.setDoDate(DayCalculator.makeDate(2020, 6, 19));
 		alreadyFinishedPlan.setDoTime(120);
 		alreadyFinishedPlan.setProgress(120);
 		alreadyFinishedPlan.setTask(finishTargetTask);
@@ -379,8 +354,8 @@ public class PlanTest {
 
 	@Test
 	public void taskItemSortTest() {
-		Task task1 = makeTask(1,1, 60, makeDate(2020, 11, 24)); 
-		Task task2 = makeTask(2,1, 60, makeDate(2020, 11, 24)); 
+		Task task1 = makeTask(1,1, 60, DayCalculator.makeDate(2020, 11, 24)); 
+		Task task2 = makeTask(2,1, 60, DayCalculator.makeDate(2020, 11, 24)); 
 
 		TaskItem ti1 = new TaskItem();
 		TaskItem ti2 = new TaskItem();
@@ -405,8 +380,8 @@ public class PlanTest {
 	@Transactional(readOnly = false)
 	public void realPlanFixTest() {
 		User user = userService.findUserByEmail("test@acount.net");
-		Date today = makeDate(2020, 11, 25);
-		Date nextDay = makeDate(2020, 11, 26);
+		Date today = DayCalculator.makeDate(2020, 11, 25);
+		Date nextDay = DayCalculator.makeDate(2020, 11, 26);
 		
 		Task task1 = taskService.createNewTask(user.getUid(), "작업1", 2);
 		task1.setEstimatedTime(120);
@@ -434,10 +409,10 @@ public class PlanTest {
 		assertEquals(planUid, task1PlanList.get(0).getUid());
 		assertEquals(120, task1PlanList.get(0).getDoTime());
 		assertEquals(120, task1PlanList.get(0).getProgress());
-		assertTrue(dateEqual(makeDate(2020, 11, 25), task1PlanList.get(0).getDoDate()));
+		assertTrue(dateEqual(DayCalculator.makeDate(2020, 11, 25), task1PlanList.get(0).getDoDate()));
 
 		assertEquals(60, task2PlanList.get(0).getDoTime());
-		assertTrue(dateEqual(makeDate(2020, 11, 25), task2PlanList.get(0).getDoDate()));
+		assertTrue(dateEqual(DayCalculator.makeDate(2020, 11, 25), task2PlanList.get(0).getDoDate()));
 	}
 	
 	@Test
@@ -445,17 +420,17 @@ public class PlanTest {
 		SchedulePresetDataFormat schedulePreset = new SchedulePresetDataFormat();
 		schedulePreset.decode("0000018001800000018002400120");
 		ArrayList<Task> testTaskList = new ArrayList<>();
-		testTaskList.add(makeTask(1L, 2, 120, makeDate(2020,6,18)));
-		testTaskList.add(makeTask(2L, 1, 60, makeDate(2020,6,19)));
-		testTaskList.add(makeTask(3L, 2, 300, makeDate(2020,6,21)));
-		testTaskList.add(makeTask(4L, 2, 60, makeDate(2020,6,22)));
-		testTaskList.add(makeTask(5L, 3, 240, makeDate(2020,6,22)));
-		testTaskList.add(makeTask(6L, 1, 120, makeDate(2020,6,23)));
-		testTaskList.add(makeTask(7L, 2, 120, makeDate(2020,6,24)));
-		testTaskList.add(makeTask(8L, 2, 120, makeDate(2020,6,25)));
-		testTaskList.add(makeTask(9L, 3, 60, makeDate(2020,6,25)));
+		testTaskList.add(makeTask(1L, 2, 120, DayCalculator.makeDate(2020,6,18)));
+		testTaskList.add(makeTask(2L, 1, 60, DayCalculator.makeDate(2020,6,19)));
+		testTaskList.add(makeTask(3L, 2, 300, DayCalculator.makeDate(2020,6,21)));
+		testTaskList.add(makeTask(4L, 2, 60, DayCalculator.makeDate(2020,6,22)));
+		testTaskList.add(makeTask(5L, 3, 240, DayCalculator.makeDate(2020,6,22)));
+		testTaskList.add(makeTask(6L, 1, 120, DayCalculator.makeDate(2020,6,23)));
+		testTaskList.add(makeTask(7L, 2, 120, DayCalculator.makeDate(2020,6,24)));
+		testTaskList.add(makeTask(8L, 2, 120, DayCalculator.makeDate(2020,6,25)));
+		testTaskList.add(makeTask(9L, 3, 60, DayCalculator.makeDate(2020,6,25)));
 		
-		Date planStartDate = makeDate(2020,6,18);
+		Date planStartDate = DayCalculator.makeDate(2020,6,18);
 
 		Planizer planizer = new Planizer(schedulePreset, testTaskList, planStartDate);
 		TimeTable result = planizer.fractionalBinPackingPlan();
@@ -501,7 +476,7 @@ public class PlanTest {
 		CreateTaskRequestFormat req = new CreateTaskRequestFormat();
 		req.setTitle("aaa");
 		req.setPriority(1);
-		req.setDueDate(makeDate(2020, 11, 27));
+		req.setDueDate(DayCalculator.makeDate(2020, 11, 27));
 		req.setEstimatedTime(240);
 		req.setDuplicated(false);
 
@@ -517,14 +492,43 @@ public class PlanTest {
 		SchedulePresetDataFormat schedulePreset = new SchedulePresetDataFormat();
 		schedulePreset.decode("0240024002400240024002400240");
 		ArrayList<Task> testTaskList = new ArrayList<>();
-		testTaskList.add(makeTask(1L, 3, 300, makeDate(2020,11,28)));
+		testTaskList.add(makeTask(1L, 3, 300, DayCalculator.makeDate(2020,11,28)));
 		
-		Date planStartDate = makeDate(2020, 11, 28);
+		Date planStartDate = DayCalculator.makeDate(2020, 11, 28);
 
 		Planizer planizer = new Planizer(schedulePreset, testTaskList, planStartDate);
 		TimeTable result = planizer.fractionalBinPackingPlan();
 		
 		assertEquals(0, result.getDay(0).getTaskItems().size());
+	}
+
+
+	@Test
+	@Transactional(readOnly = false)
+	public void planInJanuaryTest() {
+		Task task = taskService.createNewTask(1L, "1월 넣기 테스트", 1);
+		taskService.setDueDate(task, DayCalculator.makeDate(2021, 1, 15));
+		taskService.setProgress(task, 0);
+		taskService.setEstimatedTime(task, 60);
+		
+		assertTrue(task.getUid() != null);
+		
+		long taskId = task.getUid();
+
+		SchedulePresetDataFormat schedulePreset = new SchedulePresetDataFormat();
+		schedulePreset.decode("0240024002400240024002400240");
+
+		ArrayList<Task> testTaskList = new ArrayList<>();
+		testTaskList.add(task);
+		
+		Date planStartDate = DayCalculator.makeDate(2021, 1, 1);
+
+		Planizer planizer = new Planizer(schedulePreset, testTaskList, planStartDate);
+		TimeTable result = planizer.fractionalBinPackingPlan();
+		
+		assertEquals(taskId, result.getDay(0).getTaskItemsOrderByTaskId().get(0).getTaskId());
+		assertEquals(60, result.getDay(0).getTaskItemsOrderByTaskId().get(0).getTime());
+
 	}
 	
 	private boolean dateEqual(Date date1, Date date2) {

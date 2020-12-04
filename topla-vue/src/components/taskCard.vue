@@ -112,7 +112,8 @@ export default {
         location: null
       },
       callCount: 0,
-      isDialogShow: false
+      isDialogShow: false,
+      destroyedFlag: false
     }
   },
   
@@ -155,7 +156,11 @@ export default {
     planUid: {
       type: Number,
       default: -1
-    }
+    },
+  },
+
+  destroyed() {
+    this.destroyedFlag = true;
   },
 
   computed: {
@@ -281,6 +286,10 @@ export default {
     async loadAddr(lat, lng){
       let addr = null
       while(addr === null){
+        if(this.destroyedFlag){
+          console.log("인스턴스 파괴됨, 주소 변환 종료");
+          return;
+        }
         try {
           addr = await this.$refs.map.geoToAddress(lat, lng);
           this.lat = lat;
@@ -300,6 +309,10 @@ export default {
       let polyline = null
 
       while(polyline ===null){
+        if(this.destroyedFlag){
+          console.log("인스턴스 파괴됨, 거리 획득 시도 종료");
+          return;
+        }
         try{
 
           devicePostion=await this.$refs.map.getDevicePosition()
@@ -311,8 +324,8 @@ export default {
           })
         }
         catch (e) {
-          console.log(e)
-          console.info(`실패, 1초후 재시도`);
+          // console.log(e)
+          console.info(`거리 획득 실패, 1초후 재시도`);
           await wait(1000)
         }
       }
@@ -324,11 +337,15 @@ export default {
     async calculateDistanceByKeyword(keyword){
       let searchList=null
       while(searchList === null){
+        if(this.destroyedFlag){
+          console.log("인스턴스 파괴됨, 거리 획득 시도 종료");
+          return;
+        }
         try {
           searchList = await this.$refs.map.search(keyword);
         }
         catch(e){
-          console.log(e)
+          // console.log(e)
           await wait(1000);
         }
       }

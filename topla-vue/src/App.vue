@@ -8,6 +8,7 @@
       <v-app-bar-nav-icon @click="isShowDrawer = !isShowDrawer" v-if="isLogined"></v-app-bar-nav-icon>
       <v-toolbar-title>TOPLA</v-toolbar-title>
       <v-spacer></v-spacer>
+      <v-btn icon @click="pushPage('/search')" v-if="isLogined"><v-icon>mdi-magnify</v-icon></v-btn>
       <v-btn icon @click="pushPage('/')" v-if="isLogined"><v-icon>mdi-desk</v-icon></v-btn>
       <v-btn icon @click="pushPage('/calendar')" v-if="isLogined"><v-icon>mdi-calendar-month</v-icon></v-btn>
     </v-app-bar>
