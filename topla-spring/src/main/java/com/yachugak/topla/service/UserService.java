@@ -12,6 +12,7 @@ import com.yachugak.topla.entity.SchedulePreset;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.exception.DuplicatedException;
 import com.yachugak.topla.exception.EntityNotFoundException;
+import com.yachugak.topla.exception.GeneralExceptions;
 import com.yachugak.topla.exception.InvalidArgumentException;
 import com.yachugak.topla.repository.PresetRepository;
 import com.yachugak.topla.repository.UserRepository;
@@ -131,6 +132,17 @@ public class UserService {
 	
 	public List<User> findUserByMorningReportTime(OffsetTime morningTime) {
 		return userRepository.findByMorningReportTime(morningTime);
+	}
+
+	public boolean isPasswordValid(User user, String password) {
+		String actualPassword = user.getPassword();
+		String msg = "올바른 비밀번호가 아닙니다.";		
+		if(password.equals(actualPassword)) {
+			return true;
+		}
+		else {
+			throw new GeneralExceptions(msg);
+		}
 	}
 	
 }
