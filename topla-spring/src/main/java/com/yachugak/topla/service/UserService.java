@@ -144,5 +144,9 @@ public class UserService {
 			throw new GeneralExceptions(msg);
 		}
 	}
+
+	public void setPushAlarmStatus(User user, boolean pushAlarmStatus) {
+		user.setPushAlarmStatus(pushAlarmStatus);
+	}
 	
 }
