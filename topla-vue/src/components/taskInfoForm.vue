@@ -132,6 +132,15 @@
             </div>
           </v-col>
         </v-row>
+        <v-row>
+          <v-col cols="3" class="leftCenter">
+            알림
+            <v-icon>mdi-bell</v-icon>
+          </v-col>
+          <v-col cols="9" class="leftCenter">
+            <date-time-picker v-model="value.remindingTime"></date-time-picker>
+          </v-col>
+        </v-row>
       </v-form>
     </v-container>
     <kakao-map v-show="false" ref="map" :is-load-gps="false"></kakao-map>
@@ -144,6 +153,7 @@ import placeSelector from "@/components/placeSelector";
 import gpsString from "@/plugins/gpsString";
 import kakaoMap from "@/components/kakaoMap";
 import VuetifyJetValidator from "vuetify-jet-validator";
+import dateTimePicker from "@/components/dateTimePicker"
 
 export default {
   name: "taskInfoForm",
@@ -185,7 +195,8 @@ export default {
   components: {
     kakaoMap,
     durationSelector,
-    placeSelector
+    placeSelector,
+    dateTimePicker
   },
 
   created() {

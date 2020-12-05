@@ -7,6 +7,7 @@
         <div id="rightSide" @click="onCardClicked($event)">
           <v-card-title>
             {{title}}
+            <v-icon v-if="remindingTime !== null">mdi-bell</v-icon>
             <v-spacer></v-spacer>
             <v-icon v-if="priority>=1" :color="bgColor">mdi-star</v-icon>
             <v-icon v-if="priority>=2" :color="bgColor">mdi-star</v-icon>
@@ -109,7 +110,8 @@ export default {
         dueDate: null,
         estimatedTime: 0,
         priority: 1,
-        location: null
+        location: null,
+        remindingTime: null
       },
       callCount: 0,
       isDialogShow: false,
@@ -157,6 +159,11 @@ export default {
       type: Number,
       default: -1
     },
+
+    remindingTime: {
+      type: String,
+      default: null
+    }
   },
 
   destroyed() {
@@ -278,7 +285,8 @@ export default {
         dueDate: this.dueDate,
         estimatedTime: this.estimatedTime,
         priority: this.priority,
-        location: this.location
+        location: this.location,
+        remindingTime: this.remindingTime
       }
       this.isDialogShow = true;
     },
@@ -376,7 +384,8 @@ export default {
         priority: this.taskFormData.priority,
         dueDate: this.taskFormData.dueDate,
         estimatedTime: this.taskFormData.estimatedTime,
-        location: this.taskFormData.location
+        location: this.taskFormData.location,
+        remindingTiming: this.taskFormData.remindingTime
       }
 
       try{
