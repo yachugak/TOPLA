@@ -83,7 +83,6 @@
                  :location="task.location"
                  :plan-uid="taskViewMode === 'dueDate' ? -1 : task.planUid"
                  @update="getTaskList()"
-                 @click="onTaskClicked(task.uid)"
       ></task-card>
     </div>
 
@@ -104,39 +103,14 @@
     >
       <v-card v-if="isShowNewTaskdialog">
         <v-card-title v-if="taskCreatedMode">새로운 작업 추가</v-card-title>
-        <v-card-title v-else>작업 정보 수정</v-card-title>
         <task-info-form
             v-model="newTaskFormData"
             ref="infoForm"
         ></task-info-form>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn v-if="taskCreatedMode===false"
-              color="error"
-              @click="deleteRequest(updateTargetTask.uid)"
-              :loading="isCalling>0"
-          >
-            삭제
-          </v-btn>
-          <v-btn
-              color="secondary"
-              @click="isShowNewTaskdialog = false"
-              :loading="isCalling>0"
-          >
-            뒤로
-          </v-btn>
-          <v-btn
-              color="primary"
-              @click="onAddNewTaskButtonClicked()"
-              :loading="isCalling>0"
-          >
-            <span v-if="taskCreatedMode">
-              추가
-            </span>
-            <span v-else>
-              수정
-            </span>
-          </v-btn>
+          <v-btn color="secondary" @click="isShowNewTaskdialog = false" :loading="isCalling>0">뒤로</v-btn>
+          <v-btn color="primary" @click="onAddNewTaskButtonClicked()" :loading="isCalling>0">추가</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -155,7 +129,6 @@ export default {
       selectedDate: new Date(),
       taskList: [],
       isShowNewTaskdialog: false,
-      taskCreatedMode: true,
       newTaskFormData: {
         title: "",
         dueDate: null,
@@ -383,44 +356,6 @@ export default {
       }
 
       return dispalyTaskList;
-    },
-
-    onTaskClicked(taskUid){
-      let task = this.taskList.find(item => item.uid === taskUid);
-      this.updateTargetTask = task;
-      this.isShowNewTaskdialog = true;
-      this.taskCreatedMode = false;
-      this.newTaskFormData = {
-        dueDate: task.dueDate,
-        estimatedTime: task.estimatedTime,
-        location: task.location,
-        priority: task.priority,
-        title: task.title
-      }
-    },
-
-    formClear(){
-      this.newTaskFormData = {
-        dueDate: null,
-        title: "",
-        priority: 1,
-        location: null,
-        estimatedTime: 0
-      }
-    },
-
-    async deleteRequest(){
-      this.isCalling += 1;
-      try {
-        await this.$axios.delete(`/task/${this.updateTargetTask.uid}`);
-        await this.getTaskList();
-        this.isShowNewTaskdialog = false;
-      }catch(e){
-        alert(e.response.message);
-      }
-      finally {
-        this.isCalling -= 1;
-      }
     }
   },
 

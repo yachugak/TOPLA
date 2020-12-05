@@ -40,24 +40,29 @@ const routes = [
     name: 'calendar mode',
     component: () => import(/* webpackChunkName: "about" */ '../views/calendar.vue')
   },
-    {
-        path: '/test2',
-        name: 'test mode2',
-        component: () => import(/* webpackChunkName: "about" */ '../components/taskInfoForm')
-    }
+  {
+      path: '/test2',
+      name: 'test mode2',
+      component: () => import(/* webpackChunkName: "about" */ '../components/taskInfoForm')
+  },
+  {
+      path: '/all',
+      name: 'all mode',
+      component: () => import(/* webpackChunkName: "about" */ '../views/allTask.vue')
+  },
 ]
 
 const router = new VueRouter({
-  routes
+    routes
 })
 
-router.beforeEach(function(to, from, next){
-    if(to.name === "login page"){
+router.beforeEach(function (to, from, next) {
+    if (to.name === "login page") {
         next();
         return;
     }
 
-    if(store.state.loginInfo === null){
+    if (store.state.loginInfo === null) {
         next("/");
         return;
     }
