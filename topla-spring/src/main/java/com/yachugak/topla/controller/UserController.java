@@ -89,9 +89,6 @@ public class UserController {
 	public String updatePushAlarmStatus(@RequestHeader("Authorization") String email, @RequestBody UpdatePushAlarmStatusRequestFormat req) {
 		User user = userService.findUserByEmail(email);
 		userService.setPushAlarmStatus(user, req.isPushAlarmStatus());
-		//
-		// TODO
-		//
 		
 		return "ok";
 	}
