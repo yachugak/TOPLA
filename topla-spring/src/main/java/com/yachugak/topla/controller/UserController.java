@@ -84,15 +84,14 @@ public class UserController {
 		return "ok";
 	}
 	
-//	@PutMapping("/push")
-//	@Transactional(readOnly = false)
-//	public String updatePushAlarmStatus(@RequestHeader("Authorization") String email, @RequestBody UpdatePushAlarmStatusRequestFormat req) {
-//		User user = userService.findUserByEmail(email);
-//		userService.setPushAlarmStatus(user, req.isPushAlarmStatus());
-//		
-//		
-//		return "ok";
-//	}
+	@PutMapping("/push")
+	@Transactional(readOnly = false)
+	public String updatePushAlarmStatus(@RequestHeader("Authorization") String email, @RequestBody UpdatePushAlarmStatusRequestFormat req) {
+		User user = userService.findUserByEmail(email);
+		userService.setPushAlarmStatus(user, req.isPushAlarmStatus());
+		
+		return "ok";
+	}
 	
 	@DeleteMapping("")
 	@Transactional(readOnly = false)

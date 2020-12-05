@@ -131,7 +131,7 @@ public class UserService {
 	}
 	
 	public List<User> findUserByMorningReportTime(OffsetTime morningTime) {
-		return userRepository.findByMorningReportTime(morningTime);
+		return userRepository.findByMorningReportTimeAndPushAlarmStatus(morningTime, true);
 	}
 
 	public boolean isPasswordValid(User user, String password) {
@@ -143,6 +143,10 @@ public class UserService {
 		else {
 			throw new GeneralExceptions(msg);
 		}
+	}
+
+	public void setPushAlarmStatus(User user, boolean pushAlarmStatus) {
+		user.setPushAlarmStatus(pushAlarmStatus);
 	}
 	
 }
