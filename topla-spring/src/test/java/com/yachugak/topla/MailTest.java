@@ -9,7 +9,7 @@ import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
-import com.yachugak.topla.util.SendMail;
+import com.yachugak.topla.util.Mail;
 
 public class MailTest {
 
@@ -55,8 +55,9 @@ public class MailTest {
 	}
 	
 	@Test
+	@Disabled
 	public void sendMail() throws Exception {
-		SendMail test = new SendMail();
-		test.mailTest("romakk@gmail.com", "제목이다", "축하해 야근이야", false);
+		Mail test = new Mail();
+		test.sendMail("romakk@gmail.com", "제목이다", "축하해 야근이야", false);
 	}
 }

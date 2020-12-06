@@ -164,6 +164,7 @@ public class UserService {
 		
 		Optional<TemporaryUser> findTUser = temporaryUserRepository.findByEmail(email);
 		
+		
 		int secureCode;
 		
 		if(findTUser.isEmpty()) {
