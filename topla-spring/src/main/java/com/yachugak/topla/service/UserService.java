@@ -1,18 +1,24 @@
 package com.yachugak.topla.service;
 
 import java.time.OffsetTime;
+import java.time.ZoneOffset;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yachugak.topla.entity.SchedulePreset;
+import com.yachugak.topla.entity.TemporaryUser;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.exception.DuplicatedException;
 import com.yachugak.topla.exception.EntityNotFoundException;
+import com.yachugak.topla.exception.GeneralExceptions;
 import com.yachugak.topla.exception.InvalidArgumentException;
 import com.yachugak.topla.repository.PresetRepository;
+import com.yachugak.topla.repository.TemporaryUserRepository;
 import com.yachugak.topla.repository.UserRepository;
 
 @Service
@@ -22,6 +28,9 @@ public class UserService {
 	
 	@Autowired
 	private PresetRepository presetRepository;
+	
+	@Autowired
+	private TemporaryUserRepository temporaryUserRepository;
 	
 	public User findUserById(long uid) {
 		return userRepository.findById(uid).get();
@@ -60,6 +69,10 @@ public class UserService {
 		User newUser = new User();
 		this.setEmail(newUser, email);
 		this.setPassword(newUser, password);
+		OffsetTime morningOffsetTime = OffsetTime.of(0, 0, 0, 0, ZoneOffset.UTC);
+		OffsetTime eveningOffsetTime = OffsetTime.of(21, 0, 0, 0, ZoneOffset.UTC);
+		this.setMorningReportTime(newUser, morningOffsetTime);
+		this.setEveningReportTime(newUser, eveningOffsetTime);
 		userRepository.saveAndFlush(newUser);
 		
 		return newUser;
@@ -125,7 +138,77 @@ public class UserService {
 	}
 	
 	public List<User> findUserByMorningReportTime(OffsetTime morningTime) {
-		return userRepository.findByMorningReportTime(morningTime);
+		return userRepository.findByMorningReportTimeAndPushAlarmStatus(morningTime, true);
+	}
+
+	public boolean isPasswordValid(User user, String password) {
+		String actualPassword = user.getPassword();
+		String msg = "올바른 비밀번호가 아닙니다.";		
+		if(password.equals(actualPassword)) {
+			return true;
+		}
+		else {
+			throw new GeneralExceptions(msg);
+		}
+	}
+
+	public void setPushAlarmStatus(User user, boolean pushAlarmStatus) {
+		user.setPushAlarmStatus(pushAlarmStatus);
 	}
 	
+	
+	
+	
+	//----------------여기서부터 Temporary--------------
+	public TemporaryUser createTemporaryUser(String email) {
+		Optional<User> findUser = userRepository.findByEmail(email);
+		if(findUser.isPresent()) {
+			throw new EntityNotFoundException("user", "유저: "+ email + "가 이미 존재합니다.");
+		}
+		
+		Optional<TemporaryUser> findTUser = temporaryUserRepository.findByEmail(email);
+		
+		int secureCode;
+		
+		if(findTUser.isEmpty()) {
+			TemporaryUser newTemporaryUser = new TemporaryUser();
+			secureCode = this.randomCode(6);
+			
+			newTemporaryUser.setEmail(email);
+			newTemporaryUser.setSecureCode(secureCode);
+			newTemporaryUser.setCreatedDate(new Date());
+			temporaryUserRepository.saveAndFlush(newTemporaryUser);
+			
+			return newTemporaryUser;
+		}
+		else {
+			secureCode = this.randomCode(6);
+			
+			findTUser.get().setSecureCode(secureCode);
+			findTUser.get().setCreatedDate(new Date());
+			
+			return findTUser.get();
+		}
+	}
+	
+	
+	public TemporaryUser findTemporaryUserByEail(String email) {
+		Optional<TemporaryUser> result = temporaryUserRepository.findByEmail(email);
+		
+		if(result.isEmpty()) {
+			throw new EntityNotFoundException("user", "유저: "+ email + "가 존재하지 않습니다.");
+		}
+		else {
+			return result.get();
+		}
+	}
+	
+	public int randomCode(int length) {
+		Random random = new Random();
+		int secureCode = 0;
+		for(int sur = 0; sur < length ; sur ++) {
+			secureCode += (random.nextInt()*Math.pow(10, sur));
+		}
+		return secureCode;
+	}
 }

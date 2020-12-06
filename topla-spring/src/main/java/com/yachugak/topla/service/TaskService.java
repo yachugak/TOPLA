@@ -238,9 +238,10 @@ public class TaskService {
 		int actualProgress = prevProgress + progressDiff;
 		this.setProgress(task,  actualProgress);
 	}
-	
-	public List<Task> findTaskByRemindingTiming(Date remindingTiming) {
-		return taskRepository.findByRemindingTiming(remindingTiming);
+
+	public List<Task> findTaskByRemindingTimingAndPushAlarmStatus(Date currentTime) {
+		return taskRepository.findByRemindingTimingAndPushAlarmStatus(currentTime, true);
+		
 	}
 	
 }

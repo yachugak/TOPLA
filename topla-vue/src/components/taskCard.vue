@@ -1,69 +1,93 @@
-<template>
-  <v-card elevation="5">
-    <div id="flexBox">
-      <div id="leftSide" class="large-checkbox">
-        <v-checkbox v-if="showCheckBox" v-model="isDone" :disabled="isCallDoing"></v-checkbox>
+  <template>
+    <v-card elevation="5" rounded="xl">
+      <div id="flexBox">
+        <div id="leftSide" class="large-checkbox">
+          <v-checkbox v-model="isDone" :disabled="callCount>0"></v-checkbox>
+        </div>
+        <div id="rightSide" @click="onCardClicked($event)">
+          <v-card-title>
+            {{title}}
+            <v-icon v-if="remindingTime !== null">mdi-bell</v-icon>
+            <v-spacer></v-spacer>
+            <v-icon v-if="priority>=1" :color="bgColor">mdi-star</v-icon>
+            <v-icon v-if="priority>=2" :color="bgColor">mdi-star</v-icon>
+            <v-icon v-if="priority>=3" :color="bgColor">mdi-star</v-icon>
+          </v-card-title>
+          <v-card-text>
+            <v-container fluid>
+              <v-row no-gutters>
+                <v-col cols="6">
+                  <v-icon>mdi-clock-check-outline</v-icon>
+                  {{displayEstimatedTime}}
+                </v-col>
+                <v-col cols="6">
+                  <v-icon>mdi-calendar-clock</v-icon>
+                  {{displayDueDate}}
+                </v-col>
+              </v-row>
+              <v-row no-gutters>
+                <v-col cols="6">
+                  <v-icon>mdi-map-marker-outline</v-icon>
+                  <span v-if="displayLocation !==null">
+                    {{displayLocation}}
+                    <v-btn v-if="lat !== null" small icon @click="goToKakaoMapSite()">
+                      <v-icon>mdi-map-search-outline</v-icon>
+                    </v-btn>
+                  </span>
+                  <span v-else>
+                    <v-progress-circular color="primary" :size="20" indeterminate></v-progress-circular>
+                  </span>
+                </v-col>
+                <v-col cols="6">
+                  <div id="progressContentBox">
+                    <v-icon id="progressIcon">mdi-progress-clock</v-icon>
+                    <v-progress-linear :value="percentProgress"></v-progress-linear>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card-text>
+        </div>
       </div>
-      <div id="rightSide" @click="onCardClicked($event)">
-        <v-card-title>
-          {{title}}
+      <v-expand-transition>
+        <v-progress-linear indeterminate height="10" v-show="callCount>0"></v-progress-linear>
+      </v-expand-transition>
+      <kakao-map ref="map" v-show="false" :is-load-gps="false"></kakao-map>
+
+    <v-dialog
+            v-model="isDialogShow"
+            persistent
+            max-width="500"
+    >
+      <v-card>
+        <v-card-title>작업 정보 수정</v-card-title>
+        <task-info-form
+                v-model="taskFormData"
+                ref="infoForm"
+        ></task-info-form>
+        <v-card-actions>
           <v-spacer></v-spacer>
-          <v-icon v-if="priority>=1" :color="bgColor">mdi-star</v-icon>
-          <v-icon v-if="priority>=2" :color="bgColor">mdi-star</v-icon>
-          <v-icon v-if="priority>=3" :color="bgColor">mdi-star</v-icon>
-        </v-card-title>
-        <v-card-text>
-          <v-container fluid>
-            <v-row no-gutters>
-              <v-col cols="6">
-                <v-icon>mdi-clock-check-outline</v-icon>
-                {{displayEstimatedTime}}
-              </v-col>
-              <v-col cols="6">
-                <v-icon>mdi-calendar-clock</v-icon>
-                {{displayDueDate}}
-              </v-col>
-            </v-row>
-            <v-row no-gutters>
-              <v-col cols="6">
-                <v-icon>mdi-map-marker-outline</v-icon>
-                <span v-if="displayLocation !==null">
-                  {{displayLocation}}
-                  <v-btn v-if="lat !== null" small icon @click="goToKakaoMapSite()">
-                    <v-icon>mdi-map-search-outline</v-icon>
-                  </v-btn>
-                </span>
-                <span v-else>
-                  <v-progress-circular color="primary" :size="20" indeterminate></v-progress-circular>
-                </span>
-              </v-col>
-              <v-col cols="6">
-                <div id="progressContentBox">
-                  <v-icon id="progressIcon">mdi-progress-clock</v-icon>
-                  <v-progress-linear :value="percentProgress"></v-progress-linear>
-                </div>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
-      </div>
-    </div>
-    <v-expand-transition>
-      <v-progress-linear indeterminate height="10" v-show="isCallDoing"></v-progress-linear>
-    </v-expand-transition>
-    <kakao-map ref="map" v-show="false" :is-load-gps="false"></kakao-map>
+          <v-btn color="error" :loading="callCount>0" >삭제 </v-btn>
+          <v-btn color="secondary" @click="isDialogShow = false" :loading="callCount>0">뒤로 </v-btn>
+          <v-btn color="primary" @click="onTaskUpdateButtonClicked()" :loading="callCount>0"> 수정 </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
 <script>
 import gpsString from "@/plugins/gpsString";
 import kakaoMap from "@/components/kakaoMap";
+import taskInfoForm from "./taskInfoForm";
+import errorDialog from "../plugins/errorDialog";
 
 export default {
   name: "taskCard",
 
   components: {
-    kakaoMap
+    kakaoMap,
+    taskInfoForm
   },
 
   data() {
@@ -76,12 +100,21 @@ export default {
 
       doneColor: "brown lighten-3",
       isDone: null,
-      isCallDoing: false, //현재 뭔가 요청이 진행중인가?,
       addr: null,
       distance:null,
       lat: null,
       lng: null,
 
+      taskFormData: {
+        title: "",
+        dueDate: null,
+        estimatedTime: 0,
+        priority: 1,
+        location: null,
+        remindingTime: null
+      },
+      callCount: 0,
+      isDialogShow: false,
       destroyedFlag: false
     }
   },
@@ -127,9 +160,9 @@ export default {
       default: -1
     },
 
-    showCheckBox: {
-      type: Boolean,
-      default: true
+    remindingTime: {
+      type: String,
+      default: null
     }
   },
 
@@ -193,12 +226,7 @@ export default {
   },
 
   created() {
-    if(this.progress >= this.estimatedTime){
-      this.isDone = true;
-    }
-    else{
-      this.isDone = false;
-    }
+    this.isDone = this.progress >= this.estimatedTime;
   },
 
   watch: {
@@ -221,12 +249,12 @@ export default {
       if(this.uid === null){
         return;
       }
-      if(this.isCallDoing){
+      if(this.callCount > 0){
         return;
       }
 
 
-      this.isCallDoing = true;
+      this.callCount++;
       try {
         if(this.planUid === -1){
           //task 끝내기 모드
@@ -247,12 +275,20 @@ export default {
         console.error(e.response.data);
       }
       finally {
-        this.isCallDoing = false;
+        this.callCount--;
       }
     },
 
     onCardClicked(){
-      this.$emit("click", this.uid);
+      this.taskFormData = {
+        title: this.title,
+        dueDate: this.dueDate,
+        estimatedTime: this.estimatedTime,
+        priority: this.priority,
+        location: this.location,
+        remindingTime: this.remindingTime
+      }
+      this.isDialogShow = true;
     },
 
     async loadAddr(lat, lng){
@@ -268,23 +304,15 @@ export default {
           this.lng = lng;
         }
         catch(e){
-          // console.log(e)
           console.info(`${lat}, ${lng}의 주소 변환 시도 실패, 1초후 재시도`);
           await wait(1000);
         }
       }
 
       this.addr = addr;
-      // if(addrObject.roadAddress === undefined){
-      //   this.addr = addrObject.roadAddress;
-      // }
-      // else{
-      //   this.addr = addrObject.address;
-      // }
     },
 
     async loadDistance(latLng){
-
       let devicePostion
       let polyline = null
 
@@ -343,6 +371,37 @@ export default {
 
     goToKakaoMapSite(){
       window.open(`https://map.kakao.com/link/to/${this.displayLocation},${this.lat},${this.lng}`);
+    },
+
+    async onTaskUpdateButtonClicked(){
+      let validationResultFlag = this.$refs.infoForm.formValue()
+      if(validationResultFlag === false){
+        return;
+      }
+
+      let requestBody = {
+        title: this.taskFormData.title,
+        priority: this.taskFormData.priority,
+        dueDate: this.taskFormData.dueDate,
+        estimatedTime: this.taskFormData.estimatedTime,
+        location: this.taskFormData.location,
+        remindingTiming: this.taskFormData.remindingTime
+      }
+
+      try{
+        this.callCount++;
+        await this.$axios.put(`/task/${this.uid}`, requestBody);
+
+        this.$emit("update");
+        this.isDialogShow = false;
+      }
+
+      catch(e){
+          errorDialog(this, "수정 실패", e);
+      }
+      finally {
+          this.callCount--;
+      }
     }
   }
 }

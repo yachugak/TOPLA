@@ -41,6 +41,9 @@ public class User {
 	@Column
 	private Double totalLossPriority;
 	
+	@Column
+	private Boolean pushAlarmStatus;
+	
 	public String getDeviceToken() {
 		return deviceToken;
 	}
@@ -104,6 +107,13 @@ public class User {
 	public void setTotalLossPriority(Double totalLossPriority) {
 		this.totalLossPriority = totalLossPriority;
 	}
-	
+
+	public Boolean getPushAlarmStatus() {
+		return pushAlarmStatus;
+	}
+
+	public void setPushAlarmStatus(Boolean pushAlarmStatus) {
+		this.pushAlarmStatus = pushAlarmStatus;
+	}
 	
 }
