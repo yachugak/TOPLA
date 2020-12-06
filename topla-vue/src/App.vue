@@ -21,6 +21,10 @@
     >
       <v-list nav dense>
         <v-list-item-group>
+          <v-list-item value="mypage" @click="onNavSelected('myPage')">
+            <v-list-item-icon><v-icon>mdi-account</v-icon></v-list-item-icon>
+            <v-list-item-title>마이 페이지</v-list-item-title>
+          </v-list-item>
           <v-list-item value="todo" @click="onNavSelected('todo')">
             <v-list-item-icon><v-icon>mdi-desk</v-icon></v-list-item-icon>
             <v-list-item-title>작업 확인</v-list-item-title>
@@ -98,6 +102,9 @@ export default {
 
     onNavSelected(mode){
       switch (mode){
+        case "myPage":
+          this.pushPage("/mypage");
+          break;
         case "todo":
           this.pushPage("/");
           break;

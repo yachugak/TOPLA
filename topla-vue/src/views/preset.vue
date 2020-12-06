@@ -57,8 +57,6 @@
           @click="presetDelete()">
         프리셋 삭제
       </v-btn>
-
-
     </v-card-actions>
 
     <v-dialog

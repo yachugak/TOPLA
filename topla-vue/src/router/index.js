@@ -40,6 +40,11 @@ const routes = [
     name: 'calendar mode',
     component: () => import(/* webpackChunkName: "about" */ '../views/calendar.vue')
   },
+  {
+    path: '/mypage',
+    name: 'mypage mode',
+    component: () => import(/* webpackChunkName: "about" */ '../views/myPage.vue')
+  },
     {
         path: '/test2',
         name: 'test mode2',
