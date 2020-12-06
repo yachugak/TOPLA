@@ -9,6 +9,9 @@ import firebase from "firebase/app";
 import "firebase/messaging";
 import "./plugins/dialog.js";
 import loginInfo from "@/plugins/loginInfo";
+import moment from "moment";
+
+moment.locale("ko");
 
 Vue.config.productionTip = false
 

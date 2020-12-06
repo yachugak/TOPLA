@@ -20,6 +20,7 @@
             :estimated-time="task.estimatedTime"
             :due-date="task.dueDate"
             :progress="task.progress"
+            :reminding-time="task.remindingTiming"
             class="mb-3"
             @update="getTaskList()"
         >
