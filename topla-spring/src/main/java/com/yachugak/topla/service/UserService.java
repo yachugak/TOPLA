@@ -207,7 +207,7 @@ public class UserService {
 		Random random = new Random();
 		int secureCode = 0;
 		for(int sur = 0; sur < length ; sur ++) {
-			secureCode += (random.nextInt()*Math.pow(10, sur));
+			secureCode += (random.nextInt(9)*Math.pow(10, sur));
 		}
 		return secureCode;
 	}
