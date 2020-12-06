@@ -28,8 +28,11 @@
             :progress="task.progress"
             :estimated-time="task.estimatedTime"
             :location="task.location"
-            :show-check-box="false"
             @click="onTaskCardClicked(task.dueDate)"
+            :due-date="task.dueDate"
+            :reminding-time="task.remindingTiming"
+            :uid="task.uid"
+            @update="getTaskList()"
         >
         </task-card>
       </div>
@@ -93,6 +96,7 @@ export default {
 
   methods: {
     async getTaskList(){
+      console.log("옹냐");
       this.callCount++;
 
       try{
