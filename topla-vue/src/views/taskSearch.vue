@@ -96,7 +96,6 @@ export default {
 
   methods: {
     async getTaskList(){
-      console.log("옹냐");
       this.callCount++;
 
       try{
