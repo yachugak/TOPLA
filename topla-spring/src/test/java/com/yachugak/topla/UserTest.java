@@ -69,7 +69,7 @@ public class UserTest {
 	@Transactional(readOnly = false)
 	@Disabled
 	public void createUser() {
-		String email = "dnrlalth+us@gmail.com";
+		String email = "ahj0313@ajou.ac.kr";
 		String passwd = "asdf";
 		int secureCode;
 		

@@ -36,9 +36,7 @@ public class ReportResponseFormat {
 				calendar.add(Calendar.DAY_OF_MONTH, -1);
 				targetdate = new Date(calendar.getTimeInMillis());
 				
-				Report searchReport = reportService.findReportByReportedDate(targetdate);
-				
-				List<TaskHistory> searcHistories = taskHistoryService.findByReportUid(searchReport);
+				List<TaskHistory> searcHistories = taskHistoryService.findByRecordedTime(targetdate);
 				
 				for(TaskHistory targetHistory : searcHistories) {
 					dueDate.setTime(targetHistory.getTask().getDueDate());

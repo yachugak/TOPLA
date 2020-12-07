@@ -71,10 +71,10 @@ public class MailTest {
 	@Test
 	@Disabled
 	public void sendMail() throws Exception {
-		String email = "이메일을입력";
+		String email = "ahj0313@ajou.ac.kr";
 		Mail test = new Mail();
 		
-		test.sendMail(email, "이메일테스트제목", "본문", false);
+		test.sendMail(email, test.createTempUserTitle(), test.createTempUserContent(123123), true);
 	}
 	
 	@Test
