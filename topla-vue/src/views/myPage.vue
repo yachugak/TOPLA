@@ -83,7 +83,7 @@
             <v-radio-group
                 class="small-font"
                 v-model="selectTheme"
-                @change="selectThemeTest()"
+                @change="selectThemeApply()"
             >
               <v-radio
                   class="ma-2"
@@ -123,6 +123,7 @@
 import loginInfo from "@/plugins/loginInfo";
 import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
 import errorDialog from "@/plugins/errorDialog";
+import themeList from '@/plugins/theme';
 
 export default {
   name: "myPage",
@@ -181,9 +182,14 @@ export default {
       console.log(this.pushCheck)
     },
 
-    selectThemeTest() {
+    selectThemeApply() {
       console.log(`${this.selectTheme}`+"theme apply")
-      console.log()
+      let defTheme = this.$vuetify.theme.themes.light
+      let theme= themeList[this.selectTheme]
+
+      for(let color in theme){
+        defTheme[color]=theme[color]
+      }
     },
 
     async selectTimeApply(){
