@@ -115,6 +115,20 @@
         </v-btn>
 
       </v-card-text>
+      <v-divider></v-divider>
+      <v-card-title>
+        통계
+      </v-card-title>
+      <v-card-text>
+        <v-btn
+            block
+            text
+            @click="statistic()"
+        >
+          통계보기
+          <v-spacer></v-spacer>
+        </v-btn>
+      </v-card-text>
     </v-card>
   </div>
 </template>
@@ -152,8 +166,8 @@ export default {
   },
 
 
-  created() {
-    this.loginfo = loginInfo.getLoginInfo()
+  async created() {
+    await this.preSetting()
   },
 
   methods: {
@@ -164,6 +178,18 @@ export default {
         //아무것도 안 함.
         //같은 페이지로 이동시 예외가 던저지기 때문에 이렇게 함.
       }
+    },
+
+    async preSetting(){
+      this.loginfo = loginInfo.getLoginInfo()
+      let res = await this.$axios.get("/user")
+
+      this.eveningReportTime.HH=res.data.eveningReportTime.substring(0,2)
+      this.eveningReportTime.mm=res.data.eveningReportTime.substring(3,5)
+
+      this.morningReportTime.HH=res.data.morningReportTime.substring(0,2)
+      this.morningReportTime.mm=res.data.morningReportTime.substring(3,5)
+
     },
 
     onLogoutButtonClicked() {
@@ -196,6 +222,10 @@ export default {
       catch(e){
         errorDialog(this,"시간등록 실패",e)
       }
+    },
+
+    statistic(){
+      console.log("통계창 추가예정")
     }
   }
 }
