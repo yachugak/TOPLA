@@ -20,6 +20,7 @@
             :estimated-time="task.estimatedTime"
             :due-date="task.dueDate"
             :progress="task.progress"
+            :reminding-time="task.remindingTiming"
             class="mb-3"
             @update="getTaskList()"
         >
@@ -106,6 +107,9 @@ export default {
       let indexStart = this.taskPerPage*(this.nowPage-1);
       let indexEnd = this.taskPerPage*this.nowPage -1;
 
+      if(this.nowPage <= 0){
+        return [];
+      }
 
       for(let i = indexStart; i<=indexEnd; i++){
         if(i >= taskCount){
@@ -147,8 +151,14 @@ export default {
 
   watch: {
     pageLength(newVal){
+      console.log(newVal);
       if(this.nowPage > newVal){
         this.nowPage = newVal;
+        return;
+      }
+
+      if(this.nowPage<=0){
+        this.nowPage = 1;
       }
     }
   },

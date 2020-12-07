@@ -5,7 +5,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,14 +17,16 @@ import com.yachugak.topla.entity.TemporaryUser;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.request.CreateTemporaryUserRequestFormat;
 import com.yachugak.topla.request.CreateUserRequestFormat;
+import com.yachugak.topla.request.FindUserPasswordRequestFormat;
 import com.yachugak.topla.request.UpdateDeviceTokenRequestFormat;
 import com.yachugak.topla.request.UpdatePasswordRequestFormat;
 import com.yachugak.topla.request.UpdatePushAlarmStatusRequestFormat;
 import com.yachugak.topla.request.UpdateReportTimeRequestFormat;
-import com.yachugak.topla.request.userLogInFormat;
+import com.yachugak.topla.request.UserLogInRequestFormat;
 import com.yachugak.topla.response.GetUserResponseFormat;
 import com.yachugak.topla.service.PresetService;
 import com.yachugak.topla.service.UserService;
+
 
 @RestController
 @RequestMapping(path = "${apiUriPrefix}/user")
@@ -51,6 +52,8 @@ public class UserController {
 			
 			SchedulePreset newPreset = presetService.createSchedulePreset(newUser, presetName, presetService.createDefaultSchedulePreset());
 			userService.setSelectedPreset(newUser, newPreset);
+			
+			userService.deleteTempUser(req.getEmail());
 		
 			return "ok";
 		}
@@ -62,7 +65,7 @@ public class UserController {
 	
 	
 	@GetMapping("")
-	@Transactional(readOnly = false)
+	@Transactional(readOnly = true)
 	public GetUserResponseFormat getUserInfo(@RequestHeader("Authorization") String email) {
 		User targetUser = userService.findUserByEmail(email);
 		GetUserResponseFormat res = new GetUserResponseFormat();
@@ -94,15 +97,14 @@ public class UserController {
 		return "ok";
 	}
 	
-//	@PutMapping("/push")
-//	@Transactional(readOnly = false)
-//	public String updatePushAlarmStatus(@RequestHeader("Authorization") String email, @RequestBody UpdatePushAlarmStatusRequestFormat req) {
-//		User user = userService.findUserByEmail(email);
-//		userService.setPushAlarmStatus(user, req.isPushAlarmStatus());
-//		
-//		
-//		return "ok";
-//	}
+	@PutMapping("/push")
+	@Transactional(readOnly = false)
+	public String updatePushAlarmStatus(@RequestHeader("Authorization") String email, @RequestBody UpdatePushAlarmStatusRequestFormat req) {
+		User user = userService.findUserByEmail(email);
+		userService.setPushAlarmStatus(user, req.isPushAlarmStatus());
+		
+		return "ok";
+	}
 	
 	@DeleteMapping("")
 	@Transactional(readOnly = false)
@@ -124,20 +126,33 @@ public class UserController {
 	
 	@PostMapping("/login")
 	@Transactional(readOnly = false)
-	public String userLogIn(@RequestBody userLogInFormat req) {
+	public String userLogIn(@RequestBody UserLogInRequestFormat req) {
 		String email = req.getEmail();
 		String password = req.getPassword();
 		User targetUser = userService.userLogin(email, password);
 		
 		return "ok";
 	}
-	
+
 	
 	@PostMapping("/Temporary")
 	@Transactional(readOnly = false)
 	public String createTemporaryUser(@RequestBody CreateTemporaryUserRequestFormat req) {
 		TemporaryUser newTempUser = userService.createTemporaryUser(req.getEmail());
+		
+		return "ok";
+	}
 	
+	@PutMapping("/lostpassword")
+	@Transactional(readOnly = false)
+	public String findPassword(@RequestBody FindUserPasswordRequestFormat req) {
+		int length = 6; // 임시비밀번호 길이
+		
+		User targetUser = userService.findUserByEmail(req.getEmail());
+		String randomCode = Integer.toString(userService.randomCode(length));
+		userService.setPassword(targetUser, randomCode);
+		userService.sendTemporalPasswordByEmail(targetUser, randomCode);
+		
 		return "ok";
 	}
 }

@@ -8,6 +8,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 
 import com.yachugak.topla.exception.GeneralExceptions;
 
+
 public class Mail {
 	public void sendMail(String mailReciver, String title, String content, boolean HTMLFlag) {
 		String xmlConfigPath = "classpath:MailSender.xml";
@@ -53,5 +54,32 @@ public class Mail {
 				+ "<p><span style=\"font-size: 12pt;\">입니다.</span></p>"
 				+ "<p><span style=\"font-size: 12pt;\">코드는 하루동안 유효합니다.</span></p"
 				+ "><p><span style=\"font-size: 12pt;\">반드시 하루 이내에 입력해주시기 바랍니다.</span></p>";
+	}
+
+	public String createTempPasswordTitle() {
+		return "TOPLA 임시 비밀번호 안내 메일입니다.";
+	}
+
+	public String createTempPasswordContent(String email, String randomCode) {
+		String content = "<!DOCTYPE html>\r\n" + 
+				"<head></head>\r\n" + 
+				"<body>\r\n" + 
+				"    <table dir=\"ltr\">\r\n" + 
+				"        <tbody><tr><td style=\"padding:0; font-family:'Malgun Gothic', Gulim, Verdana, Tahoma, sans-serif; font-size:17px; color:#707070;\">TOPLA 계정</td></tr>\r\n" + 
+				"        <tr><td style=\"padding:0; font-family:'Malgun Gothic', Gulim, Verdana, Tahoma, sans-serif; font-size:41px; color:#2672ec;\">임시 비밀번호</td></tr>\r\n" + 
+				"        <tr><td style=\"padding:0; padding-top:25px; font-family:'Malgun Gothic', Gulim, Verdana, Tahoma, sans-serif; font-size:14px; color:#2a2a2a;\">\r\n" + 
+				"                  \r\n" + 
+				"                  TOPLA 계정 <a class=\"link\" dir=\"ltr\" style=\"color:#2672ec; text-decoration:none\" rel=\"noreferrer noopener\" target=\"_blank\">"+String.valueOf(email)+"</a>에 대해 다음 임시 비밀번호를 사용하세요.\r\n" + 
+				"              </td></tr>\r\n" + 
+				"        <tr><td style=\"padding:0; padding-top:25px; font-family:'Malgun Gothic', Gulim, Verdana, Tahoma, sans-serif; font-size:14px; color:#2a2a2a;\">\r\n" + 
+				"                  \r\n" + 
+				"                  임시 비밀번호: <span style=\"font-family:'Malgun Gothic', Gulim, Verdana, Tahoma, sans-serif; font-size:14px; font-weight:bold; color:#2a2a2a;\">"+String.valueOf(randomCode)+"</span>\r\n" + 
+				"              </td></tr>\r\n" + 
+				"        <tr><td style=\"padding:0; padding-top:25px; font-family:'Malgun Gothic', Gulim, Verdana, Tahoma, sans-serif; font-size:14px; color:#2a2a2a;\">감사합니다.</td></tr>\r\n" + 
+				"        <tr><td style=\"padding:0; font-family:'Malgun Gothic', Gulim, Verdana, Tahoma, sans-serif; font-size:14px; color:#2a2a2a;\">TOPLA 계정 팀 드림</td></tr>\r\n" + 
+				"  </tbody></table>\r\n" + 
+				"</body>\r\n" + 
+				"</html>";
+		return content;
 	}
 }

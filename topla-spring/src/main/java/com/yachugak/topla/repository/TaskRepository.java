@@ -30,5 +30,8 @@ public interface TaskRepository extends JpaRepository<Task, Long>{
 	public List<Task> findByFinishDate(Date finishDate);
 
 	public List<Task> findByRemindingTiming(Date remindingTiming);
+
+	@Query("from Task t left join t.user u where t.remindingTiming = ?1 and u.pushAlarmStatus = ?2")
+	public List<Task> findByRemindingTimingAndPushAlarmStatus(Date currentTime, boolean b);
 	
 }
