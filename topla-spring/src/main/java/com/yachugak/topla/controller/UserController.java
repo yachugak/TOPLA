@@ -41,7 +41,7 @@ public class UserController {
 	@PostMapping("")
 	@Transactional(readOnly = false)
 	public String createUser(@RequestBody CreateUserRequestFormat req) {
-		TemporaryUser targeTemporaryUser = userService.findTemporaryUserByEail(req.getEmail());
+		TemporaryUser targeTemporaryUser = userService.findTemporaryUserByEmail(req.getEmail());
 		
 		if(targeTemporaryUser.getSecureCode() == req.getSecureCode()) {
 			User newUser = userService.createUser(req.getEmail(), req.getPassword());
@@ -54,7 +54,6 @@ public class UserController {
 			userService.setSelectedPreset(newUser, newPreset);
 			
 			userService.deleteTempUser(req.getEmail());
-		
 			return "ok";
 		}
 		
@@ -155,4 +154,5 @@ public class UserController {
 		
 		return "ok";
 	}
+	
 }
