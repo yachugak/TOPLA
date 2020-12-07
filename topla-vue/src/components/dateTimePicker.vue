@@ -24,7 +24,9 @@
         </v-tabs>
         <v-tabs-items v-model="tabedItem">
           <v-tab-item>
-            <v-date-picker v-model="selectedDate"></v-date-picker>
+            <v-date-picker v-model="selectedDate"
+                           :day-format="dateFormat"
+            ></v-date-picker>
           </v-tab-item>
           <v-tab-item>
             <v-time-picker v-model="selectedTime"></v-time-picker>
@@ -117,6 +119,11 @@ export default {
       catch{
         this.abortTime();
       }
+    },
+
+    dateFormat(dateString){
+      let ymd = dateString.split("-");
+      return ymd[2];
     }
   }
 }

@@ -51,6 +51,7 @@
                   v-model="value.dueDate"
                   no-title
                   scrollable
+                  :day-format="dateFormat"
               >
                 <v-spacer></v-spacer>
                 <v-btn
@@ -272,6 +273,11 @@ export default {
     formValue() {
       return this.$refs.form.validate();
     },
+
+    dateFormat(dateString){
+      let ymd = dateString.split("-");
+      return ymd[2];
+    }
   }
 }
 
