@@ -135,7 +135,7 @@ public class UserController {
 	}
 
 	
-	@PostMapping("/Temporary")
+	@PostMapping("/temporary")
 	@Transactional(readOnly = false)
 	public String createTemporaryUser(@RequestBody CreateTemporaryUserRequestFormat req) {
 		TemporaryUser newTempUser = userService.createTemporaryUser(req.getEmail());

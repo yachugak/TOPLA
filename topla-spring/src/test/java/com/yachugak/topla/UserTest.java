@@ -64,6 +64,26 @@ public class UserTest {
 			assertTrue(true);
 		}
 	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	@Disabled
+	public void createUser() {
+		String email = "dnrlalth+us@gmail.com";
+		String passwd = "asdf";
+		int secureCode;
+		
+		userService.createTemporaryUser(email);
+		
+		secureCode = userService.findTemporaryUserByEail(email).getSecureCode();
+		
+		User user = userService.createUser(email, passwd);
+		userService.deleteTempUser(email);
+		
+		//코드는 이메일에서 직접 확인할것
+		System.out.println(secureCode);
+		assertEquals(email, user.getEmail());
+	}
 }
 
 
