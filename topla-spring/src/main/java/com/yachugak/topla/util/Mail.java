@@ -7,7 +7,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
 import com.yachugak.topla.exception.GeneralExceptions;
-import com.yachugak.topla.exception.InvalidArgumentException;
+
 
 public class Mail {
 	public void sendMail(String mailReciver, String title, String content, boolean HTMLFlag) {
@@ -38,6 +38,22 @@ public class Mail {
 		} catch (Exception e) {
 			throw new GeneralExceptions("이메일 전송 중에 문제가 생겼습니다.");
 		}
+	}
+	
+	public String createTempUserTitle() {
+		return "TOPLA 회원가입 인증 메일입니다.";
+	}
+	
+	public String createTempUserContent(int secureCode) {
+		return "<p><span style=\"font-size: 12pt;\">안녕하세요. "
+				+ "<span style=\"color: rgb(239, 0, 124);\"><b>TOPLA</b></span>입니다.</span></p><p>"
+				+ "<span style=\"font-size: 12pt;\">당신의 이메일인증 코드는</span></p><p>"
+				+ "<span style=\"font-size: 24pt; color: rgb(255, 0, 0);\">"
+				+ String.valueOf(secureCode)
+				+ "</span></p>"
+				+ "<p><span style=\"font-size: 12pt;\">입니다.</span></p>"
+				+ "<p><span style=\"font-size: 12pt;\">코드는 하루동안 유효합니다.</span></p"
+				+ "><p><span style=\"font-size: 12pt;\">반드시 하루 이내에 입력해주시기 바랍니다.</span></p>";
 	}
 
 	public String createTempPasswordTitle() {

@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yachugak.topla.entity.SchedulePreset;
+import com.yachugak.topla.entity.TemporaryUser;
 import com.yachugak.topla.entity.User;
+import com.yachugak.topla.request.CreateTemporaryUserRequestFormat;
 import com.yachugak.topla.request.CreateUserRequestFormat;
 import com.yachugak.topla.request.FindUserPasswordRequestFormat;
 import com.yachugak.topla.request.UpdateDeviceTokenRequestFormat;
@@ -39,16 +41,26 @@ public class UserController {
 	@PostMapping("")
 	@Transactional(readOnly = false)
 	public String createUser(@RequestBody CreateUserRequestFormat req) {
-		User newUser = userService.createUser(req.getEmail(), req.getPassword());
-		String presetName = "기본 프리셋";
+		TemporaryUser targeTemporaryUser = userService.findTemporaryUserByEail(req.getEmail());
 		
-		userService.setMorningReportTime(newUser, req.getMorningReportTime());
-		userService.setEveningReportTime(newUser, req.getEveningReportTime());
+		if(targeTemporaryUser.getSecureCode() == req.getSecureCode()) {
+			User newUser = userService.createUser(req.getEmail(), req.getPassword());
+			String presetName = "기본 프리셋";
+			
+			userService.setMorningReportTime(newUser, req.getMorningReportTime());
+			userService.setEveningReportTime(newUser, req.getEveningReportTime());
+			
+			SchedulePreset newPreset = presetService.createSchedulePreset(newUser, presetName, presetService.createDefaultSchedulePreset());
+			userService.setSelectedPreset(newUser, newPreset);
+			
+			userService.deleteTempUser(req.getEmail());
 		
-		SchedulePreset newPreset = presetService.createSchedulePreset(newUser, presetName, presetService.createDefaultSchedulePreset());
-		userService.setSelectedPreset(newUser, newPreset);
-	
-		return "ok";
+			return "ok";
+		}
+		
+		else {
+			return "인증번호가 다릅니다.";
+		}
 	}
 	
 	
@@ -118,6 +130,15 @@ public class UserController {
 		String email = req.getEmail();
 		String password = req.getPassword();
 		User targetUser = userService.userLogin(email, password);
+		
+		return "ok";
+	}
+
+	
+	@PostMapping("/temporary")
+	@Transactional(readOnly = false)
+	public String createTemporaryUser(@RequestBody CreateTemporaryUserRequestFormat req) {
+		TemporaryUser newTempUser = userService.createTemporaryUser(req.getEmail());
 		
 		return "ok";
 	}

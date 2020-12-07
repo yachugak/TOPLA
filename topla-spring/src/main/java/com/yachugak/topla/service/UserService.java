@@ -162,6 +162,10 @@ public class UserService {
 	
 	//----------------여기서부터 Temporary--------------
 	public TemporaryUser createTemporaryUser(String email) {
+		if(email == null) {
+			throw new EntityNotFoundException("user", "유저: "+ email + "가 null값입니다.");
+		}
+		
 		Optional<User> findUser = userRepository.findByEmail(email);
 		if(findUser.isPresent()) {
 			throw new EntityNotFoundException("user", "유저: "+ email + "가 이미 존재합니다.");
@@ -169,11 +173,15 @@ public class UserService {
 		
 		Optional<TemporaryUser> findTUser = temporaryUserRepository.findByEmail(email);
 		
+		Mail sendMail = new Mail();
+		
 		int secureCode;
 		
 		if(findTUser.isEmpty()) {
 			TemporaryUser newTemporaryUser = new TemporaryUser();
 			secureCode = this.randomCode(6);
+			
+			sendMail.sendMail(email, sendMail.createTempUserTitle(), sendMail.createTempUserContent(secureCode), true);
 			
 			newTemporaryUser.setEmail(email);
 			newTemporaryUser.setSecureCode(secureCode);
@@ -184,6 +192,8 @@ public class UserService {
 		}
 		else {
 			secureCode = this.randomCode(6);
+			
+			sendMail.sendMail(email, sendMail.createTempUserTitle(), sendMail.createTempUserContent(secureCode), true);
 			
 			findTUser.get().setSecureCode(secureCode);
 			findTUser.get().setCreatedDate(new Date());
@@ -211,6 +221,12 @@ public class UserService {
 			secureCode += (random.nextInt(9)*Math.pow(10, sur));
 		}
 		return secureCode;
+	}
+	
+	public void deleteTempUser(String email) {
+		TemporaryUser target = this.findTemporaryUserByEail(email);
+		
+		temporaryUserRepository.delete(target);
 	}
 
 	// 등록된 이메일을 통해 임시비밀번호 발급 
