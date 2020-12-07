@@ -13,5 +13,16 @@ Vue.use(VuetifyDialog, {
                 text: "이런..."
             }
         }
+    },
+
+    confirm: {
+        actions: {
+            true: {
+                text: "예"
+            },
+            false: {
+                text: "아니오"
+            }
+        }
     }
 })

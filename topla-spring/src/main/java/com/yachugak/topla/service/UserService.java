@@ -20,6 +20,7 @@ import com.yachugak.topla.exception.InvalidArgumentException;
 import com.yachugak.topla.repository.PresetRepository;
 import com.yachugak.topla.repository.TemporaryUserRepository;
 import com.yachugak.topla.repository.UserRepository;
+import com.yachugak.topla.util.Mail;
 
 @Service
 public class UserService {
@@ -46,7 +47,7 @@ public class UserService {
 		
 		User targetUser = userRepository.findByEmail(email).get();
 		if(targetUser == null) {
-			throw new javax.persistence.EntityNotFoundException("해당 유저가 존재하지 않음.");
+			throw new EntityNotFoundException("email: " + email, "이 존재하지 않습니다.");
 		}
 		
 		return targetUser;
@@ -207,8 +208,24 @@ public class UserService {
 		Random random = new Random();
 		int secureCode = 0;
 		for(int sur = 0; sur < length ; sur ++) {
-			secureCode += (random.nextInt()*Math.pow(10, sur));
+			secureCode += (random.nextInt(9)*Math.pow(10, sur));
 		}
 		return secureCode;
+	}
+
+	// 등록된 이메일을 통해 임시비밀번호 발급 
+	public void sendTemporalPasswordByEmail(User targetUser, String randomCode) {
+		// TODO Auto-generated method stub
+		String targetEmail = targetUser.getEmail();
+		String title ="";
+		String content = "";
+		boolean HTMLFlag = true;
+		
+		Mail mail = new Mail();
+		title = mail.createTempPasswordTitle();
+		content = mail.createTempPasswordContent(targetEmail, randomCode);
+		
+		mail.sendMail(targetEmail, title, content, HTMLFlag);
+		
 	}
 }

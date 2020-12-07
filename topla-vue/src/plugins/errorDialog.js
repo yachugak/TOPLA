@@ -20,6 +20,8 @@ export default function(vueInstance, title, errorObject){
         return;
     }
 
+    console.log(errorObject.response);
+
     if(errorObject.response.message === undefined || errorObject.response.message === null || errorObject.response.message === ""){
         vueInstance.$dialog.error({
             title: title,
