@@ -75,7 +75,7 @@ public class UserTest {
 		
 		userService.createTemporaryUser(email);
 		
-		secureCode = userService.findTemporaryUserByEail(email).getSecureCode();
+		secureCode = userService.findTemporaryUserByEmail(email).getSecureCode();
 		
 		User user = userService.createUser(email, passwd);
 		userService.deleteTempUser(email);

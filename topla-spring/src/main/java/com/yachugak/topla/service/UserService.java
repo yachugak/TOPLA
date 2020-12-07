@@ -203,7 +203,7 @@ public class UserService {
 	}
 	
 	
-	public TemporaryUser findTemporaryUserByEail(String email) {
+	public TemporaryUser findTemporaryUserByEmail(String email) {
 		Optional<TemporaryUser> result = temporaryUserRepository.findByEmail(email);
 		
 		if(result.isEmpty()) {
@@ -224,7 +224,7 @@ public class UserService {
 	}
 	
 	public void deleteTempUser(String email) {
-		TemporaryUser target = this.findTemporaryUserByEail(email);
+		TemporaryUser target = this.findTemporaryUserByEmail(email);
 		
 		temporaryUserRepository.delete(target);
 	}
