@@ -15,5 +15,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 		
 	public Optional<User> findByEmailAndPassword(String email, String password);
 	
-	public List<User> findByMorningReportTime(OffsetTime morningOffsetTime);
+	public List<User> findByMorningReportTimeAndPushAlarmStatus(OffsetTime morningTime, boolean b);
 }

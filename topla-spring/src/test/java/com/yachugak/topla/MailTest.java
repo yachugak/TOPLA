@@ -1,18 +1,32 @@
 package com.yachugak.topla;
 
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.mail.internet.MimeMessage;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.transaction.annotation.Transactional;
 
+
+import com.yachugak.topla.entity.User;
+import com.yachugak.topla.repository.UserRepository;
+import com.yachugak.topla.service.UserService;
 import com.yachugak.topla.util.Mail;
 
+@SpringBootTest
 public class MailTest {
-
+	@Autowired 
+	private UserService userService;
+	@Autowired
+	private UserRepository userRepository;
+	
 	@Test
 	@Disabled
 	public void mailTest() throws Exception {
@@ -59,5 +73,29 @@ public class MailTest {
 	public void sendMail() throws Exception {
 		Mail test = new Mail();
 		test.sendMail("romakk@gmail.com", "제목이다", "축하해 야근이야", false);
+  }
+		String email = "이메일을입력";
+		Mail test = new Mail();
+		
+		test.sendMail(email, "이메일테스트제목", "본문", false);
+	}
+	
+	@Test
+	@Disabled
+	@Transactional(readOnly = false)
+	public void sendTemporalPasswordByEmailTest() {
+		int length = 6;
+		String email = "이메일을입력";
+		User targetUser = userService.findUserByEmail(email);
+		String randomCode = Integer.toString(userService.randomCode(length));
+		userService.setPassword(targetUser, randomCode);
+		userRepository.saveAndFlush(targetUser);
+		
+		// mail 수신은 직접 확인해봐야함.
+		userService.sendTemporalPasswordByEmail(targetUser, randomCode);
+		
+		User updated = userService.findUserByEmail(email);
+		String password = updated.getPassword();
+		assertEquals(randomCode, password);
 	}
 }

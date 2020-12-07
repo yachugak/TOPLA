@@ -1,6 +1,6 @@
 package com.yachugak.topla.request;
 
-public class userLogInFormat {
+public class UserLogInRequestFormat {
 	private String email;
 	private String password;
 	

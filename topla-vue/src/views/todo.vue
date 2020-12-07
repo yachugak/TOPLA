@@ -82,6 +82,7 @@
                  :due-date="task.dueDate"
                  :location="task.location"
                  :plan-uid="taskViewMode === 'dueDate' ? -1 : task.planUid"
+                 :reminding-time="task.remindingTiming"
                  @update="getTaskList()"
       ></task-card>
     </div>
@@ -134,7 +135,8 @@ export default {
         dueDate: null,
         estimatedTime: 0,
         priority: 1,
-        location: null
+        location: null,
+        remindingTime: null
       },
       updateTargetTask: null,
       isCalling: 0, //현재 통신 진행중인지 나타내는 변수, 1 이상이면 통신 진행중이라는 뜻
@@ -273,9 +275,9 @@ export default {
         priority: this.newTaskFormData.priority,
         dueDate: this.newTaskFormData.dueDate,
         estimatedTime: this.newTaskFormData.estimatedTime,
-        location: this.newTaskFormData.location
+        location: this.newTaskFormData.location,
+        remindingTiming: this.newTaskFormData.remindingTime
       }
-
 
       try{
         this.isCalling++;

@@ -7,6 +7,7 @@
         <div id="rightSide" @click="onCardClicked($event)">
           <v-card-title>
             {{title}}
+            <v-icon v-if="remindingTime !== null">mdi-bell</v-icon>
             <v-spacer></v-spacer>
             <v-icon v-if="priority>=1" :color="bgColor">mdi-star</v-icon>
             <v-icon v-if="priority>=2" :color="bgColor">mdi-star</v-icon>
@@ -66,7 +67,7 @@
         ></task-info-form>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="error" :loading="callCount>0" >삭제 </v-btn>
+          <v-btn color="error" :loading="callCount>0" @click="onTaskDeleteButtonclicked()">삭제 </v-btn>
           <v-btn color="secondary" @click="isDialogShow = false" :loading="callCount>0">뒤로 </v-btn>
           <v-btn color="primary" @click="onTaskUpdateButtonClicked()" :loading="callCount>0"> 수정 </v-btn>
         </v-card-actions>
@@ -109,7 +110,8 @@ export default {
         dueDate: null,
         estimatedTime: 0,
         priority: 1,
-        location: null
+        location: null,
+        remindingTime: null
       },
       callCount: 0,
       isDialogShow: false,
@@ -157,6 +159,11 @@ export default {
       type: Number,
       default: -1
     },
+
+    remindingTime: {
+      type: String,
+      default: null
+    }
   },
 
   destroyed() {
@@ -278,7 +285,8 @@ export default {
         dueDate: this.dueDate,
         estimatedTime: this.estimatedTime,
         priority: this.priority,
-        location: this.location
+        location: this.location,
+        remindingTime: this.remindingTime
       }
       this.isDialogShow = true;
     },
@@ -376,7 +384,8 @@ export default {
         priority: this.taskFormData.priority,
         dueDate: this.taskFormData.dueDate,
         estimatedTime: this.taskFormData.estimatedTime,
-        location: this.taskFormData.location
+        location: this.taskFormData.location,
+        remindingTiming: this.taskFormData.remindingTime
       }
 
       try{
@@ -393,6 +402,50 @@ export default {
       finally {
           this.callCount--;
       }
+    },
+
+    async onTaskDeleteButtonclicked(){
+      let confrimResult = await this.confrimDelete();
+      if(confrimResult === false){
+        return;
+      }
+
+      this.callCount++;
+      try{
+        await this.$axios.delete(`/task/${this.uid}`);
+      }
+      catch(e){
+        errorDialog(this, "작업 삭제 실패", e);
+      }
+      finally {
+        this.callCount--;
+      }
+
+      this.$dialog.notify.success(`[${this.title}] 작업을 삭제하였습니다.`);
+      this.$emit("update");
+    },
+
+    async confrimDelete(){
+      this.callCount++;
+      let res = await this.$dialog.error({
+        title:"정말로 삭제하시겠습니까?",
+        text: "이 작업은 되돌릴 수 없습니다.",
+        actions: {
+          true: {
+            text: "삭제합니다.",
+            color: "error"
+          },
+          false: {
+            text: "아니오",
+            color: "success"
+          }
+        }
+      })
+      if(res === undefined){
+        res = false;
+      }
+      this.callCount--;
+      return res;
     }
   }
 }

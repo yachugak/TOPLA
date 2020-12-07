@@ -9,8 +9,7 @@
       <v-toolbar-title>TOPLA</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn icon @click="pushPage('/search')" v-if="isLogined"><v-icon>mdi-magnify</v-icon></v-btn>
-      <v-btn icon @click="pushPage('/')" v-if="isLogined"><v-icon>mdi-desk</v-icon></v-btn>
-      <v-btn icon @click="pushPage('/calendar')" v-if="isLogined"><v-icon>mdi-calendar-month</v-icon></v-btn>
+      <v-btn icon @click="onSwapButtonClicked()" v-if="isShowSwapButton"><v-icon>mdi-swap-horizontal</v-icon></v-btn>
     </v-app-bar>
 
     <v-navigation-drawer
@@ -20,9 +19,9 @@
         left
     >
       <v-list nav dense>
-        <v-list-item-group>
-          <v-list-item value="todo" @click="onNavSelected('all')">
-            <v-list-item-icon><v-icon>mdi-magnify</v-icon></v-list-item-icon>
+        <v-list-item-group v-model="selectedNavItem">
+          <v-list-item value="all" @click="onNavSelected('all')">
+            <v-list-item-icon><v-icon>mdi-alpha-a-box</v-icon></v-list-item-icon>
             <v-list-item-title>모든 작업</v-list-item-title>
           </v-list-item>
           <v-list-item value="todo" @click="onNavSelected('todo')">
@@ -60,7 +59,16 @@ export default {
   data() {
     return {
       isShowDrawer: false,
+      selectedNavItem: null
     };
+  },
+
+  watch: {
+    isShowDrawer(newVal){
+      if(newVal === true){
+        this.matchPage();
+      }
+    }
   },
 
   computed: {
@@ -80,6 +88,15 @@ export default {
       return {
         "mobile-margin": !this.$vuetify.breakpoint.mdAndUp
       }
+    },
+
+    isShowSwapButton(){
+      if(this.isLogined === false){
+        return false;
+      }
+
+      let pageName = this.$route.name;
+      return pageName === "todolist mode" || pageName === "calendar mode";
     }
   },
 
@@ -120,6 +137,48 @@ export default {
       }
 
       this.isShowDrawer = false;
+    },
+
+    onSwapButtonClicked(){
+      let pageName = this.$route.name;
+      if(pageName === "todolist mode"){
+        this.pushPage("/calendar");
+        this.$dialog.message.info("월간 보기 화면으로 전환합니다.", {timeout:800});
+        return
+      }
+      else if(pageName === "calendar mode"){
+        this.pushPage("/")
+        this.$dialog.message.info("일간 보기 화면으로 전환합니다.", {timeout: 800});
+        return
+      }
+
+      this.pushPage("/");
+    },
+
+    matchPage(){
+      let pageName = this.$route.name;
+      console.log(pageName);
+      switch (pageName){
+        case "todolist mode":
+          this.selectedNavItem = "todo";
+          break;
+
+        case "calendar mode":
+          this.selectedNavItem = "month";
+          break;
+
+        case "all mode":
+          this.selectedNavItem = "all";
+          break;
+
+        case "preset mode":
+          this.selectedNavItem = "schedulePreset";
+          break;
+
+        default:
+          this.selectedNavItem = null;
+          break;
+      }
     }
   }
 };
