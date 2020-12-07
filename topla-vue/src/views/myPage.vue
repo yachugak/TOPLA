@@ -154,7 +154,7 @@ export default {
       themeListShow: false,
       timeSet:false,
       themeList: ["밝은 테마", "어두운 테마", "클래식 테마"],
-      selectTheme: 0,
+      selectTheme: null,
       morningReportTime:{
         HH:"09",
         mm:"00"
@@ -183,6 +183,12 @@ export default {
 
     async preSetting(){
       this.loginfo = loginInfo.getLoginInfo()
+      this.selectTheme=window.localStorage.getItem("theme")*1
+      if(this.selectTheme===null)
+        this.selectTheme=0
+
+      this.selectThemeApply()
+
       let res = await this.$axios.get("/user")
 
       this.eveningReportTime.HH=res.data.eveningReportTime.substring(0,2)
@@ -216,6 +222,8 @@ export default {
       for(let color in theme){
         defTheme[color]=theme[color]
       }
+
+      window.localStorage.setItem("theme", this.selectTheme);
     },
 
     async selectTimeApply(){
