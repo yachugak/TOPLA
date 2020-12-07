@@ -41,6 +41,21 @@ public class UserController {
 	@PostMapping("")
 	@Transactional(readOnly = false)
 	public String createUser(@RequestBody CreateUserRequestFormat req) {
+		//test를 위한 postman용 코드. 이후 삭제예정 ===============================================
+		if(req.getSecureCode() == -7777) {
+			User newUser = userService.createUser(req.getEmail(), req.getPassword());
+			String presetName = "기본 프리셋";
+			
+			userService.setMorningReportTime(newUser, req.getMorningReportTime());
+			userService.setEveningReportTime(newUser, req.getEveningReportTime());
+			
+			SchedulePreset newPreset = presetService.createSchedulePreset(newUser, presetName, presetService.createDefaultSchedulePreset());
+			userService.setSelectedPreset(newUser, newPreset);
+		
+			return "ok";
+		}
+		// =======================================================================================
+    
 		TemporaryUser targeTemporaryUser = userService.findTemporaryUserByEmail(req.getEmail());
 		
 		if(targeTemporaryUser.getSecureCode() == req.getSecureCode()) {
