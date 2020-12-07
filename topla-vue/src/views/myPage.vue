@@ -36,6 +36,8 @@
             text>
           리포트시간 설정
           <v-spacer></v-spacer>
+          <v-icon v-if="!timeSet">mdi-chevron-down</v-icon>
+          <v-icon v-if="timeSet">mdi-chevron-up</v-icon>
         </v-btn>
 
         <v-expand-transition>
@@ -48,6 +50,7 @@
                   v-model="morningReportTime"
                   :minute-interval="10"
                   close-on-complete
+                  @change="selectTimeApply"
               ></vue-timepicker>
             </v-card-text>
 
@@ -59,19 +62,39 @@
                   v-model="eveningReportTime"
                   :minute-interval="10"
                   close-on-complete
+                  @change="selectTimeApply"
               ></vue-timepicker>
-
             </v-card-text>
-            <v-btn
-                class="ma-1"
-                @click="selectTimeApply"
-            >
-              적용
-            </v-btn>
-
           </div>
         </v-expand-transition>
 
+        <v-btn
+            @click="themeListShow=!themeListShow"
+            block
+            text>
+          테마
+          <v-spacer></v-spacer>
+          <v-icon v-if="themeListShow">mdi-chevron-up</v-icon>
+          <v-icon v-if="!themeListShow">mdi-chevron-down</v-icon>
+        </v-btn>
+        <v-expand-transition>
+          <div v-show="themeListShow">
+            <v-divider></v-divider>
+            <v-radio-group
+                class="small-font"
+                v-model="selectTheme"
+                @change="selectThemeTest()"
+            >
+              <v-radio
+                  class="ma-2"
+                  v-for="(theme,index) in themeList"
+                  :label="theme"
+                  :key="index"
+                  :value="index"
+              ></v-radio>
+            </v-radio-group>
+          </div>
+        </v-expand-transition>
         <v-btn
             block
             text
@@ -91,36 +114,6 @@
 
         </v-btn>
 
-        <v-btn
-            @click="themeListShow=!themeListShow"
-            block
-            text>
-          테마
-          <v-spacer></v-spacer>
-        </v-btn>
-        <v-expand-transition>
-          <div v-show="themeListShow">
-            <v-divider></v-divider>
-            <v-radio-group
-                class="small-font"
-                v-model="selectTheme"
-                @change="selectThemeTest()"
-            >
-              <v-radio
-                  class="ma-2"
-                  v-for="(theme,index) in themeList"
-                  :label="theme"
-                  :key="index"
-                  :value="index"
-              ></v-radio>
-            </v-radio-group>
-            <v-btn id="buttonPos"
-                   @click="selectThemeApply()"
-            >적용
-            </v-btn>
-          </div>
-        </v-expand-transition>
-
       </v-card-text>
     </v-card>
   </div>
@@ -129,6 +122,7 @@
 <script>
 import loginInfo from "@/plugins/loginInfo";
 import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
+import errorDialog from "@/plugins/errorDialog";
 
 export default {
   name: "myPage",
@@ -188,19 +182,20 @@ export default {
     },
 
     selectThemeTest() {
-      console.log(this.selectTheme)
+      console.log(`${this.selectTheme}`+"theme apply")
+      console.log()
     },
 
-    selectThemeApply() {
-      console.log("apply")
-      console.log(this.selectTheme)
-      this.themeListShow = false
-    },
-
-    selectTimeApply(){
-      console.log(this.morningReportTime.HH+"시"+this.morningReportTime.mm+"분")
-      console.log(this.eveningReportTime.HH+"시"+this.eveningReportTime.mm+"분")
-      this.timeSet=false
+    async selectTimeApply(){
+      try{
+        await this.$axios.put(`/user`,{
+          "morningReportTime":`${this.morningReportTime.HH}:${this.morningReportTime.mm}+09:00`,
+          "eveningReportTime":`${this.eveningReportTime.HH}:${this.eveningReportTime.mm}+09:00`
+        })
+      }
+      catch(e){
+        errorDialog(this,"시간등록 실패",e)
+      }
     }
   }
 }

@@ -100,6 +100,8 @@
 </template>
 
 <script>
+import errorDialog from "@/plugins/errorDialog";
+
 export default {
   data: () => ({
     type: 'month',
@@ -143,7 +145,13 @@ export default {
     async getEvents() {
       let dueTasks = []
       let doTasks = []
-      let task = await this.$axios.get("/task/list")
+      let task
+      try{
+        task = await this.$axios.get("/task/list")
+      }
+      catch(e){
+        errorDialog(this,"받아오기 실패",e)
+      }
 
       for (let i = 0; i < task.data.length; i++) {
         dueTasks.push({

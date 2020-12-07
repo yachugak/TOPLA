@@ -67,6 +67,7 @@
 <script>
 
 import schedulePreset from "@/components/schedulePreset";
+import errorDialog from "@/plugins/errorDialog";
 
 export default {
   data() {
@@ -94,13 +95,27 @@ export default {
 
   methods: {
     async presetSetting() {
-      let res = await this.$axios.get("/preset")
+      let res
+      try{
+        res=await this.$axios.get("/preset")
+      }
+
+      catch (e) {
+        errorDialog(this,"받아오기 실패",e)
+      }
+
       this.dayData = res.data.schedulePreset;
       this.max = Math.max.apply(null, this.dayData) + 240
       this.presetUid = res.data.presetUid
       this.selected=res.data.presetName
+      let list
 
-      let list=await this.$axios.get("/preset/list")
+      try{
+        list=await this.$axios.get("/preset/list")
+      }
+      catch (e) {
+        errorDialog(this,"받아오기 실패",e)
+      }
       this.presetList=list.data
 
       this.preset=[]
@@ -121,10 +136,15 @@ export default {
       let uid=this.selectedUid
       this.preset[uid]=this.selected
 
-      await this.$axios.put(`/preset/${this.presetUid}`,{
-        "schedulePreset":this.dayData,
-        "presetName":this.selected
-      })
+      try{
+        await this.$axios.put(`/preset/${this.presetUid}`,{
+          "schedulePreset":this.dayData,
+          "presetName":this.selected
+        })
+      }
+      catch (e) {
+        errorDialog(this,"생성 실패",e)
+      }
     },
 
     async presetSelect(selected){
@@ -138,9 +158,14 @@ export default {
       this.dayData=this.presetList[index].schedulePreset
       this.presetUid=this.presetList[index].presetUid
 
-      await this.$axios.put(`/preset/select?presetUid=${this.presetUid}`,{
-        presetUid:this.presetUid
-      })
+      try{
+        await this.$axios.put(`/preset/select?presetUid=${this.presetUid}`,{
+          presetUid:this.presetUid
+        })
+      }
+      catch (e) {
+        errorDialog(this,"실패",e)
+      }
     },
 
     async presetAdd(){
@@ -162,10 +187,7 @@ export default {
         await this.$axios.delete(`/preset/${this.presetUid}`)
       }
       catch(e) {
-        this.$dialog.error({
-          title: "삭제 실패",
-          text: "기본 프리셋은 삭제가 불가능합니다."
-        });
+        errorDialog(this,"삭제실패",e)
       }
 
       await this.presetSetting()
