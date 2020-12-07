@@ -16,6 +16,7 @@
     "vue": "^2.6.11",
     "vue-daum-map": "^1.0.15",
     "vue-router": "^3.2.0",
+    "vue2-timepicker": "^1.1.5",
     "vuetify": "^2.2.11",
     "vuetify-dialog": "^2.0.12",
     "vuetify-jet-validator": "^1.0.1",

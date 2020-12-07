@@ -1,15 +1,19 @@
 <template>
   <v-app>
     <v-app-bar
-      app
-      color="primary darken-2"
-      dark
+        app
+        color="primary darken-2"
+        dark
     >
       <v-app-bar-nav-icon @click="isShowDrawer = !isShowDrawer" v-if="isLogined"></v-app-bar-nav-icon>
       <v-toolbar-title>TOPLA</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click="pushPage('/search')" v-if="isLogined"><v-icon>mdi-magnify</v-icon></v-btn>
-      <v-btn icon @click="onSwapButtonClicked()" v-if="isShowSwapButton"><v-icon>mdi-swap-horizontal</v-icon></v-btn>
+      <v-btn icon @click="pushPage('/search')" v-if="isLogined">
+        <v-icon>mdi-magnify</v-icon>
+      </v-btn>
+      <v-btn icon @click="onSwapButtonClicked()" v-if="isShowSwapButton">
+        <v-icon>mdi-swap-horizontal</v-icon>
+      </v-btn>
     </v-app-bar>
 
     <v-navigation-drawer
@@ -19,25 +23,47 @@
         left
     >
       <v-list nav dense>
+
         <v-list-item-group v-model="selectedNavItem">
+          <v-list-item value="mypage" @click="onNavSelected('myPage')">
+            <v-list-item-icon>
+              <v-icon>mdi-account</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>마이 페이지</v-list-item-title>
+          </v-list-item>
+          <v-list-item value="todo" @click="onNavSelected('all')">
+            <v-list-item-icon>
+              <v-icon>mdi-magnify</v-icon>
+            </v-list-item-icon>
+          </v-list-item>
           <v-list-item value="all" @click="onNavSelected('all')">
-            <v-list-item-icon><v-icon>mdi-alpha-a-box</v-icon></v-list-item-icon>
+            <v-list-item-icon>
+              <v-icon>mdi-alpha-a-box</v-icon>
+            </v-list-item-icon>
             <v-list-item-title>모든 작업</v-list-item-title>
           </v-list-item>
           <v-list-item value="todo" @click="onNavSelected('todo')">
-            <v-list-item-icon><v-icon>mdi-calendar-today</v-icon></v-list-item-icon>
+            <v-list-item-icon>
+              <v-icon>mdi-calendar-today</v-icon>
+            </v-list-item-icon>
             <v-list-item-title>일간 작업 보기</v-list-item-title>
           </v-list-item>
           <v-list-item value="month" @click="onNavSelected('month')">
-            <v-list-item-icon><v-icon>mdi-calendar-month</v-icon></v-list-item-icon>
+            <v-list-item-icon>
+              <v-icon>mdi-calendar-month</v-icon>
+            </v-list-item-icon>
             <v-list-item-title>월간 작업 보기</v-list-item-title>
           </v-list-item>
           <v-list-item value="schedulePreset" @click="onNavSelected('schedulePreset')">
-            <v-list-item-icon><v-icon>mdi-calendar-heart</v-icon></v-list-item-icon>
+            <v-list-item-icon>
+              <v-icon>mdi-calendar-heart</v-icon>
+            </v-list-item-icon>
             <v-list-item-title>스케줄 프리셋 설정</v-list-item-title>
           </v-list-item>
           <v-list-item value="logout" @click="onNavSelected('logout')">
-            <v-list-item-icon><v-icon>mdi-logout</v-icon></v-list-item-icon>
+            <v-list-item-icon>
+              <v-icon>mdi-logout</v-icon>
+            </v-list-item-icon>
             <v-list-item-title>로그아웃</v-list-item-title>
           </v-list-item>
         </v-list-item-group>
@@ -64,34 +90,34 @@ export default {
   },
 
   watch: {
-    isShowDrawer(newVal){
-      if(newVal === true){
+    isShowDrawer(newVal) {
+      if (newVal === true) {
         this.matchPage();
       }
     }
   },
 
   computed: {
-    isLoginPage(){
+    isLoginPage() {
       return this.$route.name === "login page";
     },
 
-    isLogined(){
-      if(this.$store.state.loginInfo === null){
+    isLogined() {
+      if (this.$store.state.loginInfo === null) {
         return false;
       }
 
       return true;
     },
 
-    sidleBarMargin(){
+    sidleBarMargin() {
       return {
         "mobile-margin": !this.$vuetify.breakpoint.mdAndUp
       }
     },
 
-    isShowSwapButton(){
-      if(this.isLogined === false){
+    isShowSwapButton() {
+      if (this.isLogined === false) {
         return false;
       }
 
@@ -101,24 +127,26 @@ export default {
   },
 
   methods: {
-    async pushPage(location){
-      try{
+    async pushPage(location) {
+      try {
         await this.$router.push(location)
-      }
-      catch{
+      } catch {
         //아무것도 안 함.
         //같은 페이지로 이동시 예외가 던저지기 때문에 이렇게 함.
       }
     },
 
-    onLogoutButtonClicked(){
+    onLogoutButtonClicked() {
       loginInfo.clearLoginInfo();
       this.$store.commit("setLoginInfo", null);
       this.pushPage("/");
     },
 
-    onNavSelected(mode){
-      switch (mode){
+    onNavSelected(mode) {
+      switch (mode) {
+        case "myPage":
+          this.pushPage("/mypage");
+          break;
         case "todo":
           this.pushPage("/");
           break;
@@ -139,14 +167,13 @@ export default {
       this.isShowDrawer = false;
     },
 
-    onSwapButtonClicked(){
+    onSwapButtonClicked() {
       let pageName = this.$route.name;
-      if(pageName === "todolist mode"){
+      if (pageName === "todolist mode") {
         this.pushPage("/calendar");
-        this.$dialog.message.info("월간 보기 화면으로 전환합니다.", {timeout:800});
+        this.$dialog.message.info("월간 보기 화면으로 전환합니다.", {timeout: 800});
         return
-      }
-      else if(pageName === "calendar mode"){
+      } else if (pageName === "calendar mode") {
         this.pushPage("/")
         this.$dialog.message.info("일간 보기 화면으로 전환합니다.", {timeout: 800});
         return
@@ -155,10 +182,10 @@ export default {
       this.pushPage("/");
     },
 
-    matchPage(){
+    matchPage() {
       let pageName = this.$route.name;
       console.log(pageName);
-      switch (pageName){
+      switch (pageName) {
         case "todolist mode":
           this.selectedNavItem = "todo";
           break;
