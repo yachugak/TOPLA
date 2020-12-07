@@ -20,6 +20,7 @@ import com.yachugak.topla.exception.InvalidArgumentException;
 import com.yachugak.topla.repository.PresetRepository;
 import com.yachugak.topla.repository.TemporaryUserRepository;
 import com.yachugak.topla.repository.UserRepository;
+import com.yachugak.topla.util.Mail;
 
 @Service
 public class UserService {
@@ -74,6 +75,8 @@ public class UserService {
 		this.setMorningReportTime(newUser, morningOffsetTime);
 		this.setEveningReportTime(newUser, eveningOffsetTime);
 		userRepository.saveAndFlush(newUser);
+		
+		this.deleteTempUser(email);
 		
 		return newUser;
 	}
@@ -157,6 +160,10 @@ public class UserService {
 	
 	//----------------여기서부터 Temporary--------------
 	public TemporaryUser createTemporaryUser(String email) {
+		if(email == null) {
+			throw new EntityNotFoundException("user", "유저: "+ email + "가 null값입니다.");
+		}
+		
 		Optional<User> findUser = userRepository.findByEmail(email);
 		if(findUser.isPresent()) {
 			throw new EntityNotFoundException("user", "유저: "+ email + "가 이미 존재합니다.");
@@ -164,12 +171,15 @@ public class UserService {
 		
 		Optional<TemporaryUser> findTUser = temporaryUserRepository.findByEmail(email);
 		
+		Mail sendMail = new Mail();
 		
 		int secureCode;
 		
 		if(findTUser.isEmpty()) {
 			TemporaryUser newTemporaryUser = new TemporaryUser();
 			secureCode = this.randomCode(6);
+			
+			sendMail.sendMail(email, sendMail.createTempUserTitle(), sendMail.createTempUserContent(secureCode), true);
 			
 			newTemporaryUser.setEmail(email);
 			newTemporaryUser.setSecureCode(secureCode);
@@ -180,6 +190,8 @@ public class UserService {
 		}
 		else {
 			secureCode = this.randomCode(6);
+			
+			sendMail.sendMail(email, sendMail.createTempUserTitle(), sendMail.createTempUserContent(secureCode), true);
 			
 			findTUser.get().setSecureCode(secureCode);
 			findTUser.get().setCreatedDate(new Date());
@@ -204,8 +216,14 @@ public class UserService {
 		Random random = new Random();
 		int secureCode = 0;
 		for(int sur = 0; sur < length ; sur ++) {
-			secureCode += (random.nextInt()*Math.pow(10, sur));
+			secureCode += (random.nextInt(9)*Math.pow(10, sur));
 		}
 		return secureCode;
+	}
+	
+	public void deleteTempUser(String email) {
+		TemporaryUser target = this.findTemporaryUserByEail(email);
+		
+		temporaryUserRepository.delete(target);
 	}
 }
