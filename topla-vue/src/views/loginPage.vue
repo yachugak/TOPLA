@@ -19,6 +19,7 @@
             :rules="rules.password"
         >
         </v-text-field>
+        <v-btn text @click="currentMode='findPassword'">비밀번호가 기억나지 않으십니까?</v-btn>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="primary" @click="onRegisterButtonClicked()" :loading="callCount>0">회원가입</v-btn>
@@ -26,6 +27,7 @@
         </v-card-actions>
       </v-form>
       <user-register-form v-if="currentMode==='register'" @backLogin="currentMode='login'"></user-register-form>
+      <find-password v-if="currentMode==='findPassword'" @back="currentMode='login'"></find-password>
     </v-card>
   </div>
 </template>
@@ -34,12 +36,14 @@
 import VuetifyJetValidator from "vuetify-jet-validator";
 import loginInfo from "@/plugins/loginInfo";
 import userRegisterForm from "@/components/userRegisterForm";
+import findPassword from "@/components/findPassword";
 
 export default {
   name: "loginPage",
 
   components: {
-    userRegisterForm
+    userRegisterForm,
+    findPassword
   },
 
   data() {
