@@ -31,11 +31,6 @@
             </v-list-item-icon>
             <v-list-item-title>마이 페이지</v-list-item-title>
           </v-list-item>
-          <v-list-item value="todo" @click="onNavSelected('all')">
-            <v-list-item-icon>
-              <v-icon>mdi-magnify</v-icon>
-            </v-list-item-icon>
-          </v-list-item>
           <v-list-item value="all" @click="onNavSelected('all')">
             <v-list-item-icon>
               <v-icon>mdi-alpha-a-box</v-icon>
@@ -200,6 +195,10 @@ export default {
 
         case "preset mode":
           this.selectedNavItem = "schedulePreset";
+          break;
+
+        case "mypage mode":
+          this.selectedNavItem = "mypage";
           break;
 
         default:
