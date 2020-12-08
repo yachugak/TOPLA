@@ -41,7 +41,7 @@ public class UserController {
 	@PostMapping("")
 	@Transactional(readOnly = false)
 	public String createUser(@RequestBody CreateUserRequestFormat req) {
-		//test를 위한 postman용 코드
+		//test를 위한 postman용 코드. 이후 삭제예정 ===============================================
 		if(req.getSecureCode() == -7777) {
 			User newUser = userService.createUser(req.getEmail(), req.getPassword());
 			String presetName = "기본 프리셋";
@@ -54,7 +54,8 @@ public class UserController {
 		
 			return "ok";
 		}
-		
+		// =======================================================================================
+    
 		TemporaryUser targeTemporaryUser = userService.findTemporaryUserByEmail(req.getEmail());
 		
 		if(targeTemporaryUser.getSecureCode() == req.getSecureCode()) {
@@ -68,7 +69,6 @@ public class UserController {
 			userService.setSelectedPreset(newUser, newPreset);
 			
 			userService.deleteTempUser(req.getEmail());
-		
 			return "ok";
 		}
 		
@@ -169,4 +169,5 @@ public class UserController {
 		
 		return "ok";
 	}
+	
 }
