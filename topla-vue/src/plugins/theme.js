@@ -1,6 +1,8 @@
 
 let theme=[]
 
+export default theme
+
 theme[0]={
     primary: '#F8BBD0',
     secondary: '#ffcc80',
@@ -13,14 +15,14 @@ theme[0]={
 }
 
 theme[1]={
-    primary: '#FFFFFF',
-    secondary: '#ffffff',
+    primary: '#212121',
+    secondary: '#484848',
     accent: '#ffffff',
-    error: '#ffffff',
+    error: '#b71c1c',
     info: '#ffffff',
     success: '#ffffff',
     warning: '#ffffff',
-    back: "#ffffff",
+    back: "#484848",
 }
 theme[2]={
     primary: '#1976D2',
@@ -32,4 +34,3 @@ theme[2]={
     warning: '#FFC107',
 }
 
-export default theme

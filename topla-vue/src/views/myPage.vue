@@ -187,8 +187,6 @@ export default {
       if(this.selectTheme===null)
         this.selectTheme=0
 
-      this.selectThemeApply()
-
       let res = await this.$axios.get("/user")
 
       this.eveningReportTime.HH=res.data.eveningReportTime.substring(0,2)

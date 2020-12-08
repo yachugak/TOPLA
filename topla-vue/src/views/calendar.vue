@@ -110,10 +110,12 @@ export default {
     tasks: [],
     dueTasks: [],
     doTasks: [],
-    colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
+    colors: ["#FFE082", "#FFA000", "#FF6F00",],
     taskViewMode: "dueDate",
     date: new Date().toISOString().substr(0, 7),
     menu2: false,
+    more:true,
+
   }),
   methods: {
     setToday() {
@@ -153,12 +155,13 @@ export default {
         errorDialog(this,"받아오기 실패",e)
       }
 
+      console.log(task.data)
       for (let i = 0; i < task.data.length; i++) {
         dueTasks.push({
           name: task.data[i].title,
           start: new Date(`${task.data[i].dueDate}`),
           end: new Date(`${task.data[i].dueDate}`),
-          color: this.colors[3],
+          color: this.colors[task.data[i].priority-1],
           timed: false,
         })
       }
@@ -169,7 +172,7 @@ export default {
             name: task.data[i].title,
             start: new Date(`${task.data[i].planList[j].doDate}`),
             end: new Date(`${task.data[i].planList[j].doDate}`),
-            color: this.colors[3],
+            color: this.colors[task.data[i].priority-1],
             timed: false,
           })
         }
@@ -225,7 +228,7 @@ export default {
 
     dateFormat(dateObject){
       return dateObject.day;
-    }
+    },
   },
 }
 </script>
