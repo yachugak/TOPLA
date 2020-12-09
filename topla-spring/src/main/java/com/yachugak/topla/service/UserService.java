@@ -45,11 +45,7 @@ public class UserService {
 		if(email.isBlank()) {
 			throw new InvalidArgumentException("email", "빈 값이 아닌 String", email+"");
 		}
-		
-		User targetUser = userRepository.findByEmail(email).get();
-		if(targetUser == null) {
-			throw new EntityNotFoundException("email: " + email, "이 존재하지 않습니다.");
-		}
+		User targetUser = userRepository.findByEmail(email).orElseThrow(()-> new EntityNotFoundException("email", "이 존재하지 않습니다."));
 		
 		return targetUser;
 	}
