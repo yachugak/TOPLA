@@ -85,7 +85,7 @@ public class MailTest {
 		int length = 6;
 		String email = "이메일 입력";
 		User targetUser = userService.findUserByEmail(email);
-		String randomCode = Integer.toString(userService.randomCode(length));
+		String randomCode = userService.randomCode(length);
 		userService.setPassword(targetUser, randomCode);
 		userRepository.saveAndFlush(targetUser);
 		

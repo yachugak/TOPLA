@@ -67,11 +67,10 @@ public class UserTest {
 	
 	@Test
 	@Transactional(readOnly = false)
-	@Disabled
 	public void createUser() {
 		String email = "dnrlalth+us@gmail.com";
 		String passwd = "asdf";
-		int secureCode;
+		String secureCode;
 		
 		userService.createTemporaryUser(email);
 		

@@ -185,7 +185,7 @@ public class UserService {
 		
 		Mail sendMail = new Mail();
 		
-		int secureCode;
+		String secureCode;
 		
 		if(findTUser.isEmpty()) {
 			TemporaryUser newTemporaryUser = new TemporaryUser();
@@ -224,11 +224,11 @@ public class UserService {
 		}
 	}
 	
-	public int randomCode(int length) {
+	public String randomCode(int length) {
 		Random random = new Random();
-		int secureCode = 0;
+		String secureCode = "";
 		for(int sur = 0; sur < length ; sur ++) {
-			secureCode += (random.nextInt(9)*Math.pow(10, sur));
+			secureCode += random.nextInt(9);
 		}
 		return secureCode;
 	}
