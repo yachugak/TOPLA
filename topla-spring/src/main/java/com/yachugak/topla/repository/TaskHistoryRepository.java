@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.yachugak.topla.entity.Report;
@@ -22,5 +23,6 @@ public interface TaskHistoryRepository extends JpaRepository<TaskHistory, Long>{
 	
 	public List<TaskHistory> findByRecordedTime(Date recordedTime);
 	
+	@Query("from TaskHistory th left join th.task t left join t.user u where th.recordedTime = ?1 and t.user = ?2")
 	public List<TaskHistory> findByRecordedTimeAndUser(Date recordedTime, User user);
 }
