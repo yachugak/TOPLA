@@ -45,13 +45,12 @@ public class UserService {
 		if(email.isBlank()) {
 			throw new InvalidArgumentException("email", "빈 값이 아닌 String", email+"");
 		}
-		
-		User targetUser = userRepository.findByEmail(email).get();
-		if(targetUser == null) {
+		Optional<User> targetUser = userRepository.findByEmail(email);
+		if(targetUser.isEmpty()) {
 			throw new EntityNotFoundException("email: " + email, "이 존재하지 않습니다.");
 		}
 		
-		return targetUser;
+		return targetUser.get();
 	}
 
 	public void setSelectedPreset(User user, long presetUid) {
