@@ -169,6 +169,21 @@ public class PlanTest {
 		
 	}
 	
+	@Test
+	@Transactional(readOnly = false)
+	public void totalLoss0Test2() {
+		Date planStartDate = DayCalculator.makeDate(2020, 12, 9);
+		SchedulePresetDataFormat schedulePreset = new SchedulePresetDataFormat();
+		schedulePreset.decode("0240024002400240024002400240");
+		ArrayList<Task> testTaskList = new ArrayList<>();
+		testTaskList.add(makeTask(1L, 2, 120, planStartDate));
+		
+		Planizer planizer = new Planizer(schedulePreset, testTaskList, planStartDate);
+		TimeTable tt = planizer.fractionalBinPackingPlan();
+		double totalLoss = tt.getTotalLossPriority(planStartDate);
+		
+		assertEquals(0.0, totalLoss, 0.0001);
+	}
 	@Test()
 	public void notRegisterdTaskExceptionTest() {
 		Task taskA = makeTask(1, 1, 120, DayCalculator.makeDate(2020,11,14));
@@ -549,6 +564,7 @@ public class PlanTest {
 		assertEquals(60, result.getDay(0).getTaskItemsOrderByTaskId().get(0).getTime());
 
 	}
+	
 	
 	private boolean dateEqual(Date date1, Date date2) {
 		if(date1.getYear() != date2.getYear()) {
