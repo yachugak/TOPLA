@@ -172,7 +172,10 @@ public class UserService {
 			throw new EntityNotFoundException("user", "유저: "+ email + "가 null값입니다.");
 		}
 		
-		User findUser = userRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("user", "유저: "+email+"가 이미 존재합니다."));
+		User findUser = this.findUserByEmail(email);
+		if(findUser != null) {
+			throw new GeneralExceptions("해당 이메일은 이미 계정이 존재합니다.");
+		}
 		
 		Optional<TemporaryUser> findTUser = temporaryUserRepository.findByEmail(email);
 		
