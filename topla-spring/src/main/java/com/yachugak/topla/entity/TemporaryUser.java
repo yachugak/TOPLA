@@ -23,7 +23,7 @@ public class TemporaryUser {
 	private String email;
 	
 	@Column
-	private int secureCode;
+	private String secureCode;
 	
 	@Column
 	@Temporal(TemporalType.DATE)
@@ -45,11 +45,11 @@ public class TemporaryUser {
 		this.email = email;
 	}
 
-	public int getSecureCode() {
+	public String getSecureCode() {
 		return secureCode;
 	}
 
-	public void setSecureCode(int secureCode) {
+	public void setSecureCode(String secureCode) {
 		this.secureCode = secureCode;
 	}
 

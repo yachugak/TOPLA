@@ -44,7 +44,7 @@ public class Mail {
 		return "TOPLA 회원가입 인증 메일입니다.";
 	}
 	
-	public String createTempUserContent(int secureCode) {
+	public String createTempUserContent(String secureCode) {
 		return "<p><span style=\"font-size: 12pt;\">안녕하세요. "
 				+ "<span style=\"color: rgb(239, 0, 124);\"><b>TOPLA</b></span>입니다.</span></p><p>"
 				+ "<span style=\"font-size: 12pt;\">당신의 이메일인증 코드는</span></p><p>"
