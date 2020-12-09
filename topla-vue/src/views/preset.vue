@@ -57,45 +57,17 @@
           @click="presetDelete()">
         프리셋 삭제
       </v-btn>
-
-
     </v-card-actions>
 
-    <v-dialog
-        v-model="showPresetList"
-        persistent
-        max-width="500"
-    >
-      <v-card v-if="showPresetList">
-        <v-card-title>프리셋 리스트</v-card-title>
-        <preset-list @input="change()" ref="dialog"></preset-list>
-        <v-card-actions>
-          <v-spacer></v-spacer>
 
-          <v-btn
-              color="error"
-              @click="showPresetList = false"
-          >
-            취소
-          </v-btn>
-
-          <v-btn
-              color="primary"
-              @click="addPreset()"
-          >
-            추가
-          </v-btn>
-
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-container>
 
 </template>
 
 <script>
-import presetList from "@/components/presetList";
+
 import schedulePreset from "@/components/schedulePreset";
+import errorDialog from "@/plugins/errorDialog";
 
 export default {
   data() {
@@ -118,39 +90,38 @@ export default {
   },
 
   components: {
-    presetList,
     schedulePreset
   },
 
   methods: {
     async presetSetting() {
-      let res = await this.$axios.get("/preset")
+      let res
+      try{
+        res=await this.$axios.get("/preset")
+      }
+
+      catch (e) {
+        errorDialog(this,"받아오기 실패",e)
+      }
+
       this.dayData = res.data.schedulePreset;
       this.max = Math.max.apply(null, this.dayData) + 240
       this.presetUid = res.data.presetUid
       this.selected=res.data.presetName
+      let list
 
-      let list=await this.$axios.get("/preset/list")
+      try{
+        list=await this.$axios.get("/preset/list")
+      }
+      catch (e) {
+        errorDialog(this,"받아오기 실패",e)
+      }
       this.presetList=list.data
 
       this.preset=[]
       for(let i in list.data) {
         this.preset.push(list.data[i].presetName)
       }
-    },
-
-    async addPreset() {
-
-      await this.$axios.post("/preset", {
-        "schedulePreset": [0, 0, 0, 0, 0, 0, 0]
-      })
-
-      await this.$refs["dialog"].getPresetList();
-    },
-
-    change() {
-      this.showPresetList = false
-      window.location.reload()
     },
 
     modifyPreset() {
@@ -165,10 +136,15 @@ export default {
       let uid=this.selectedUid
       this.preset[uid]=this.selected
 
-      await this.$axios.put(`/preset/${this.presetUid}`,{
-        "schedulePreset":this.dayData,
-        "presetName":this.selected
-      })
+      try{
+        await this.$axios.put(`/preset/${this.presetUid}`,{
+          "schedulePreset":this.dayData,
+          "presetName":this.selected
+        })
+      }
+      catch (e) {
+        errorDialog(this,"생성 실패",e)
+      }
     },
 
     async presetSelect(selected){
@@ -182,9 +158,14 @@ export default {
       this.dayData=this.presetList[index].schedulePreset
       this.presetUid=this.presetList[index].presetUid
 
-      await this.$axios.put(`/preset/select?presetUid=${this.presetUid}`,{
-        presetUid:this.presetUid
-      })
+      try{
+        await this.$axios.put(`/preset/select?presetUid=${this.presetUid}`,{
+          presetUid:this.presetUid
+        })
+      }
+      catch (e) {
+        errorDialog(this,"실패",e)
+      }
     },
 
     async presetAdd(){
@@ -193,14 +174,21 @@ export default {
         "schedulePreset":[0,0,0,0,0,0,0],
         "presetName":`추가된 프리셋 ${len+1}`
       })
+
       await this.presetSetting()
       this.selectedUid=len
+      this.presetUid=this.presetList[len].presetUid
       this.selected=this.presetList[len].presetName
       this.dayData=this.presetList[len].schedulePreset
     },
 
     async presetDelete(){
-      await this.$axios.delete(`/preset/${this.presetUid}`)
+      try{
+        await this.$axios.delete(`/preset/${this.presetUid}`)
+      }
+      catch(e) {
+        errorDialog(this,"삭제실패",e)
+      }
 
       await this.presetSetting()
       this.selected=this.preset[0]

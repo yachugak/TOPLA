@@ -35,7 +35,7 @@ public class RemindService {
 	}
 
 	public List<Task> searchTasksToRemind(Date currentTime) {
-		return taskService.findTaskByRemindingTiming(currentTime);
+		return taskService.findTaskByRemindingTimingAndPushAlarmStatus(currentTime);
 	}
 
 	public HttpHeaders prepareHeader(String key) {
