@@ -103,7 +103,7 @@
         max-width="500"
     >
       <v-card v-if="isShowNewTaskdialog">
-        <v-card-title v-if="taskCreatedMode">새로운 작업 추가</v-card-title>
+        <v-card-title>새로운 작업 추가</v-card-title>
         <task-info-form
             v-model="newTaskFormData"
             ref="infoForm"
@@ -133,7 +133,7 @@ export default {
       newTaskFormData: {
         title: "",
         dueDate: null,
-        estimatedTime: 0,
+        estimatedTime: 30,
         priority: 1,
         location: null,
         remindingTime: null
@@ -149,14 +149,6 @@ export default {
     taskInfoForm,
     taskCard,
     scheduleAlertBox
-  },
-
-  watch: {
-    isShowNewTaskdialog(newVal){
-      if(newVal === false){
-        this.formClear();
-      }
-    }
   },
 
   computed: {
@@ -214,6 +206,14 @@ export default {
         timeSum += task.doTime;
       }
       return timeSum;
+    }
+  },
+
+  watch: {
+    isShowNewTaskdialog(newVal){
+      if(newVal === true){
+        this.clearForm();
+      }
     }
   },
 
@@ -358,6 +358,17 @@ export default {
       }
 
       return dispalyTaskList;
+    },
+
+    clearForm(){
+      this.newTaskFormData = {
+        title: "",
+        dueDate: null,
+        estimatedTime: 30,
+        priority: 1,
+        location: null,
+        remindingTime: null
+      }
     }
   },
 

@@ -21,6 +21,7 @@ import com.yachugak.topla.repository.PresetRepository;
 import com.yachugak.topla.repository.TemporaryUserRepository;
 import com.yachugak.topla.repository.UserRepository;
 import com.yachugak.topla.util.Mail;
+import com.yachugak.topla.util.SHA256;
 
 @Service
 public class UserService {
@@ -44,11 +45,7 @@ public class UserService {
 		if(email.isBlank()) {
 			throw new InvalidArgumentException("email", "빈 값이 아닌 String", email+"");
 		}
-		
-		User targetUser = userRepository.findByEmail(email).get();
-		if(targetUser == null) {
-			throw new EntityNotFoundException("email: " + email, "이 존재하지 않습니다.");
-		}
+		User targetUser = userRepository.findByEmail(email).orElseThrow(()-> new EntityNotFoundException("email", "이 존재하지 않습니다."));
 		
 		return targetUser;
 	}
@@ -101,6 +98,10 @@ public class UserService {
 		if(password.equals("")) {
 			throw new InvalidArgumentException("password", "값 있음", "빈 문자열");
 		}
+		
+		SHA256 sha256 = new SHA256();
+		password = sha256.getEncrpyt(password);
+		
 		user.setPassword(password);
 	}
 	
@@ -131,9 +132,12 @@ public class UserService {
 	}
 
 	public User userLogin(String email, String password) {
+		SHA256 sha256 = new SHA256();
+		password = sha256.getEncrpyt(password);
+		
 		Optional<User> targetUser = userRepository.findByEmailAndPassword(email, password);
 		if(!targetUser.isPresent()) {
-			throw new EntityNotFoundException("user", "유저: "+ email + "가 존재하지 않습니다.");
+			throw new GeneralExceptions("잘못된 Email 혹은 비밀번호입니다.");
 		}
 		return targetUser.get();
 	}
@@ -143,13 +147,15 @@ public class UserService {
 	}
 
 	public boolean isPasswordValid(User user, String password) {
+		SHA256 sha256 = new SHA256();
+		password = sha256.getEncrpyt(password);
 		String actualPassword = user.getPassword();
-		String msg = "올바른 비밀번호가 아닙니다.";		
+		
 		if(password.equals(actualPassword)) {
 			return true;
 		}
 		else {
-			throw new GeneralExceptions(msg);
+			throw new GeneralExceptions("올바른 비밀번호가 아닙니다.");
 		}
 	}
 
@@ -175,7 +181,7 @@ public class UserService {
 		
 		Mail sendMail = new Mail();
 		
-		int secureCode;
+		String secureCode;
 		
 		if(findTUser.isEmpty()) {
 			TemporaryUser newTemporaryUser = new TemporaryUser();
@@ -214,11 +220,11 @@ public class UserService {
 		}
 	}
 	
-	public int randomCode(int length) {
+	public String randomCode(int length) {
 		Random random = new Random();
-		int secureCode = 0;
+		String secureCode = "";
 		for(int sur = 0; sur < length ; sur ++) {
-			secureCode += (random.nextInt(9)*Math.pow(10, sur));
+			secureCode += random.nextInt(9);
 		}
 		return secureCode;
 	}

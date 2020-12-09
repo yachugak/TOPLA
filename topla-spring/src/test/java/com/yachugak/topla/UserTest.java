@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.repository.UserRepository;
 import com.yachugak.topla.service.UserService;
+import com.yachugak.topla.entity.TemporaryUser;
 
 @SpringBootTest
 public class UserTest {
@@ -67,11 +68,10 @@ public class UserTest {
 	
 	@Test
 	@Transactional(readOnly = false)
-	@Disabled
 	public void createUser() {
 		String email = "ahj0313@ajou.ac.kr";
 		String passwd = "asdf";
-		int secureCode;
+		String secureCode;
 		
 		userService.createTemporaryUser(email);
 		

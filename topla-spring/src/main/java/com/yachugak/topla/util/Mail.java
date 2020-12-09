@@ -44,7 +44,7 @@ public class Mail {
 		return "TOPLA 회원가입 인증 메일입니다.";
 	}
 	
-	public String createTempUserContent(int secureCode) {
+	public String createTempUserContent(String secureCode) {
 		return "<p><span style=\"font-size: 12pt;\">안녕하세요. "
 				+ "<span style=\"color: rgb(239, 0, 124);\"><b>TOPLA</b></span>입니다.</span></p><p>"
 				+ "<span style=\"font-size: 12pt;\">당신의 이메일인증 코드는</span></p><p>"
@@ -59,13 +59,15 @@ public class Mail {
 	public String createTempPasswordTitle() {
 		return "TOPLA 임시 비밀번호 안내 메일입니다.";
 	}
-
+	
 	public String createTempPasswordContent(String email, String randomCode) {
 		String content = "<!DOCTYPE html>\r\n" + 
 				"<head></head>\r\n" + 
 				"<body>\r\n" + 
 				"    <table dir=\"ltr\">\r\n" + 
-				"        <tbody><tr><td style=\"padding:0; font-family:'Malgun Gothic', Gulim, Verdana, Tahoma, sans-serif; font-size:17px; color:#707070;\">TOPLA 계정</td></tr>\r\n" + 
+				"        <tbody>"+
+				"        <tr><td style=\"padding:0; font-family:'Malgun Gothic', Gulim, Verdana, Tahoma, sans-serif; font-size:17px; color:#707070;\"><a href='https://topla.p-e.kr'>TOPLA</a></td>"+
+				"        </tr>\r\n" + 
 				"        <tr><td style=\"padding:0; font-family:'Malgun Gothic', Gulim, Verdana, Tahoma, sans-serif; font-size:41px; color:#2672ec;\">임시 비밀번호</td></tr>\r\n" + 
 				"        <tr><td style=\"padding:0; padding-top:25px; font-family:'Malgun Gothic', Gulim, Verdana, Tahoma, sans-serif; font-size:14px; color:#2a2a2a;\">\r\n" + 
 				"                  \r\n" + 
@@ -75,6 +77,7 @@ public class Mail {
 				"                  \r\n" + 
 				"                  임시 비밀번호: <span style=\"font-family:'Malgun Gothic', Gulim, Verdana, Tahoma, sans-serif; font-size:14px; font-weight:bold; color:#2a2a2a;\">"+String.valueOf(randomCode)+"</span>\r\n" + 
 				"              </td></tr>\r\n" + 
+				" <tr><td style=\"padding:0; font-family:'Malgun Gothic', Gulim, Verdana, Tahoma, sans-serif; font-size:20px; color:#2672ec;\"><a href='https://topla.p-e.kr'>TOPLA 바로가기</a></td></tr>" +
 				"        <tr><td style=\"padding:0; padding-top:25px; font-family:'Malgun Gothic', Gulim, Verdana, Tahoma, sans-serif; font-size:14px; color:#2a2a2a;\">감사합니다.</td></tr>\r\n" + 
 				"        <tr><td style=\"padding:0; font-family:'Malgun Gothic', Gulim, Verdana, Tahoma, sans-serif; font-size:14px; color:#2a2a2a;\">TOPLA 계정 팀 드림</td></tr>\r\n" + 
 				"  </tbody></table>\r\n" + 

@@ -3,12 +3,15 @@
   <div id="container">
     <v-slider
         :max="nowTimeMax"
-        min="0"
+        min="30"
         persistent-hint
         v-model="innerModelValue"
         :hint="displayTime"
         step="30"
         :rules="rule"
+        track-color="primary lighten-1"
+        track-fill-color="primary darken-2"
+        thumb-color="primary darken-2"
     ></v-slider>
     <v-expand-transition>
       <v-btn color="info" v-show="value>=nowTimeMax && value !== timeMax" @click="increaseMaxTime()">더 긴 시간을 원하십니까?</v-btn>

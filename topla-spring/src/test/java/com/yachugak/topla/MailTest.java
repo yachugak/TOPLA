@@ -19,6 +19,7 @@ import com.yachugak.topla.entity.User;
 import com.yachugak.topla.repository.UserRepository;
 import com.yachugak.topla.service.UserService;
 import com.yachugak.topla.util.Mail;
+import com.yachugak.topla.util.SHA256;
 
 @SpringBootTest
 public class MailTest {
@@ -71,10 +72,10 @@ public class MailTest {
 	@Test
 	@Disabled
 	public void sendMail() throws Exception {
-		String email = "ahj0313@ajou.ac.kr";
+		String email = "이메일 입력";
 		Mail test = new Mail();
 		
-		test.sendMail(email, test.createTempUserTitle(), test.createTempUserContent(123123), true);
+		test.sendMail(email, test.createTempUserTitle(), test.createTempUserContent("123123"), true);
 	}
 	
 	@Test
@@ -82,9 +83,9 @@ public class MailTest {
 	@Transactional(readOnly = false)
 	public void sendTemporalPasswordByEmailTest() {
 		int length = 6;
-		String email = "이메일을입력";
+		String email = "이메일 입력";
 		User targetUser = userService.findUserByEmail(email);
-		String randomCode = Integer.toString(userService.randomCode(length));
+		String randomCode = userService.randomCode(length);
 		userService.setPassword(targetUser, randomCode);
 		userRepository.saveAndFlush(targetUser);
 		
@@ -93,6 +94,7 @@ public class MailTest {
 		
 		User updated = userService.findUserByEmail(email);
 		String password = updated.getPassword();
-		assertEquals(randomCode, password);
+		SHA256 sha256 = new SHA256();
+		assertEquals(sha256.getEncrpyt(randomCode), password);
 	}
 }
