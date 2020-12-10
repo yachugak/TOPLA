@@ -36,7 +36,8 @@ public class PresetController {
 	
 	@GetMapping("")
 	@Transactional(readOnly = true)
-	public SchedulePresetResponseFormat getSelectedSchedulePreset(@RequestHeader("Authorization") String email) {
+	public SchedulePresetResponseFormat getSelectedSchedulePreset(@RequestHeader("Authorization") String secureCode) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		User user = userService.findUserByEmail(email);
 		SchedulePreset targetPreset = user.getSchedulePreset(); 
 		SchedulePresetDataFormat presetFormat = presetService.convertPresetToDataFormat(targetPreset);
@@ -50,7 +51,8 @@ public class PresetController {
 	
 	@GetMapping("/list")
 	@Transactional(readOnly = true)
-	public List<SchedulePresetResponseFormat> getAllSchedulePreset(@RequestHeader("Authorization") String email) {
+	public List<SchedulePresetResponseFormat> getAllSchedulePreset(@RequestHeader("Authorization") String secureCode) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		User user = userService.findUserByEmail(email);
 		ArrayList<SchedulePresetResponseFormat> res= new ArrayList<>();
 		
@@ -63,7 +65,8 @@ public class PresetController {
 	
 	@PostMapping("")
 	@Transactional(readOnly = false)
-	public String createSchedulePreset(@RequestHeader("Authorization") String email , @RequestBody CreateSchedulePresetRequestFormat req) {
+	public String createSchedulePreset(@RequestHeader("Authorization") String secureCode , @RequestBody CreateSchedulePresetRequestFormat req) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		User user = userService.findUserByEmail(email);
 		int[] hourList = req.getSchedulePreset();
 		String presetName = req.getPresetName();			
@@ -98,7 +101,8 @@ public class PresetController {
 	
 	@PutMapping("/select")
 	@Transactional(readOnly = false)
-	public String selectSchedulePreset(@RequestHeader("Authorization") String email, @RequestParam("presetUid") long presetUid) {
+	public String selectSchedulePreset(@RequestHeader("Authorization") String secureCode, @RequestParam("presetUid") long presetUid) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		User user = userService.findUserByEmail(email);
 		userService.setSelectedPreset(user, presetUid);
 		

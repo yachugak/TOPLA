@@ -65,7 +65,8 @@ public class UserController {
 	
 	@GetMapping("")
 	@Transactional(readOnly = true)
-	public GetUserResponseFormat getUserInfo(@RequestHeader("Authorization") String email) {
+	public GetUserResponseFormat getUserInfo(@RequestHeader("Authorization") String secureCode) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		User targetUser = userService.findUserByEmail(email);
 		GetUserResponseFormat res = new GetUserResponseFormat();
 		res.setEmail(targetUser.getEmail());
@@ -78,7 +79,8 @@ public class UserController {
 	
 	@PutMapping("")
 	@Transactional(readOnly = false)
-	public String updateReportTime(@RequestHeader("Authorization") String email, @RequestBody UpdateReportTimeRequestFormat req) {
+	public String updateReportTime(@RequestHeader("Authorization") String secureCode, @RequestBody UpdateReportTimeRequestFormat req) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		User updateTarget = userService.findUserByEmail(email);
 		userService.setMorningReportTime(updateTarget, req.getMorningReportTime());
 		userService.setEveningReportTime(updateTarget, req.getEveningReportTime());
@@ -88,7 +90,8 @@ public class UserController {
 	
 	@PutMapping("/password")
 	@Transactional(readOnly = false)
-	public String updatePassword(@RequestHeader("Authorization") String email, @RequestBody UpdatePasswordRequestFormat req) {
+	public String updatePassword(@RequestHeader("Authorization") String secureCode, @RequestBody UpdatePasswordRequestFormat req) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		User user = userService.findUserByEmail(email);
 		if(userService.isPasswordValid(user, req.getOldPassword())) {
 			userService.setPassword(user, req.getNewPassword());
@@ -98,7 +101,8 @@ public class UserController {
 	
 	@PutMapping("/push")
 	@Transactional(readOnly = false)
-	public String updatePushAlarmStatus(@RequestHeader("Authorization") String email, @RequestBody UpdatePushAlarmStatusRequestFormat req) {
+	public String updatePushAlarmStatus(@RequestHeader("Authorization") String secureCode, @RequestBody UpdatePushAlarmStatusRequestFormat req) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		User user = userService.findUserByEmail(email);
 		userService.setPushAlarmStatus(user, req.isPushAlarmStatus());
 		
@@ -107,7 +111,8 @@ public class UserController {
 	
 	@DeleteMapping("")
 	@Transactional(readOnly = false)
-	public String deleteUser(@RequestHeader("Authorization") String email) {
+	public String deleteUser(@RequestHeader("Authorization") String secureCode) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		User targetUser = userService.findUserByEmail(email);
 		userService.deleteUser(targetUser);
 		
@@ -116,7 +121,8 @@ public class UserController {
 	
 	@PutMapping("/token")
 	@Transactional(readOnly = false)
-	public String updateDeviceToken(@RequestHeader("Authorization") String email, @RequestBody UpdateDeviceTokenRequestFormat req) {
+	public String updateDeviceToken(@RequestHeader("Authorization") String secureCode, @RequestBody UpdateDeviceTokenRequestFormat req) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		User targetUser = userService.findUserByEmail(email);
 		userService.setDeviceToken(targetUser, req.getDeviceToken());
 		
@@ -128,9 +134,9 @@ public class UserController {
 	public String userLogIn(@RequestBody UserLogInRequestFormat req) {
 		String email = req.getEmail();
 		String password = req.getPassword();
-		User targetUser = userService.userLogin(email, password);
+		String secureCode = userService.userLogin(email, password);
 		
-		return "ok";
+		return secureCode;
 	}
 
 	
