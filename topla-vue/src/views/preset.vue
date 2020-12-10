@@ -1,5 +1,5 @@
 <template>
-  <v-container class="vh-100 back">
+  <v-container fluid class="vh-100 back">
     <v-row>
       <v-col cols="12">
         <v-alert color="info" dismissible border="left">
