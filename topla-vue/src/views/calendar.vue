@@ -43,6 +43,7 @@
                 type="month"
                 @input="setMonth"
                 :locale="'ko'"
+                :dark="dark"
             ></v-date-picker>
           </v-menu>
 
