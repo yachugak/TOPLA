@@ -29,14 +29,6 @@
       </v-row>
 
       <v-row class="back">
-        <v-col cols="12">
-          <v-btn color="primary" block
-                 @click="toggleTaskViewMode()"
-                 class="text--primary"
-          >
-            작업을 {{taskViewMode === "dueDate" ? "마감일로" : "하는 날로"}} 보는 중
-          </v-btn>
-        </v-col>
       </v-row>
 
       <v-row>
@@ -63,14 +55,14 @@
           <template v-slot>
           </template>
         </v-progress-linear>
-<!--        할당 시간: {{todayAllocationTime/60}}시간<br>-->
-<!--        한 시간: {{todayFinishTime/60}}시간<br>-->
       </v-row>
     </v-container>
 
     <div class="py-4 back" :class="{taskContainerSizeSm: isSm, taskContainerSizeMd: !isSm }">
       <div class="mb-2">
         <span id="dayText" class="pl-2">{{selectedDate.getMonth()+1}}월 {{selectedDate.getDate()}}일 {{getDayName(selectedDate.getDay())}}요일</span>
+        <v-select label="보기 기준">
+        </v-select>
         <span id="taskCountText" class="pr-2">{{displayTaskList.length}}개의 작업</span>
       </div>
       <task-card class="mx-2 mb-4" v-for="task in displayTaskList" :key="taskViewMode === 'dueDate' ? task.uid : task.planUid"
@@ -141,6 +133,12 @@ export default {
       updateTargetTask: null,
       isCalling: 0, //현재 통신 진행중인지 나타내는 변수, 1 이상이면 통신 진행중이라는 뜻
       taskViewMode: "dueDate",//현재 작업의 보기 모드, dueDate와 doDate가 있음.
+      taskViewModelSelectItem: [
+        {
+          text: "마감일 기준으로 보기",
+          value: "dueDate"
+        }
+      ],
       schedulePreset: [0,0,0,0,0,0,0]
     }
   },
@@ -301,18 +299,6 @@ export default {
       }
       finally {
         this.isCalling--
-      }
-    },
-
-    toggleTaskViewMode(){
-      if(this.taskViewMode === "dueDate"){
-        this.taskViewMode = "doDate";
-      }
-      else if(this.taskViewMode === "doDate"){
-        this.taskViewMode = "dueDate";
-      }
-      else{
-        throw new Error(`알 수 없는 taskViewMode: ${this.taskViewMode}`);
       }
     },
 
