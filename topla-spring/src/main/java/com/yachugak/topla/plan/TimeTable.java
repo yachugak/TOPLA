@@ -60,6 +60,8 @@ public class TimeTable {
 	//이 시간표의 총합 손실 중요도를 계산하여 반환합니다.
 	public double getTotalLossPriority(Date planStartDate) {
 		LocalDate currentDate = DayCalculator.DateToLocalDate(planStartDate);
+		
+		HashMap<Long, TaskInfo> taskInfoDictForCal = this.copyTaksInfoDict();
 
 		//마감일 내에 성공한 시간과 마감일 내에 성공 못한 시간 구하기
 		for(int dayOffset = 0; dayOffset < this.days.size(); dayOffset++) {
@@ -73,7 +75,7 @@ public class TimeTable {
 				}
 				else {
 					//마감일 안에 성공한 plan
-					this.addTimeToTaskInfoDict(taskId, time);
+					this.addTimeToTaskInfoDict(taskInfoDictForCal, taskId, time);
 				}
 			}
 			currentDate = currentDate.plusDays(1);
@@ -81,8 +83,8 @@ public class TimeTable {
 		
 		//작업별 손실 중요도 계산하여 합하기
 		double totalLossPriority = 0.0;
-		for(long taskId : this.taskInfoDict.keySet()) {
-			TaskInfo taskInfo = this.taskInfoDict.get(taskId);
+		for(long taskId : taskInfoDictForCal.keySet()) {
+			TaskInfo taskInfo = taskInfoDictForCal.get(taskId);
 			int priority = taskInfo.priority;
 
 			if(priority == 3) {
@@ -104,6 +106,23 @@ public class TimeTable {
 		return totalLossPriority;
 	}
 	
+	private HashMap<Long, TaskInfo> copyTaksInfoDict() {
+		HashMap<Long, TaskInfo> copiedDict = new HashMap<Long, TaskInfo>();
+		
+		for(Long taskId : this.taskInfoDict.keySet()) {
+			TaskInfo copyTarget = this.taskInfoDict.get(taskId);
+			TaskInfo copiedTaskInfo = new TaskInfo(); 
+			copiedTaskInfo.dueDate = copyTarget.dueDate;
+			copiedTaskInfo.priority = copyTarget.priority;
+			copiedTaskInfo.successTime = copyTarget.successTime;
+			copiedTaskInfo.totalTime = copyTarget.totalTime;
+
+			copiedDict.put(taskId, copiedTaskInfo);
+		}
+
+		return copiedDict;
+	}
+
 	public void registerTask(Task task) {
 		this.registerTaskInfo(task.getUid(), task.getEstimatedTime(), task.getPriority(), task.getDueDate());
 	}
@@ -138,8 +157,8 @@ public class TimeTable {
 		this.taskInfoDict.put(taskId, taskInfo);
 	}
 	
-	private void addTimeToTaskInfoDict(long taskId, int successTime) {
-		TaskInfo item = this.taskInfoDict.get(taskId);
+	private void addTimeToTaskInfoDict(HashMap<Long, TaskInfo> taskInfoDict, long taskId, int successTime) {
+		TaskInfo item = taskInfoDict.get(taskId);
 		if(item == null) {
 			throw new NotRegisteredTaskException("사전에 TimeTable에 등록되지 않은 "+taskId+"가 TimeTable에서 발견되었습니다.");
 		}

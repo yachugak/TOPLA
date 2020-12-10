@@ -17,6 +17,7 @@ import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
 import com.yachugak.topla.entity.Plan;
 import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.entity.User;
+import com.yachugak.topla.exception.EntityNotFoundException;
 import com.yachugak.topla.exception.InvalidArgumentException;
 import com.yachugak.topla.plan.Planizer;
 import com.yachugak.topla.plan.TaskItem;
@@ -109,7 +110,9 @@ public class PlanService {
 	}
 
 	public Plan findPlanById(long planUid) {
-		return planRepository.findById(planUid).get();
+		Plan targetPlan = planRepository.findById(planUid).orElseThrow(()->new EntityNotFoundException("Plan", "이 존재하지 않습니다."));		
+		return targetPlan;
+		
 	}
 	
 	// Plan과 task의 progress 동시 업데이트. 언체크시 progress == -1
@@ -166,7 +169,6 @@ public class PlanService {
 
 
 	public List<Plan> findPlanByUserUidAndDoDate(Long userUid, Date doDate) {
-		// TODO: 리뷰필요.
 		return planRepository.findPlanToMorningPush(userUid, doDate);
 		
 	}

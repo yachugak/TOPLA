@@ -9,6 +9,9 @@
         step="30"
         :max="max"
         :min="0"
+        track-color="primary lighten-1"
+        track-fill-color="primary darken-2"
+        thumb-color="primary darken-2"
     >
       <template v-slot:append>
         <v-text-field
