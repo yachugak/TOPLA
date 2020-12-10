@@ -9,10 +9,11 @@
     <div v-show="placeType==='single'">
       <kakao-map map-width="300px" map-height="300px" @newMarkerPosition="selectedPoint = $event" class="mx-auto" :isload-gps="true"></kakao-map>
       <div>
-        선택된 위치<br>
-        위도: {{selectedPoint.lat}}<br>
-        경도: {{selectedPoint.lng}}<br>
-        주소: {{selectedPoint.address}}
+<!--        선택된 위치<br>-->
+<!--        위도: {{selectedPoint.lat}}<br>-->
+<!--        경도: {{selectedPoint.lng}}<br>-->
+
+        <br>주소: {{selectedPoint.address}}
       </div>
     </div>
     <div v-show="placeType==='multi'">
