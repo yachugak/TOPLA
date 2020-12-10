@@ -51,7 +51,7 @@ public class UserService {
 	}
 
 	public void setSelectedPreset(User user, long presetUid) {
-		SchedulePreset targetPreset = presetRepository.findById(presetUid).get();
+		SchedulePreset targetPreset = presetRepository.findById(presetUid).orElseThrow(()->new EntityNotFoundException("preset", "이 존재하지 않습니다."));
 		user.setSchedulePreset(targetPreset);
 		return;	
 	}
@@ -174,7 +174,7 @@ public class UserService {
 		
 		Optional<User> findUser = userRepository.findByEmail(email);
 		if(findUser.isPresent()) {
-			throw new EntityNotFoundException("user", "유저: "+ email + "가 이미 존재합니다.");
+			throw new GeneralExceptions("해당 이메일은 이미 계정이 존재합니다.");
 		}
 		
 		Optional<TemporaryUser> findTUser = temporaryUserRepository.findByEmail(email);
@@ -210,14 +210,8 @@ public class UserService {
 	
 	
 	public TemporaryUser findTemporaryUserByEmail(String email) {
-		Optional<TemporaryUser> result = temporaryUserRepository.findByEmail(email);
-		
-		if(result.isEmpty()) {
-			throw new EntityNotFoundException("user", "유저: "+ email + "가 존재하지 않습니다.");
-		}
-		else {
-			return result.get();
-		}
+		TemporaryUser result = temporaryUserRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("user", "유저: "+ email + "가 존재하지 않습니다."));		
+		return result;
 	}
 	
 	public String randomCode(int length) {
