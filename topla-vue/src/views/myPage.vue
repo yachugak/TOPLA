@@ -1,5 +1,5 @@
 <template>
-  <div >
+  <div class="full-height back">
     <v-card fluid class="back">
       <v-card-title>마이 페이지</v-card-title>
       <v-divider></v-divider>
@@ -240,6 +240,10 @@ export default {
 <style scoped>
 .small-font {
   font-size: 3px;
+}
+
+.full-height{
+  height:94vh;
 }
 
 </style>
