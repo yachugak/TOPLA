@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <v-card fluid>
+  <div >
+    <v-card fluid class="back">
       <v-card-title>마이 페이지</v-card-title>
       <v-divider></v-divider>
       <v-card-text>
@@ -102,16 +102,10 @@
         >
           push알림
           <v-spacer></v-spacer>
-          <div v-if="pushCheck">
-            <strong>o n</strong>
-            <v-icon>mdi-toggle-switch</v-icon>
-          </div>
-
-          <div v-if="!pushCheck">
-            <strong>off</strong>
-            <v-icon>mdi-toggle-switch-off</v-icon>
-          </div>
-
+          <v-switch
+              v-model="pushCheck"
+              @click="pushAlarmOnOff()"
+          ></v-switch>
         </v-btn>
 
       </v-card-text>

@@ -17,11 +17,11 @@ theme[0]={
 theme[1]={
     primary: '#212121',
     secondary: '#484848',
-    accent: '#ffffff',
+    accent: '#0D47A1',
     error: '#b71c1c',
-    info: '#ffffff',
-    success: '#ffffff',
-    warning: '#ffffff',
+    info: '#0D47A1',
+    success: '#1B5E20',
+    warning: '#FF6F00',
     back: "#484848",
 }
 theme[2]={
@@ -32,5 +32,6 @@ theme[2]={
     info: '#2196F3',
     success: '#4CAF50',
     warning: '#FFC107',
+    back: "#F5F5F6",
 }
 

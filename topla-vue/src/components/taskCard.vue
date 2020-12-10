@@ -1,6 +1,6 @@
   <template>
     <v-card elevation="5" rounded="xl">
-      <div id="flexBox">
+      <div id="flexBox" class="back">
         <div id="leftSide" class="large-checkbox">
           <v-checkbox v-model="isDone" :disabled="callCount>0"></v-checkbox>
         </div>

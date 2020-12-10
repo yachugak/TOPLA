@@ -1,12 +1,12 @@
 <template>
   <div>
-    <v-sheet height="600">
-      <v-row>
+    <v-sheet height="600" class="back">
+      <v-row >
         <v-toolbar
             flat
+            class="back"
         >
           <v-btn
-              fab
               text
               small
               color="grey darken-2"
@@ -47,7 +47,6 @@
           </v-menu>
 
           <v-btn
-              fab
               text
               small
               color="grey darken-2"
@@ -94,6 +93,7 @@
           @click:date="viewDay"
           :day-format="dateFormat"
           :show-month-on-first="false"
+          :dark="dark"
       ></v-calendar>
     </v-sheet>
   </div>
@@ -115,8 +115,22 @@ export default {
     date: new Date().toISOString().substr(0, 7),
     menu2: false,
     more:true,
+    theme:null,
+    dark:false
 
   }),
+
+  created(){
+    this.theme=window.localStorage.getItem("theme")*1
+
+    if(this.theme===1){
+      this.dark=true
+    }
+    else{
+      this.dark=false
+    }
+
+  },
   methods: {
     setToday() {
       this.value = ''
