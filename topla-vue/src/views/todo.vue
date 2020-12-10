@@ -2,6 +2,11 @@
   <div>
     <v-container fluid class="back">
       <v-row no-gutters>
+        <v-col cols="12">
+          <v-btn class="fullDateButton black--text" color="primary" @click="onYearMonthButtonClicked()">
+            {{selectedDate.getFullYear()}}년 {{selectedDate.getMonth()+1}}월
+          </v-btn>
+        </v-col>
         <v-col cols="1" v-if="$vuetify.breakpoint.mdAndUp">
           <v-btn class="arrowButton sec text--primary" color="primary" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
         </v-col>
@@ -37,6 +42,14 @@
         </v-col>
       </v-row>
 
+      <v-row no-gutters>
+        <v-col cols="12" md="4">
+          <div class="flex-center">
+            <v-select label="보기 기준" :items="taskViewModelSelectItem" v-model="taskViewMode"></v-select>
+          </div>
+        </v-col>
+      </v-row>
+
       <v-row v-if="taskViewMode === 'doDate'" class="back">
         <v-progress-linear
             v-if="todayAllocationTime > 0"
@@ -59,12 +72,6 @@
     </v-container>
 
     <div class="py-4 back" :class="{taskContainerSizeSm: isSm, taskContainerSizeMd: !isSm }">
-      <div class="mb-2">
-        <span id="dayText" class="pl-2">{{selectedDate.getMonth()+1}}월 {{selectedDate.getDate()}}일 {{getDayName(selectedDate.getDay())}}요일</span>
-        <v-select label="보기 기준">
-        </v-select>
-        <span id="taskCountText" class="pr-2">{{displayTaskList.length}}개의 작업</span>
-      </div>
       <task-card class="mx-2 mb-4" v-for="task in displayTaskList" :key="taskViewMode === 'dueDate' ? task.uid : task.planUid"
                  :title="task.title"
                  :priority="task.priority"
@@ -137,6 +144,10 @@ export default {
         {
           text: "마감일 기준으로 보기",
           value: "dueDate"
+        },
+        {
+          text: "하는 날 기준으로 보기",
+          value: "doDate"
         }
       ],
       schedulePreset: [0,0,0,0,0,0,0]
@@ -355,6 +366,16 @@ export default {
         location: null,
         remindingTime: null
       }
+    },
+
+    onYearMonthButtonClicked(){
+      this.$router.push({
+        name: 'calendar mode',
+        params: {
+          date: this.selectedDate,
+          viewMode: this.taskViewMode
+        }
+      })
     }
   },
 
@@ -414,5 +435,18 @@ export default {
   position: fixed;
   bottom: 30px;
   right: 30px;
+}
+
+.flex-center {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.fullDateButton {
+  width: 100%;
 }
 </style>
