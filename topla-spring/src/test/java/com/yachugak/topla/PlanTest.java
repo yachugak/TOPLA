@@ -513,8 +513,10 @@ public class PlanTest {
 		req.setDueDate(DayCalculator.makeDate(2020, 11, 27));
 		req.setEstimatedTime(240);
 		req.setDuplicated(false);
+		
+		String secureCode = userService.authMapping(userService.findUserByEmail("test@acount.net"));
 
-		String res = this.taskController.createNewTask("test@acount.net", req);
+		String res = this.taskController.createNewTask(secureCode, req);
 		
 		//예외 안 던져지면 성공
 		assertEquals("ok", res);
