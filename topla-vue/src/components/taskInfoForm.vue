@@ -109,7 +109,7 @@
                     </v-btn>
                   </div>
                 </template>
-                <v-card>
+                <v-img style="height: 100%" :src="placeSelectorDialogBackgroundImageSrc">
                   <v-toolbar color="primary" dark>
                     <v-btn icon @click="isShowPlaceDialog = false">
                       <v-icon>mdi-close</v-icon>
@@ -125,7 +125,7 @@
                   <div class="pa-2">
                     <place-selector @input="tempLocation = $event"></place-selector>
                   </div>
-                </v-card>
+                </v-img>
               </v-dialog>
 
           </v-col>
@@ -186,7 +186,9 @@ export default {
         "amber lighten-3",
         "amber darken-2",
         "amber darken-4",
-      ]
+      ],
+
+      placeSelectorDialogBackgroundImageSrc: require("@/assets/city.jpg")
     }
   },
 

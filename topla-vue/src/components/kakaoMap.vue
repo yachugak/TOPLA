@@ -121,12 +121,9 @@ export default {
     },
 
     async search(keyword){
-      let position= new Object()
-      position.location=await this.getDevicePosition()
-      let res = await keywordSearchPromise(this.place, keyword, position);
-
-      return res
-
+      let position = {};
+      position.location=await this.getDevicePositionSimple();
+      return await keywordSearchPromise(this.place, keyword, position);
     },
 
     setCenterLatLng(lat, lng){
@@ -154,6 +151,18 @@ export default {
           lat: position.latitude,
           lng: position.longitude
         };
+      }catch(e){
+        console.error(e);
+      }
+
+      return latLng(position.latitude,position.longitude)
+    },
+
+    //지도의 현재 위치 변경 없이 단순히 기기 위치만 받는 함수
+    async getDevicePositionSimple(){
+      let position=null
+      try{
+        position = await getLocationPromise();
       }catch(e){
         console.error(e);
       }
