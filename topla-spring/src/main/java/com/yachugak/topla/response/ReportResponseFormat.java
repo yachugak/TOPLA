@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.yachugak.topla.entity.Report;
 import com.yachugak.topla.entity.TaskHistory;
+import com.yachugak.topla.entity.User;
 import com.yachugak.topla.service.ReportService;
 import com.yachugak.topla.service.TaskHistoryService;
 
@@ -17,7 +18,7 @@ public class ReportResponseFormat {
 	private Double total7daysWorkTime;
 	private Double averageWorkDoneInDeadline;
 	
-	public ReportResponseFormat(Date today, TaskHistoryService taskHistoryService, ReportService reportService) {
+	public ReportResponseFormat(Date today, TaskHistoryService taskHistoryService, ReportService reportService, User target) {
 		int sur = 0;
 		int weekDay = 7;
 		total7daysWorkTime = 0.0;
@@ -36,7 +37,7 @@ public class ReportResponseFormat {
 				calendar.add(Calendar.DAY_OF_MONTH, -1);
 				targetdate = new Date(calendar.getTimeInMillis());
 				
-				List<TaskHistory> searcHistories = taskHistoryService.findByRecordedTime(targetdate);
+				List<TaskHistory> searcHistories = taskHistoryService.findByRecordedTimeAndUser(targetdate, target);
 				
 				for(TaskHistory targetHistory : searcHistories) {
 					dueDate.setTime(targetHistory.getTask().getDueDate());

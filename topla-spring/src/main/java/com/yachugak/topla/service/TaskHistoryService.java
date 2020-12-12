@@ -23,6 +23,7 @@ public class TaskHistoryService {
 		this.setTaskUid(newHistory, task);
 		this.setRecordedTime(newHistory, new Date());
 		this.setDoTime(newHistory, doTime);
+		this.setRealTime(newHistory, doTime);
 		taskHistoryRepository.saveAndFlush(newHistory);
 		
 		return newHistory;

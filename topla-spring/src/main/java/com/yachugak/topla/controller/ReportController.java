@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.yachugak.topla.entity.Report;
 import com.yachugak.topla.entity.TaskHistory;
+import com.yachugak.topla.entity.User;
 import com.yachugak.topla.exception.EntityNotFoundException;
 import com.yachugak.topla.exception.InvalidArgumentException;
 import com.yachugak.topla.request.CreateReportRequestFormat;
@@ -23,6 +24,7 @@ import com.yachugak.topla.request.TaskRealtime;
 import com.yachugak.topla.response.ReportResponseFormat;
 import com.yachugak.topla.service.ReportService;
 import com.yachugak.topla.service.TaskHistoryService;
+import com.yachugak.topla.service.UserService;
 
 @RestController
 @RequestMapping(path = "${apiUriPrefix}/report")
@@ -33,6 +35,9 @@ public class ReportController {
 	
 	@Autowired
 	private TaskHistoryService taskHistoryService;
+	
+	@Autowired
+	private UserService userService;
 	
 	@PostMapping("")
 	@Transactional(readOnly = false)
@@ -76,8 +81,10 @@ public class ReportController {
 	
 	@GetMapping("/statisticsReport")
 	@Transactional(readOnly = true)
-	public ReportResponseFormat statisticsReport(@RequestHeader("Authorization") String email) {
-		ReportResponseFormat result = new ReportResponseFormat(new Date(), taskHistoryService, reportService);
+	public ReportResponseFormat statisticsReport(@RequestHeader("Authorization") String secureCode) {
+		String email = userService.findEmailbySecureCode(secureCode);
+		User target = userService.findUserByEmail(email);
+		ReportResponseFormat result = new ReportResponseFormat(new Date(), taskHistoryService, reportService, target);
 		
 		return result;
 	}
