@@ -22,8 +22,10 @@ import com.yachugak.topla.entity.SchedulePreset;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.request.CreateSchedulePresetRequestFormat;
 import com.yachugak.topla.response.SchedulePresetResponseFormat;
+import com.yachugak.topla.service.PlanService;
 import com.yachugak.topla.service.PresetService;
 import com.yachugak.topla.service.UserService;
+import com.yachugak.topla.util.DayCalculator;
 
 @RestController
 @RequestMapping(path = "${apiUriPrefix}/preset")
@@ -31,8 +33,13 @@ import com.yachugak.topla.service.UserService;
 public class PresetController {
 	@Autowired 
 	private PresetService presetService;
+
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private PlanService planService;
+
 	
 	@GetMapping("")
 	@Transactional(readOnly = true)
@@ -87,7 +94,10 @@ public class PresetController {
 	
 	@PutMapping("/{uid}")
 	@Transactional(readOnly = false)
-	public String updateSchedulePreset(@PathVariable("uid") long uid, @RequestBody CreateSchedulePresetRequestFormat req) {
+	public String updateSchedulePreset(@RequestHeader("Authorization") String secureCode, @PathVariable("uid") long uid, @RequestBody CreateSchedulePresetRequestFormat req) {
+		String email = userService.findEmailbySecureCode(secureCode);
+		User user = userService.findUserByEmail(email);
+
 		String presetName = req.getPresetName();
 		SchedulePresetDataFormat presetFormat = presetService.convertHourListToDataFormat(req.getSchedulePreset());
 		String encodedPreset = presetFormat.encodeHourListToSchedulePresetString();
@@ -95,6 +105,8 @@ public class PresetController {
 		SchedulePreset updateTarget = presetService.findPresetByID(uid);
 		presetService.setName(updateTarget, presetName);
 		presetService.setPresetCode(updateTarget, encodedPreset);
+
+		planService.plan(user, DayCalculator.getTodayDate());
 		
 		return "ok";
 	}
@@ -105,6 +117,8 @@ public class PresetController {
 		String email = userService.findEmailbySecureCode(secureCode);
 		User user = userService.findUserByEmail(email);
 		userService.setSelectedPreset(user, presetUid);
+		
+		planService.plan(user, DayCalculator.getTodayDate());
 		
 		return "ok";
 	}

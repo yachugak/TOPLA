@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.yachugak.topla.entity.AuthMapping;
 import com.yachugak.topla.entity.SchedulePreset;
+import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.entity.TemporaryUser;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.exception.DuplicatedException;
@@ -167,6 +168,10 @@ public class UserService {
 
 	public void setPushAlarmStatus(User user, boolean pushAlarmStatus) {
 		user.setPushAlarmStatus(pushAlarmStatus);
+	}
+	
+	public boolean taskOwnerTest(User user, Task task) {
+		return task.getUser().getUid() == user.getUid();
 	}
 	
 	

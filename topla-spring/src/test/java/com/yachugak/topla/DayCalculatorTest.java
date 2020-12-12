@@ -2,6 +2,7 @@ package com.yachugak.topla;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import org.junit.jupiter.api.Test;
@@ -46,5 +47,31 @@ public class DayCalculatorTest {
 
 		Date testTarget2 = DayCalculator.makeDate(2020, 6, 7);
 		assertEquals(0, DayCalculator.getDay(testTarget2)); //일요일 테스트
+	}
+	
+	@Test
+	public void todayTest() {
+		LocalDate localDateToday = DayCalculator.getTodayLocalDate();
+		Date dateToday = DayCalculator.getTodayDate();
+		
+		int temp = dateToday.getYear();
+		
+		assertEquals(localDateToday.getYear(), DayCalculator.getYear(dateToday));
+		assertEquals(localDateToday.getMonthValue(), DayCalculator.getMonth(dateToday));
+		assertEquals(localDateToday.getDayOfMonth(), DayCalculator.getDate(dateToday));
+	}
+	
+	@Test
+	public void localDateFormatTest() {
+		LocalDate date = DayCalculator.makeLocalDate(2020, 5, 30);
+		
+		assertEquals("2020-05-30", DayCalculator.dateFormat(date));
+	}
+
+	@Test
+	public void dateFormatTest() {
+		Date date = DayCalculator.makeDate(2020, 5, 30);
+		
+		assertEquals("2020-05-30", DayCalculator.dateFormat(date));
 	}
 }
