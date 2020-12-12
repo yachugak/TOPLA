@@ -90,6 +90,8 @@ export default {
     let defTheme = this.$vuetify.theme.themes.light
     let theme= themeList[selectTheme]
 
+    window.dialog = this.$dialog;
+
     for(let color in theme){
       defTheme[color]=theme[color]
     }
