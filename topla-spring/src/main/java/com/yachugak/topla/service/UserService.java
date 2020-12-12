@@ -10,13 +10,16 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.yachugak.topla.entity.AuthMapping;
 import com.yachugak.topla.entity.SchedulePreset;
+import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.entity.TemporaryUser;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.exception.DuplicatedException;
 import com.yachugak.topla.exception.EntityNotFoundException;
 import com.yachugak.topla.exception.GeneralExceptions;
 import com.yachugak.topla.exception.InvalidArgumentException;
+import com.yachugak.topla.repository.AuthMappingRepository;
 import com.yachugak.topla.repository.PresetRepository;
 import com.yachugak.topla.repository.TemporaryUserRepository;
 import com.yachugak.topla.repository.UserRepository;
@@ -33,6 +36,9 @@ public class UserService {
 	
 	@Autowired
 	private TemporaryUserRepository temporaryUserRepository;
+	
+	@Autowired
+	private AuthMappingRepository authMappingRepository;
 	
 	public User findUserById(long uid) {
 		return userRepository.findById(uid).get();
@@ -131,7 +137,7 @@ public class UserService {
 		return targetUser.getTotalLossPriority();
 	}
 
-	public User userLogin(String email, String password) {
+	public String userLogin(String email, String password) {
 		SHA256 sha256 = new SHA256();
 		password = sha256.getEncrpyt(password);
 		
@@ -139,7 +145,8 @@ public class UserService {
 		if(!targetUser.isPresent()) {
 			throw new GeneralExceptions("잘못된 Email 혹은 비밀번호입니다.");
 		}
-		return targetUser.get();
+		String secureCode = this.authMapping(targetUser.get());
+		return secureCode;
 	}
 	
 	public List<User> findUserByMorningReportTime(OffsetTime morningTime) {
@@ -161,6 +168,10 @@ public class UserService {
 
 	public void setPushAlarmStatus(User user, boolean pushAlarmStatus) {
 		user.setPushAlarmStatus(pushAlarmStatus);
+	}
+	
+	public boolean taskOwnerTest(User user, Task task) {
+		return task.getUser().getUid() == user.getUid();
 	}
 	
 	
@@ -243,8 +254,45 @@ public class UserService {
 		mail.sendMail(targetEmail, title, content, HTMLFlag);
 		
 	}
-
+  
 	public List<User> getAllUsers() {
 		return userRepository.findAll();
+  }
+  
+	// 유저이메일과 코드 맵핑
+	public String authMapping(User user) {
+		Optional<AuthMapping> targetAuthUser = authMappingRepository.findByUser(user);
+		if(targetAuthUser.isEmpty()) {
+			AuthMapping authUser = new AuthMapping();
+			String secureCode = this.randomCode(10);
+			while(authMappingRepository.findBySecureCode(secureCode).isPresent()) {
+				secureCode = this.randomCode(10);
+			}
+			authUser.setUser(user);
+			authUser.setSecureCode(secureCode);
+			authMappingRepository.saveAndFlush(authUser);
+			
+			return secureCode;
+		}
+		else {
+			AuthMapping authUser = targetAuthUser.get();
+			String secureCode = this.randomCode(10);
+			while(authMappingRepository.findBySecureCode(secureCode).isPresent()) {
+				secureCode = this.randomCode(10);
+			}
+			authUser.setSecureCode(secureCode);
+			
+			return secureCode;
+		}
+	}
+	
+	public String findEmailbySecureCode(String secureCode) {
+		Optional<AuthMapping> targetAuthUser = authMappingRepository.findBySecureCode(secureCode);
+		if(targetAuthUser.isPresent()) {
+			return targetAuthUser.get().getUser().getEmail();
+		}
+		else {
+			throw new GeneralExceptions("해당 보안코드에 부합하는 아이디가 없습니다.");
+		}
 	}
 }

@@ -92,14 +92,15 @@ export default {
 
       this.callCount++;
       try {
-        let accountCopy = this.formInput.account;
-        await this.$axios.post("/user/login", {
+        let copiedEmail = this.formInput.account;
+        let res = await this.$axios.post("/user/login", {
           email: this.formInput.account,
           password: this.formInput.password
         });
 
-        loginInfo.setLoginInfo(accountCopy);
-        this.$store.commit("setLoginInfo", accountCopy);
+        loginInfo.setLoginInfo(res.data);
+        this.$store.commit("setLoginInfo", res.data);
+        this.$store.commit("setUserEmail", copiedEmail);
         window.axios.defaults.headers.common["Authorization"] = loginInfo.getLoginInfo();
 
         await window.axios.put("/user/token", {

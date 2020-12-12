@@ -46,7 +46,6 @@
           <v-alert type="info" >
             임시 비밀번호가 발급되었습니다.
             임시 비밀번호로도 TOPLA 서비스를 이용할 수 있지만 보안을 위해 비밀번호 변경 절차를 밟겠습니다.
-            비밀번호 변경 없이 서비스를 이용하실 분들은 "로그인 페이지로 돌아가기" 버튼을 눌러 로그인을 진행하시기 바랍니다.
           </v-alert>
           <v-form ref="form2">
             <v-text-field
@@ -154,6 +153,7 @@ export default {
       step: 1,
       callCount: 0,
       isShowPassword: false,
+      authToken: null,
 
       formInput: {
         account: "",
@@ -246,10 +246,11 @@ export default {
 
       this.callCount++;
       try {
-        await this.$axios.post("/user/login", {
+        let res = await this.$axios.post("/user/login", {
           email: this.formInput.account,
           password: this.formInput.oldPassword
         });
+        this.authToken = res.data;
         this.nextStep();
       }catch (e) {
         errorDialog(this, "임시 비밀번호로 로그인 실패", e);
@@ -279,7 +280,7 @@ export default {
         },
         {
           headers: {
-            Authorization: this.formInput.account
+            Authorization: this.authToken
           }
         });
 

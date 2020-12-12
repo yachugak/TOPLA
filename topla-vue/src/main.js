@@ -69,3 +69,13 @@ messaging.onMessage(payload => {
     new Notification(payload.data.title, notificationOptions);
     alert(payload.data.body);
 })
+
+//foreground 상태에서 받은 메세지 처리
+messaging.onMessage((payload) => {
+    if(window.dialog === undefined){
+        alert(payload.data.message);
+        return;
+    }
+
+    window.dialog.notify.info( `[${payload.data.title}] ${payload.data.message}`);
+});
