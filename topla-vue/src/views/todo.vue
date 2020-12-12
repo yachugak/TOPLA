@@ -82,6 +82,7 @@
                  :location="task.location"
                  :plan-uid="taskViewMode === 'dueDate' ? -1 : task.planUid"
                  :reminding-time="task.remindingTiming"
+                 :full-task-info="findTask(task.uid)"
                  @update="getTaskList()"
       ></task-card>
     </div>
@@ -376,7 +377,14 @@ export default {
           viewMode: this.taskViewMode
         }
       })
-    }
+    },
+
+    findTask(taskUid){
+      return this.taskList.find(function(task){
+        return task.uid === taskUid;
+      })
+    },
+
   },
 
   created() {

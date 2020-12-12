@@ -163,6 +163,11 @@ export default {
     remindingTime: {
       type: String,
       default: null
+    },
+
+    fullTaskInfo: {
+      type: Object,
+      default: null
     }
   },
 
@@ -281,12 +286,12 @@ export default {
 
     onCardClicked(){
       this.taskFormData = {
-        title: this.title,
-        dueDate: this.dueDate,
-        estimatedTime: this.estimatedTime,
-        priority: this.priority,
-        location: this.location,
-        remindingTime: this.remindingTime
+        title: this.fullTaskInfo.title,
+        dueDate: this.fullTaskInfo.dueDate,
+        estimatedTime: this.fullTaskInfo.estimatedTime,
+        priority: this.fullTaskInfo.priority,
+        location: this.fullTaskInfo.location,
+        remindingTime: this.fullTaskInfo.remindingTime
       }
       this.isDialogShow = true;
     },
