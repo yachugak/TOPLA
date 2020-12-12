@@ -60,14 +60,17 @@
             max-width="500"
     >
       <v-card>
-        <v-card-title>작업 정보 수정</v-card-title>
+        <v-card-title>
+          작업 정보 수정
+          <v-spacer></v-spacer>
+          <v-btn color="error" :loading="callCount>0" @click="onTaskDeleteButtonclicked()" icon><v-icon>mdi-delete</v-icon></v-btn>
+        </v-card-title>
         <task-info-form
                 v-model="taskFormData"
                 ref="infoForm"
         ></task-info-form>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="error" :loading="callCount>0" @click="onTaskDeleteButtonclicked()">삭제 </v-btn>
           <v-btn color="secondary" @click="isDialogShow = false" :loading="callCount>0">뒤로 </v-btn>
           <v-btn color="primary" @click="onTaskUpdateButtonClicked()" :loading="callCount>0"> 수정 </v-btn>
         </v-card-actions>
