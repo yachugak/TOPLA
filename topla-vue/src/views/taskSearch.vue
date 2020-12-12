@@ -32,6 +32,7 @@
             :due-date="task.dueDate"
             :reminding-time="task.remindingTiming"
             :uid="task.uid"
+            :full-task-info="task"
             @update="getTaskList()"
         >
         </task-card>

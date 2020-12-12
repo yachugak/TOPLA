@@ -21,6 +21,7 @@
             :due-date="task.dueDate"
             :progress="task.progress"
             :reminding-time="task.remindingTiming"
+            :full-task-info="task"
             class="mb-3"
             @update="getTaskList()"
         >
