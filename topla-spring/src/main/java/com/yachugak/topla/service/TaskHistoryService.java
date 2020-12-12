@@ -10,6 +10,7 @@ import com.yachugak.topla.entity.Plan;
 import com.yachugak.topla.entity.Report;
 import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.entity.TaskHistory;
+import com.yachugak.topla.entity.User;
 import com.yachugak.topla.repository.TaskHistoryRepository;
 
 @Service
@@ -22,6 +23,7 @@ public class TaskHistoryService {
 		this.setTaskUid(newHistory, task);
 		this.setRecordedTime(newHistory, new Date());
 		this.setDoTime(newHistory, doTime);
+		this.setRealTime(newHistory, doTime);
 		taskHistoryRepository.saveAndFlush(newHistory);
 		
 		return newHistory;
@@ -95,6 +97,12 @@ public class TaskHistoryService {
 	
 	public List<TaskHistory> findByRecordedTime(Date recordedTime){
 		List<TaskHistory> search = taskHistoryRepository.findByRecordedTime(recordedTime);
+		
+		return search;
+	}
+	
+	public List<TaskHistory> findByRecordedTimeAndUser(Date recordedTime, User user){
+		List<TaskHistory> search = taskHistoryRepository.findByRecordedTimeAndUser(recordedTime, user);
 		
 		return search;
 	}

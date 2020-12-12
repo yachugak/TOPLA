@@ -75,7 +75,7 @@ public class MailTest {
 		String email = "이메일 입력";
 		Mail test = new Mail();
 		
-		test.sendMail(email, "이메일테스트제목", "본문", false);
+		test.sendMail(email, test.createTempUserTitle(), test.createTempUserContent("123123"), true);
 	}
 	
 	@Test
