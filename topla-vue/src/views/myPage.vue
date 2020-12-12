@@ -4,10 +4,9 @@
       <v-card-title>마이 페이지</v-card-title>
       <v-divider></v-divider>
       <v-card-text>
-        이메일 : {{ loginfo }}
+        <span class="text-h5">{{ loginfo }}</span>
         <v-btn
             text
-
             @click="onLogoutButtonClicked()"
             color="error">
           <strong>로그아웃</strong>
@@ -48,18 +47,6 @@
               </span>
               <vue-timepicker
                   v-model="morningReportTime"
-                  :minute-interval="10"
-                  close-on-complete
-                  @change="selectTimeApply"
-              ></vue-timepicker>
-            </v-card-text>
-
-            <v-card-text>
-              <span>
-                저녁 알림 시간 :
-              </span>
-              <vue-timepicker
-                  v-model="eveningReportTime"
                   :minute-interval="10"
                   close-on-complete
                   @change="selectTimeApply"
@@ -114,6 +101,16 @@
 
         </v-btn>
 
+        <v-btn
+            block
+            text
+            @click="pushAlarmOnOff()"
+        >
+          비밀번호 변경
+          <v-spacer></v-spacer>
+
+        </v-btn>
+
       </v-card-text>
     </v-card>
   </div>
@@ -154,6 +151,7 @@ export default {
 
   created() {
     this.loginfo = loginInfo.getLoginInfo()
+    // this.$store.state.email
   },
 
   methods: {
@@ -183,14 +181,13 @@ export default {
 
     selectThemeTest() {
       console.log(`${this.selectTheme}`+"theme apply")
-      console.log()
     },
 
     async selectTimeApply(){
       try{
         await this.$axios.put(`/user`,{
           "morningReportTime":`${this.morningReportTime.HH}:${this.morningReportTime.mm}+09:00`,
-          "eveningReportTime":`${this.eveningReportTime.HH}:${this.eveningReportTime.mm}+09:00`
+          "eveningReportTime":null
         })
       }
       catch(e){
