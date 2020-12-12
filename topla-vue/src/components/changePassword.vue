@@ -41,6 +41,7 @@
         </v-btn>
         <v-btn
             :loading="callCount>0"
+            @click="gomyPage"
         >취소</v-btn>
       </div>
     </v-container>
@@ -114,16 +115,18 @@ export default {
                 Authorization: loginInfo.getLoginInfo()
               }
             });
+        this.pushPage("/")
+        this.$dialog.message.success("비밀번호 변경을 성공하였습니다.", {timeout: 800});
       }catch (e) {
         errorDialog(this, "비밀번호 변경 실패", e);
       }finally {
         this.callCount--;
       }
-
-      this.pushPage("/")
-      this.$dialog.message.info("비밀번호 변경을 성공하였습니다.", {timeout: 800});
     },
 
+    gomyPage(){
+      this.pushPage("/mypage")
+    }
   }
 }
 
