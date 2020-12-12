@@ -3,6 +3,8 @@ package com.yachugak.topla;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 import java.util.Date;
 
 import org.junit.jupiter.api.Test;
@@ -73,5 +75,15 @@ public class DayCalculatorTest {
 		Date date = DayCalculator.makeDate(2020, 5, 30);
 		
 		assertEquals("2020-05-30", DayCalculator.dateFormat(date));
+	}
+	
+	@Test
+	public void yearTest() {
+		LocalDate testTarget = DayCalculator.makeLocalDate(2020, 12, 12);
+		testTarget = testTarget.minus(1, ChronoUnit.DAYS);
+
+		Date date = DayCalculator.LocalDateToDate(testTarget);
+
+		assertEquals(2020, DayCalculator.getYear(date));
 	}
 }
