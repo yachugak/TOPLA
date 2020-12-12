@@ -71,6 +71,7 @@ public class UserService {
 		OffsetTime eveningOffsetTime = OffsetTime.of(21, 0, 0, 0, ZoneOffset.UTC);
 		this.setMorningReportTime(newUser, morningOffsetTime);
 		this.setEveningReportTime(newUser, eveningOffsetTime);
+		this.setPushAlarmStatus(newUser, true);
 		userRepository.saveAndFlush(newUser);
 		
 		return newUser;
@@ -101,7 +102,6 @@ public class UserService {
 		
 		SHA256 sha256 = new SHA256();
 		password = sha256.getEncrpyt(password);
-		
 		user.setPassword(password);
 	}
 	
@@ -231,7 +231,6 @@ public class UserService {
 
 	// 등록된 이메일을 통해 임시비밀번호 발급 
 	public void sendTemporalPasswordByEmail(User targetUser, String randomCode) {
-		// TODO Auto-generated method stub
 		String targetEmail = targetUser.getEmail();
 		String title ="";
 		String content = "";
@@ -243,5 +242,9 @@ public class UserService {
 		
 		mail.sendMail(targetEmail, title, content, HTMLFlag);
 		
+	}
+
+	public List<User> getAllUsers() {
+		return userRepository.findAll();
 	}
 }
