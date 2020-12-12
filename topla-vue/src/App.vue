@@ -73,6 +73,7 @@
 
 <script>
 import loginInfo from "@/plugins/loginInfo";
+import themeList from "@/plugins/theme";
 
 export default {
   name: 'App',
@@ -82,6 +83,18 @@ export default {
       isShowDrawer: false,
       selectedNavItem: null
     };
+  },
+
+  created(){
+    let selectTheme=window.localStorage.getItem("theme")*1
+    let defTheme = this.$vuetify.theme.themes.light
+    let theme= themeList[selectTheme]
+
+    window.dialog = this.$dialog;
+
+    for(let color in theme){
+      defTheme[color]=theme[color]
+    }
   },
 
   watch: {

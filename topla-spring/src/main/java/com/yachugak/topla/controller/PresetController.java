@@ -22,8 +22,10 @@ import com.yachugak.topla.entity.SchedulePreset;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.request.CreateSchedulePresetRequestFormat;
 import com.yachugak.topla.response.SchedulePresetResponseFormat;
+import com.yachugak.topla.service.PlanService;
 import com.yachugak.topla.service.PresetService;
 import com.yachugak.topla.service.UserService;
+import com.yachugak.topla.util.DayCalculator;
 
 @RestController
 @RequestMapping(path = "${apiUriPrefix}/preset")
@@ -31,12 +33,18 @@ import com.yachugak.topla.service.UserService;
 public class PresetController {
 	@Autowired 
 	private PresetService presetService;
+
 	@Autowired
 	private UserService userService;
 	
+	@Autowired
+	private PlanService planService;
+
+	
 	@GetMapping("")
 	@Transactional(readOnly = true)
-	public SchedulePresetResponseFormat getSelectedSchedulePreset(@RequestHeader("Authorization") String email) {
+	public SchedulePresetResponseFormat getSelectedSchedulePreset(@RequestHeader("Authorization") String secureCode) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		User user = userService.findUserByEmail(email);
 		SchedulePreset targetPreset = user.getSchedulePreset(); 
 		SchedulePresetDataFormat presetFormat = presetService.convertPresetToDataFormat(targetPreset);
@@ -50,7 +58,8 @@ public class PresetController {
 	
 	@GetMapping("/list")
 	@Transactional(readOnly = true)
-	public List<SchedulePresetResponseFormat> getAllSchedulePreset(@RequestHeader("Authorization") String email) {
+	public List<SchedulePresetResponseFormat> getAllSchedulePreset(@RequestHeader("Authorization") String secureCode) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		User user = userService.findUserByEmail(email);
 		ArrayList<SchedulePresetResponseFormat> res= new ArrayList<>();
 		
@@ -63,7 +72,8 @@ public class PresetController {
 	
 	@PostMapping("")
 	@Transactional(readOnly = false)
-	public String createSchedulePreset(@RequestHeader("Authorization") String email , @RequestBody CreateSchedulePresetRequestFormat req) {
+	public String createSchedulePreset(@RequestHeader("Authorization") String secureCode , @RequestBody CreateSchedulePresetRequestFormat req) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		User user = userService.findUserByEmail(email);
 		int[] hourList = req.getSchedulePreset();
 		String presetName = req.getPresetName();			
@@ -84,7 +94,10 @@ public class PresetController {
 	
 	@PutMapping("/{uid}")
 	@Transactional(readOnly = false)
-	public String updateSchedulePreset(@PathVariable("uid") long uid, @RequestBody CreateSchedulePresetRequestFormat req) {
+	public String updateSchedulePreset(@RequestHeader("Authorization") String secureCode, @PathVariable("uid") long uid, @RequestBody CreateSchedulePresetRequestFormat req) {
+		String email = userService.findEmailbySecureCode(secureCode);
+		User user = userService.findUserByEmail(email);
+
 		String presetName = req.getPresetName();
 		SchedulePresetDataFormat presetFormat = presetService.convertHourListToDataFormat(req.getSchedulePreset());
 		String encodedPreset = presetFormat.encodeHourListToSchedulePresetString();
@@ -92,15 +105,20 @@ public class PresetController {
 		SchedulePreset updateTarget = presetService.findPresetByID(uid);
 		presetService.setName(updateTarget, presetName);
 		presetService.setPresetCode(updateTarget, encodedPreset);
+
+		planService.plan(user, DayCalculator.getTodayDate());
 		
 		return "ok";
 	}
 	
 	@PutMapping("/select")
 	@Transactional(readOnly = false)
-	public String selectSchedulePreset(@RequestHeader("Authorization") String email, @RequestParam("presetUid") long presetUid) {
+	public String selectSchedulePreset(@RequestHeader("Authorization") String secureCode, @RequestParam("presetUid") long presetUid) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		User user = userService.findUserByEmail(email);
 		userService.setSelectedPreset(user, presetUid);
+		
+		planService.plan(user, DayCalculator.getTodayDate());
 		
 		return "ok";
 	}

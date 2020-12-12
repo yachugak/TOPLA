@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.entity.TaskHistory;
 import com.yachugak.topla.exception.DuplicatedException;
+import com.yachugak.topla.exception.YouAreNotOwnerException;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.request.CheckAsFinishedRequestFormat;
 import com.yachugak.topla.request.CreateTaskRequestFormat;
@@ -28,6 +29,7 @@ import com.yachugak.topla.service.PlanService;
 import com.yachugak.topla.service.TaskHistoryService;
 import com.yachugak.topla.service.TaskService;
 import com.yachugak.topla.service.UserService;
+import com.yachugak.topla.util.DayCalculator;
 
 @RestController
 @RequestMapping(path = "${apiUriPrefix}/task")
@@ -47,7 +49,8 @@ public class TaskController {
 	
 	@PostMapping("")
 	@Transactional(readOnly = false)
-	public String createNewTask(@RequestHeader("Authorization") String email, @RequestBody CreateTaskRequestFormat req) {
+	public String createNewTask(@RequestHeader("Authorization") String secureCode, @RequestBody CreateTaskRequestFormat req) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		Task dup = new Task();
 		taskService.setTitle(dup, req.getTitle());
 		taskService.setDueDate(dup, req.getDueDate());
@@ -64,14 +67,15 @@ public class TaskController {
 		taskService.setLocation(newTask, req.getLocation());
 		taskService.setRemindingTiming(newTask, req.getRemindingTiming());
 		
-		planService.plan(targetUser, new Date());
+		planService.plan(targetUser, DayCalculator.getTodayDate());
 
 		return "ok";
 	}
 
 	@PutMapping("/{uid}")
 	@Transactional(readOnly = false)
-	public String updateTask(@PathVariable("uid") long uid, @RequestHeader("Authorization") String email, @RequestBody CreateTaskRequestFormat req) {		
+	public String updateTask(@PathVariable("uid") long uid, @RequestHeader("Authorization") String secureCode, @RequestBody CreateTaskRequestFormat req) {	
+		String email = userService.findEmailbySecureCode(secureCode);	
 		Task updateTarget = taskService.findTaskById(uid);
 		taskService.setTitle(updateTarget, req.getTitle());
 		taskService.setPriority(updateTarget, req.getPriority());
@@ -81,7 +85,7 @@ public class TaskController {
 		taskService.setRemindingTiming(updateTarget, req.getRemindingTiming());
 
 		User user = userService.findUserByEmail(email);
-		planService.plan(user, new Date());
+		planService.plan(user, DayCalculator.getTodayDate());
 
 		return "ok";
 	}
@@ -89,7 +93,8 @@ public class TaskController {
 	// 각 유저별로 모든 task 물러옴.
 	@GetMapping("/list")
 	@Transactional(readOnly = true)
-	public List<TaskResponseFormat> taskList(@RequestHeader("Authorization") String email) {
+	public List<TaskResponseFormat> taskList(@RequestHeader("Authorization") String secureCode) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		User targetUser = userService.findUserByEmail(email);
 		List<Task> taskList = taskService.getAllTask(targetUser);
 		
@@ -124,11 +129,18 @@ public class TaskController {
 	
 	@DeleteMapping("/{uid}")
 	@Transactional(readOnly = false)
-	public String deleteTask(@PathVariable("uid") long uid) {
+	public String deleteTask(@PathVariable("uid") long uid, @RequestHeader("Authorization") String secureCode) {
+		String email = userService.findEmailbySecureCode(secureCode);
+		User targetUser = userService.findUserByEmail(email);
 		Task targetTask = taskService.findTaskById(uid);
-		taskService.deleteTask(targetTask);
 		
+		if(userService.taskOwnerTest(targetUser, targetTask)==false) {
+			throw new YouAreNotOwnerException("task", uid);
+		}
+		
+		taskService.deleteTask(targetTask);
 		taskHistoryService.updateHistoryByTask(targetTask);
+		planService.plan(targetUser, DayCalculator.getTodayDate());
 		
 		return "ok";
 	}

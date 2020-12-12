@@ -39,7 +39,8 @@ public class PlanController {
 	
 	@GetMapping("")
 	@Transactional(readOnly = false)
-	public String planTest(@RequestHeader("Authorization") String email) {
+	public String planTest(@RequestHeader("Authorization") String secureCode) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		User user = userService.findUserByEmail(email);
 		planService.plan(user, new Date());
 		
@@ -48,7 +49,8 @@ public class PlanController {
 	
 	@GetMapping("/loss")
 	@Transactional(readOnly = true)
-	public HashMap<String, Double> getUserLossPriority(@RequestHeader("Authorization") String email) {	
+	public HashMap<String, Double> getUserLossPriority(@RequestHeader("Authorization") String secureCode) {
+		String email = userService.findEmailbySecureCode(secureCode);	
 		User targetUser = userService.findUserByEmail(email);
 		Double lossPriority = userService.getLossPriority(targetUser);
 		

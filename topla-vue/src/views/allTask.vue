@@ -1,6 +1,6 @@
 <template>
   <div class="px-3  pt-3 back">
-    <v-card>
+    <v-card class="back">
       <v-card-title>전체 작업 목록</v-card-title>
       <div class="px-2">
         <div class="w-100 flexBox">
@@ -21,6 +21,7 @@
             :due-date="task.dueDate"
             :progress="task.progress"
             :reminding-time="task.remindingTiming"
+            :full-task-info="task"
             class="mb-3"
             @update="getTaskList()"
         >

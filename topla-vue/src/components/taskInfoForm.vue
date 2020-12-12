@@ -92,45 +92,42 @@
             장소
             <v-icon>mdi-map-marker-outline</v-icon>
           </v-col>
-          <v-col cols="9" class="leftCenter verticalStack flex-column">
-            <v-dialog
-                v-model="isShowPlaceDialog"
-                fullscreen
-                hide-overlay
-                transition="dialog-bottom-transition"
-            >
-              <template v-slot:activator="{on, attrs}">
-                <v-btn v-bind="attrs" v-on="on" class="d-block">
-                <span v-if="displayLocation===null">
-                  장소 지정되지 않음
-                </span>
-                  <span v-else>
-                  장소 다시 설정
-                </span>
-                </v-btn>
-              </template>
-              <v-card>
-                <v-toolbar color="primary" dark>
-                  <v-btn icon @click="isShowPlaceDialog = false">
-                    <v-icon>mdi-close</v-icon>
-                  </v-btn>
-                  <v-toolbar-title>장소 선택</v-toolbar-title>
-                  <v-spacer></v-spacer>
-                  <v-toolbar-items>
-                    <v-btn @click="isShowPlaceDialog=false; onConfirmLocation()" text>
-                      확인
+          <v-col cols="9" class="verticalStack flex-column">
+              <div class="float-left">
+                {{ displayLocation }}
+              </div>
+              <v-dialog
+                  v-model="isShowPlaceDialog"
+                  fullscreen
+                  hide-overlay
+                  transition="dialog-bottom-transition"
+              >
+                <template v-slot:activator="{on, attrs}">
+                  <div class="float-right">
+                    <v-btn icon v-bind="attrs" v-on="on" class="d-block">
+                      <v-icon>mdi-magnify</v-icon>
                     </v-btn>
-                  </v-toolbar-items>
-                </v-toolbar>
-                <div class="pa-2">
-                  <place-selector @input="tempLocation = $event"></place-selector>
-                </div>
-              </v-card>
-            </v-dialog>
-            <br>
-            <div>
-              {{ displayLocation }}
-            </div>
+                  </div>
+                </template>
+                <v-img style="height: 100%" :src="placeSelectorDialogBackgroundImageSrc">
+                  <v-toolbar color="primary" dark>
+                    <v-btn icon @click="isShowPlaceDialog = false">
+                      <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                    <v-toolbar-title>장소 선택</v-toolbar-title>
+                    <v-spacer></v-spacer>
+                    <v-toolbar-items>
+                      <v-btn @click="isShowPlaceDialog=false; onConfirmLocation()" text>
+                        확인
+                      </v-btn>
+                    </v-toolbar-items>
+                  </v-toolbar>
+                  <div class="pa-2">
+                    <place-selector @input="tempLocation = $event"></place-selector>
+                  </div>
+                </v-img>
+              </v-dialog>
+
           </v-col>
         </v-row>
         <v-row>
@@ -189,7 +186,9 @@ export default {
         "amber lighten-3",
         "amber darken-2",
         "amber darken-4",
-      ]
+      ],
+
+      placeSelectorDialogBackgroundImageSrc: require("@/assets/city.jpg")
     }
   },
 
@@ -274,7 +273,7 @@ export default {
       return this.$refs.form.validate();
     },
 
-    dateFormat(dateString){
+    dateFormat(dateString) {
       let ymd = dateString.split("-");
       return ymd[2];
     }

@@ -5,11 +5,16 @@ Vue.use(Vuex)
 
 let vuex =  new Vuex.Store({
   state: {
-    loginInfo: null
+    loginInfo: null,
+    email: null
   },
   mutations: {
     setLoginInfo(state, loginInfo){
       state.loginInfo = loginInfo;
+    },
+
+    setUserEmail(state, email){
+      state.email = email;
     }
   },
   actions: {

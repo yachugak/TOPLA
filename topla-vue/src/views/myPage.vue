@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <v-card fluid>
+  <div class="full-height back">
+    <v-card fluid class="back">
       <v-card-title>마이 페이지</v-card-title>
       <v-divider></v-divider>
       <v-card-text>
@@ -70,7 +70,7 @@
             <v-radio-group
                 class="small-font"
                 v-model="selectTheme"
-                @change="selectThemeTest()"
+                @change="selectThemeApply()"
             >
               <v-radio
                   class="ma-2"
@@ -89,16 +89,10 @@
         >
           push알림
           <v-spacer></v-spacer>
-          <div v-if="pushCheck">
-            <strong>o n</strong>
-            <v-icon>mdi-toggle-switch</v-icon>
-          </div>
-
-          <div v-if="!pushCheck">
-            <strong>off</strong>
-            <v-icon>mdi-toggle-switch-off</v-icon>
-          </div>
-
+          <v-switch
+              v-model="pushCheck"
+              @click="pushAlarmOnOff()"
+          ></v-switch>
         </v-btn>
 
         <v-btn
@@ -112,6 +106,20 @@
         </v-btn>
 
       </v-card-text>
+      <v-divider></v-divider>
+      <v-card-title>
+        통계
+      </v-card-title>
+      <v-card-text>
+        <v-btn
+            block
+            text
+            @click="statistic()"
+        >
+          통계보기
+          <v-spacer></v-spacer>
+        </v-btn>
+      </v-card-text>
     </v-card>
   </div>
 </template>
@@ -120,6 +128,7 @@
 import loginInfo from "@/plugins/loginInfo";
 import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
 import errorDialog from "@/plugins/errorDialog";
+import themeList from '@/plugins/theme';
 
 export default {
   name: "myPage",
@@ -136,7 +145,7 @@ export default {
       themeListShow: false,
       timeSet:false,
       themeList: ["밝은 테마", "어두운 테마", "클래식 테마"],
-      selectTheme: 0,
+      selectTheme: null,
       morningReportTime:{
         HH:"09",
         mm:"00"
@@ -148,10 +157,8 @@ export default {
     }
   },
 
-
-  created() {
-    this.loginfo = loginInfo.getLoginInfo()
-    // this.$store.state.email
+  async created() {
+    await this.preSetting()
   },
 
   methods: {
@@ -162,6 +169,22 @@ export default {
         //아무것도 안 함.
         //같은 페이지로 이동시 예외가 던저지기 때문에 이렇게 함.
       }
+    },
+
+    async preSetting(){
+      this.loginfo = loginInfo.getLoginInfo()
+      this.selectTheme=window.localStorage.getItem("theme")*1
+      if(this.selectTheme===null)
+        this.selectTheme=0
+
+      let res = await this.$axios.get("/user")
+
+      this.eveningReportTime.HH=res.data.eveningReportTime.substring(0,2)
+      this.eveningReportTime.mm=res.data.eveningReportTime.substring(3,5)
+
+      this.morningReportTime.HH=res.data.morningReportTime.substring(0,2)
+      this.morningReportTime.mm=res.data.morningReportTime.substring(3,5)
+
     },
 
     onLogoutButtonClicked() {
@@ -179,8 +202,16 @@ export default {
       console.log(this.pushCheck)
     },
 
-    selectThemeTest() {
+    selectThemeApply() {
       console.log(`${this.selectTheme}`+"theme apply")
+      let defTheme = this.$vuetify.theme.themes.light
+      let theme= themeList[this.selectTheme]
+
+      for(let color in theme){
+        defTheme[color]=theme[color]
+      }
+
+      window.localStorage.setItem("theme", this.selectTheme);
     },
 
     async selectTimeApply(){
@@ -193,6 +224,10 @@ export default {
       catch(e){
         errorDialog(this,"시간등록 실패",e)
       }
+    },
+
+    statistic(){
+      console.log("통계창 추가예정")
     }
   }
 }
@@ -201,6 +236,10 @@ export default {
 <style scoped>
 .small-font {
   font-size: 3px;
+}
+
+.full-height{
+  height:94vh;
 }
 
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-sheet height="600">
-      <v-container>
+      <v-container fluid>
         <v-row no-gutters>
           <v-col cols="12">
             <v-toolbar
@@ -79,7 +79,6 @@
       </v-container>
       <v-calendar
           ref="calendar"
-          v-model="value"
           color="primary"
           :weekdays="weekday"
           :type="type"
@@ -87,7 +86,9 @@
           :locale="'ko'"
           :event-color="getEventColor"
           @change="getEvents"
-          @click:date="viewDay"
+          @click:event="viewDay($event.day.date)"
+          @click:date="viewDay($event.date)"
+          @click:more="viewDay($event.date)"
           :day-format="dateFormat"
           :show-month-on-first="false"
       ></v-calendar>
@@ -102,8 +103,6 @@ export default {
   data: () => ({
     type: 'month',
     weekday: [0, 1, 2, 3, 4, 5, 6],
-    value: '',
-    tasks: [],
     dueTasks: [],
     doTasks: [],
     colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
@@ -121,6 +120,20 @@ export default {
       }
     ],
   }),
+
+  computed: {
+    tasks(){
+      if(this.taskViewMode === "dueDate"){
+        return this.dueTasks;
+      }
+      else if(this.taskViewMode === "doDate"){
+        return this.doTasks;
+      }
+
+      throw new Error(`알 수 없는 taskViewMode: ${this.taskViewMode}`)
+    }
+  },
+
   methods: {
     setToday() {
       this.value = ''
@@ -183,13 +196,6 @@ export default {
 
       this.dueTasks = dueTasks
       this.doTasks = doTasks
-
-      if (this.taskViewMode === "dueDate") {
-        this.tasks = dueTasks
-      } else if (this.taskViewMode === "doDate") {
-        this.tasks = doTasks
-      }
-
     },
     getEventColor(event) {
       return event.color
@@ -205,11 +211,12 @@ export default {
         throw new Error(`알 수 없는 taskViewMode: ${this.taskViewMode}`);
       }
     },
-    async viewDay() {
+    async viewDay(dateString) {
+      console.log(dateString);
       await this.$router.push({
         name: 'todolist mode',
         params: {
-          date: this.value,
+          date: dateString,
           viewMode: this.taskViewMode
         }
       })
@@ -231,6 +238,10 @@ export default {
 
     dateFormat(dateObject){
       return dateObject.day;
+    },
+
+    test(v){
+      console.log(v);
     }
   },
 

@@ -3,7 +3,7 @@
   <div id="container">
     <v-slider
         :max="nowTimeMax"
-        min="30"
+        min="0"
         persistent-hint
         v-model="innerModelValue"
         :hint="displayTime"
