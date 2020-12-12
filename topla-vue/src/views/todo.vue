@@ -2,6 +2,11 @@
   <div>
     <v-container fluid class="back">
       <v-row no-gutters>
+        <v-col cols="12">
+          <v-btn class="fullDateButton black--text" color="primary" @click="onYearMonthButtonClicked()">
+            {{selectedDate.getFullYear()}}년 {{selectedDate.getMonth()+1}}월
+          </v-btn>
+        </v-col>
         <v-col cols="1" v-if="$vuetify.breakpoint.mdAndUp">
           <v-btn class="arrowButton sec text--primary" color="primary" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
         </v-col>
@@ -29,19 +34,19 @@
       </v-row>
 
       <v-row class="back">
-        <v-col cols="12">
-          <v-btn color="primary" block
-                 @click="toggleTaskViewMode()"
-                 class="text--primary"
-          >
-            작업을 {{taskViewMode === "dueDate" ? "마감일로" : "하는 날로"}} 보는 중
-          </v-btn>
-        </v-col>
       </v-row>
 
       <v-row>
         <v-col cols="12">
           <schedule-alert-box ref="alertBox"></schedule-alert-box>
+        </v-col>
+      </v-row>
+
+      <v-row no-gutters>
+        <v-col cols="12" md="4">
+          <div class="flex-center">
+            <v-select label="보기 기준" :items="taskViewModelSelectItem" v-model="taskViewMode"></v-select>
+          </div>
         </v-col>
       </v-row>
 
@@ -63,16 +68,10 @@
           <template v-slot>
           </template>
         </v-progress-linear>
-<!--        할당 시간: {{todayAllocationTime/60}}시간<br>-->
-<!--        한 시간: {{todayFinishTime/60}}시간<br>-->
       </v-row>
     </v-container>
 
     <div class="py-4 back" :class="{taskContainerSizeSm: isSm, taskContainerSizeMd: !isSm }">
-      <div class="mb-2">
-        <span id="dayText" class="pl-2">{{selectedDate.getMonth()+1}}월 {{selectedDate.getDate()}}일 {{getDayName(selectedDate.getDay())}}요일</span>
-        <span id="taskCountText" class="pr-2">{{displayTaskList.length}}개의 작업</span>
-      </div>
       <task-card class="mx-2 mb-4" v-for="task in displayTaskList" :key="taskViewMode === 'dueDate' ? task.uid : task.planUid"
                  :title="task.title"
                  :priority="task.priority"
@@ -141,6 +140,16 @@ export default {
       updateTargetTask: null,
       isCalling: 0, //현재 통신 진행중인지 나타내는 변수, 1 이상이면 통신 진행중이라는 뜻
       taskViewMode: "dueDate",//현재 작업의 보기 모드, dueDate와 doDate가 있음.
+      taskViewModelSelectItem: [
+        {
+          text: "마감일 기준으로 보기",
+          value: "dueDate"
+        },
+        {
+          text: "하는 날 기준으로 보기",
+          value: "doDate"
+        }
+      ],
       schedulePreset: [0,0,0,0,0,0,0]
     }
   },
@@ -304,18 +313,6 @@ export default {
       }
     },
 
-    toggleTaskViewMode(){
-      if(this.taskViewMode === "dueDate"){
-        this.taskViewMode = "doDate";
-      }
-      else if(this.taskViewMode === "doDate"){
-        this.taskViewMode = "dueDate";
-      }
-      else{
-        throw new Error(`알 수 없는 taskViewMode: ${this.taskViewMode}`);
-      }
-    },
-
     getTaskListWithTodayIsDueDate(taskList, today){
       let vueInstance = this;
       return taskList.filter(function(task){
@@ -369,6 +366,16 @@ export default {
         location: null,
         remindingTime: null
       }
+    },
+
+    onYearMonthButtonClicked(){
+      this.$router.push({
+        name: 'calendar mode',
+        params: {
+          date: this.selectedDate,
+          viewMode: this.taskViewMode
+        }
+      })
     }
   },
 
@@ -428,5 +435,18 @@ export default {
   position: fixed;
   bottom: 30px;
   right: 30px;
+}
+
+.flex-center {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.fullDateButton {
+  width: 100%;
 }
 </style>

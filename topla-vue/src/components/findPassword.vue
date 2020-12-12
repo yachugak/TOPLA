@@ -46,7 +46,6 @@
           <v-alert type="info" >
             임시 비밀번호가 발급되었습니다.
             임시 비밀번호로도 TOPLA 서비스를 이용할 수 있지만 보안을 위해 비밀번호 변경 절차를 밟겠습니다.
-            비밀번호 변경 없이 서비스를 이용하실 분들은 "로그인 페이지로 돌아가기" 버튼을 눌러 로그인을 진행하시기 바랍니다.
           </v-alert>
           <v-form ref="form2">
             <v-text-field
@@ -72,7 +71,6 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="secondary" :loading="callCount>0" @click="backStep()">뒤로</v-btn>
-            <v-btn color="error" :loading="callCount>0" @click="onBackLogin(true)">로그인 페이지로 돌아가기</v-btn>
             <v-btn color="primary" :loading="callCount>0" @click="onRequestLogin()">임시 비밀번호 인증</v-btn>
           </v-card-actions>
         </v-stepper-content>
@@ -124,7 +122,7 @@
           </v-form>
           <v-card-actions>
             <v-spacer> </v-spacer>
-            <v-btn color="error" :loading="callCount>0" @click="onBackLogin(true)">로그인 페이지로 돌아가기</v-btn>
+            <v-btn color="secondary" :loading="callCount>0" @click="backWithAlert()">뒤로</v-btn>
             <v-btn color="primary" :loading="callCount>0" @click="requestPasswordChagne()">비밀번호 변경</v-btn>
           </v-card-actions>
         </v-stepper-content>
@@ -133,7 +131,7 @@
           <div class="text-center py-3">
             <h1>비밀번호 변경이 완료되었습니다.</h1>
             <p>이제 바뀐 비밀번호로 접속할 수 있습니다.</p>
-            <v-btn color="primary" @click="onBackLogin(false)">로그인 페이지로 돌아가기</v-btn>
+            <v-btn color="primary" @click="onBackLogin()">로그인 페이지로 돌아가기</v-btn>
           </div>
         </v-stepper-content>
       </v-stepper-items>
@@ -155,6 +153,7 @@ export default {
       step: 1,
       callCount: 0,
       isShowPassword: false,
+      authToken: null,
 
       formInput: {
         account: "",
@@ -178,29 +177,31 @@ export default {
   },
 
   methods: {
-    async onBackLogin(isAlert){
-      if(isAlert){
-        let result = await this.$dialog.warning({
-          title: "보안상 위험한 행동을 하려고 하고 있습니다.",
-          text: "임시 비밀번호는 안전하지 않습니다. 보안을 위해 비밀번호 변경 절차를 밟는 것을 추천드립니다. 정말로 비밀번호를 변경하지 않고 로그인 페이지로 돌아가시겠습니까?",
-          width: 500,
-          actions: {
-            true: {
-              text: "예, 나중에 변경하겠습니다.",
-              color: "error"
-            },
+    async backWithAlert(){
+      let result = await this.$dialog.warning({
+        title: "비밀번호 변경 작업 중단",
+        text: "비밀번호를 변경하지 않으려고 하고 계십니다. 임시 비밀번호는 보안상 안전하지 않습니다. 정말로 비밀번호를 변경하지 않으시겠습니까?",
+        width: 500,
+        actions: {
+          true: {
+            text: "예",
+            color: "error"
+          },
 
-            false: {
-              text: "아니오, 지금 변경하겠습니다.",
-              color: "success"
-            }
+          false: {
+            text: "아니오",
+            color: "success"
           }
-        });
+        }
+      });
 
         if(result !== true){
           return;
         }
-      }
+        this.backStep();
+    },
+
+    onBackLogin(){
       this.$emit("back");
     },
 
@@ -208,7 +209,7 @@ export default {
       this.step--;
       if(this.step < 1){
         this.step = 1;
-        this.onBackLogin(false);
+        this.onBackLogin();
       }
     },
 
@@ -245,10 +246,11 @@ export default {
 
       this.callCount++;
       try {
-        await this.$axios.post("/user/login", {
+        let res = await this.$axios.post("/user/login", {
           email: this.formInput.account,
           password: this.formInput.oldPassword
         });
+        this.authToken = res.data;
         this.nextStep();
       }catch (e) {
         errorDialog(this, "임시 비밀번호로 로그인 실패", e);
@@ -278,7 +280,7 @@ export default {
         },
         {
           headers: {
-            Authorization: this.formInput.account
+            Authorization: this.authToken
           }
         });
 

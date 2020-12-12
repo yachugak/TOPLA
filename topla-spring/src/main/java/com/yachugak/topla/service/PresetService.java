@@ -21,19 +21,6 @@ public class PresetService {
 	private PresetRepository presetRepository;
 	@Autowired
 	private UserService userService;
-	
-//	public List<SchedulePresetDataFormat> getAllPresetInDataFormats(User user) {
-//		List<SchedulePreset> schedulePresetList = this.getAllPreset(user);
-//
-//		List<SchedulePresetDataFormat> schedulePresetDataFormatList = new ArrayList<>();
-//		for (SchedulePreset preset : schedulePresetList) {
-//			SchedulePresetDataFormat temp = new SchedulePresetDataFormat();
-//			temp.decode(preset.getPresetCode());
-//			schedulePresetDataFormatList.add(temp);
-//		}
-//
-//		return schedulePresetDataFormatList;
-//	}
 
 	public List<SchedulePreset> getAllPreset(User user) {
 		List<SchedulePreset> presetList = presetRepository.findByUserUid(user.getUid());
@@ -138,7 +125,8 @@ public class PresetService {
 	}
 
 	public SchedulePreset findPresetByID(long presetUid) {
-		return presetRepository.findById(presetUid).get();
+		SchedulePreset targetPreset = presetRepository.findById(presetUid).orElseThrow(()->new EntityNotFoundException("preset", presetUid+""));
+		return targetPreset;
 	}
 
 	
@@ -170,6 +158,10 @@ public class PresetService {
 
 	// 해당 유저가 가진 첫 번째 프리셋을 선택하는 함수.
 	private void selectFirstPreset(User user) {
+		List<SchedulePreset> presetList = presetRepository.findByUser(user);
+		if(presetList.isEmpty()) {
+			throw new EntityNotFoundException("presetList", "해당 유저의 Preset이 존재하지 않습니다.");
+		}
 		SchedulePreset targetPreset = presetRepository.findByUser(user).get(0);
 		userService.setSelectedPreset(user, targetPreset);
 	}

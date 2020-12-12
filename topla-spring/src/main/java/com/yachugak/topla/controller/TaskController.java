@@ -47,7 +47,8 @@ public class TaskController {
 	
 	@PostMapping("")
 	@Transactional(readOnly = false)
-	public String createNewTask(@RequestHeader("Authorization") String email, @RequestBody CreateTaskRequestFormat req) {
+	public String createNewTask(@RequestHeader("Authorization") String secureCode, @RequestBody CreateTaskRequestFormat req) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		Task dup = new Task();
 		taskService.setTitle(dup, req.getTitle());
 		taskService.setDueDate(dup, req.getDueDate());
@@ -71,7 +72,8 @@ public class TaskController {
 
 	@PutMapping("/{uid}")
 	@Transactional(readOnly = false)
-	public String updateTask(@PathVariable("uid") long uid, @RequestHeader("Authorization") String email, @RequestBody CreateTaskRequestFormat req) {		
+	public String updateTask(@PathVariable("uid") long uid, @RequestHeader("Authorization") String secureCode, @RequestBody CreateTaskRequestFormat req) {	
+		String email = userService.findEmailbySecureCode(secureCode);	
 		Task updateTarget = taskService.findTaskById(uid);
 		taskService.setTitle(updateTarget, req.getTitle());
 		taskService.setPriority(updateTarget, req.getPriority());
@@ -89,7 +91,8 @@ public class TaskController {
 	// 각 유저별로 모든 task 물러옴.
 	@GetMapping("/list")
 	@Transactional(readOnly = true)
-	public List<TaskResponseFormat> taskList(@RequestHeader("Authorization") String email) {
+	public List<TaskResponseFormat> taskList(@RequestHeader("Authorization") String secureCode) {
+		String email = userService.findEmailbySecureCode(secureCode);
 		User targetUser = userService.findUserByEmail(email);
 		List<Task> taskList = taskService.getAllTask(targetUser);
 		

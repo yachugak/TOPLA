@@ -1,89 +1,84 @@
 <template>
   <div>
     <v-sheet height="600">
-      <v-row>
-        <v-toolbar
-            flat
-        >
-          <v-btn
-              fab
-              text
-              small
-              color="grey darken-2"
-              @click="prev"
-          >
-            <v-icon small>
-              mdi-chevron-left
-            </v-icon>
-          </v-btn>
+      <v-container fluid>
+        <v-row no-gutters>
+          <v-col cols="12">
+            <v-toolbar
+                flat
+            >
+              <v-btn
+                  fab
+                  text
+                  small
+                  color="grey darken-2"
+                  @click="prev"
+              >
+                <v-icon small>
+                  mdi-chevron-left
+                </v-icon>
+              </v-btn>
 
-          <v-menu
-              v-model="menu2"
-              :close-on-content-click="false"
-              :nudge-right="40"
-              transition="scale-transition"
-              offset-y
-              min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
+              <v-menu
+                  v-model="menu2"
+                  :close-on-content-click="false"
+                  :nudge-right="40"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="290px"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                      outlined
+                      color="grey darken-2"
+                      v-model="date"
+                      label="Picker in menu"
+                      v-bind="attrs"
+                      v-on="on"
+                  >
+                    {{ date }}
+                  </v-btn>
+                </template>
+                <v-date-picker
+                    v-model="date"
+                    type="month"
+                    @input="setMonth"
+                    :locale="'ko'"
+                ></v-date-picker>
+              </v-menu>
+
+              <v-btn
+                  fab
+                  text
+                  small
+                  color="grey darken-2"
+                  @click="next"
+              >
+                <v-icon small>
+                  mdi-chevron-right
+                </v-icon>
+              </v-btn>
+
+              <v-spacer></v-spacer>
               <v-btn
                   outlined
-                  class="mr-4"
                   color="grey darken-2"
-                  v-model="date"
-                  label="Picker in menu"
-                  v-bind="attrs"
-                  v-on="on"
+                  @click="setToday"
               >
-                {{ date }}
+                Today
               </v-btn>
-            </template>
-            <v-date-picker
-                v-model="date"
-                type="month"
-                @input="setMonth"
-                :locale="'ko'"
-            ></v-date-picker>
-          </v-menu>
 
-          <v-btn
-              fab
-              text
-              small
-              color="grey darken-2"
-              @click="next"
-          >
-            <v-icon small>
-              mdi-chevron-right
-            </v-icon>
-          </v-btn>
-
-          <v-spacer></v-spacer>
-          <v-btn
-              outlined
-              class="mr-4"
-              color="grey darken-2"
-              @click="setToday"
-          >
-            Today
-          </v-btn>
-
-        </v-toolbar>
-      </v-row>
-      <v-row>
-        <v-spacer></v-spacer>
-        <v-btn color="primary"
-               class="mb-1"
-               @click="toggleTaskViewMode()"
-        >
-          작업을 {{ taskViewMode === "dueDate" ? "마감일로" : "하는 날로" }} 보는 중
-        </v-btn>
-        <v-spacer></v-spacer>
-      </v-row>
-
+            </v-toolbar>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12" class="px-6">
+            <v-select label="보기 기준" :items="taskViewModelSelectItem" v-model="taskViewMode"></v-select>
+          </v-col>
+        </v-row>
+      </v-container>
       <v-calendar
           ref="calendar"
-          v-model="value"
           color="primary"
           :weekdays="weekday"
           :type="type"
@@ -91,7 +86,9 @@
           :locale="'ko'"
           :event-color="getEventColor"
           @change="getEvents"
-          @click:date="viewDay"
+          @click:event="viewDay($event.day.date)"
+          @click:date="viewDay($event.date)"
+          @click:more="viewDay($event.date)"
           :day-format="dateFormat"
           :show-month-on-first="false"
       ></v-calendar>
@@ -106,15 +103,37 @@ export default {
   data: () => ({
     type: 'month',
     weekday: [0, 1, 2, 3, 4, 5, 6],
-    value: '',
-    tasks: [],
     dueTasks: [],
     doTasks: [],
     colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
     taskViewMode: "dueDate",
     date: new Date().toISOString().substr(0, 7),
     menu2: false,
+    taskViewModelSelectItem: [
+      {
+        text: "마감일 기준으로 보기",
+        value: "dueDate"
+      },
+      {
+        text: "하는 날 기준으로 보기",
+        value: "doDate"
+      }
+    ],
   }),
+
+  computed: {
+    tasks(){
+      if(this.taskViewMode === "dueDate"){
+        return this.dueTasks;
+      }
+      else if(this.taskViewMode === "doDate"){
+        return this.doTasks;
+      }
+
+      throw new Error(`알 수 없는 taskViewMode: ${this.taskViewMode}`)
+    }
+  },
+
   methods: {
     setToday() {
       this.value = ''
@@ -177,13 +196,6 @@ export default {
 
       this.dueTasks = dueTasks
       this.doTasks = doTasks
-
-      if (this.taskViewMode === "dueDate") {
-        this.tasks = dueTasks
-      } else if (this.taskViewMode === "doDate") {
-        this.tasks = doTasks
-      }
-
     },
     getEventColor(event) {
       return event.color
@@ -199,11 +211,12 @@ export default {
         throw new Error(`알 수 없는 taskViewMode: ${this.taskViewMode}`);
       }
     },
-    async viewDay() {
+    async viewDay(dateString) {
+      console.log(dateString);
       await this.$router.push({
         name: 'todolist mode',
         params: {
-          date: this.value,
+          date: dateString,
           viewMode: this.taskViewMode
         }
       })
@@ -225,8 +238,21 @@ export default {
 
     dateFormat(dateObject){
       return dateObject.day;
+    },
+
+    test(v){
+      console.log(v);
     }
   },
+
+  mounted() {
+    if(this.$route.params.date !==undefined && this.$route.params.viewMode!==undefined){
+      let targetDateObject = this.$route.params.date;
+      this.date = `${targetDateObject.getFullYear()}-${targetDateObject.getMonth()+1}`;
+      this.taskViewMode=this.$route.params.viewMode;
+      this.setMonth();
+    }
+  }
 }
 </script>
 

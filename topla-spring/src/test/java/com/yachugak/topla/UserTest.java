@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.yachugak.topla.entity.User;
+import com.yachugak.topla.repository.AuthMappingRepository;
 import com.yachugak.topla.repository.UserRepository;
 import com.yachugak.topla.service.UserService;
 import com.yachugak.topla.entity.TemporaryUser;
@@ -20,6 +21,8 @@ public class UserTest {
 	private UserService userService;
 	@Autowired
 	private UserRepository userRepository;
+	@Autowired
+	private AuthMappingRepository authmappingRepository;
 	
 	@Test
 	@Transactional(readOnly = false)
@@ -68,6 +71,7 @@ public class UserTest {
 	
 	@Test
 	@Transactional(readOnly = false)
+	@Disabled
 	public void createUser() {
 		String email = "ahj0313@ajou.ac.kr";
 		String passwd = "asdf";
@@ -83,6 +87,15 @@ public class UserTest {
 		//코드는 이메일에서 직접 확인할것
 		System.out.println(secureCode);
 		assertEquals(email, user.getEmail());
+	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	public void authMapping() {
+		User newUser = userService.createUser("a@a.a", "aaa");
+		String secureCode = userService.userLogin("a@a.a", "aaa");
+		
+		assertEquals(secureCode, authmappingRepository.findByUser(newUser).get().getSecureCode());
 	}
 }
 
