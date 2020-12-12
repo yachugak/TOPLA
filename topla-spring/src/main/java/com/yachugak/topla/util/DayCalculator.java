@@ -7,8 +7,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
 
 public class DayCalculator {
 	public static int calDayOffset(Date dayStart, Date dayEnd) {
@@ -44,7 +45,9 @@ public class DayCalculator {
 	}
 	
 	public static Date LocalDateToDate(LocalDate localDate) {
-		return DayCalculator.makeDate(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth());
+	    return java.util.Date.from(localDate.atStartOfDay()
+	      .atZone(ZoneId.systemDefault())
+	      .toInstant());
 	}
 	
 	public static int getDay(Date date) {
@@ -58,6 +61,20 @@ public class DayCalculator {
 		return localDateDay;
 	}
 	
+	// 당일 기준 7일전 날과 오늘의 날짜를 <List>LocalDate 형태로 반환
+	public static List<Date> getStartAndEndDateOf7Days() {
+		LocalDate endDate = LocalDate.now().plusDays(1);	// 오늘까지 포함할 수 있도록.
+		LocalDate startDate = endDate.minusDays(8);			// 7일전까지
+		
+		Date start = LocalDateToDate(startDate);
+		Date end = LocalDateToDate(endDate);
+		
+		ArrayList<Date> dateList = new ArrayList<>();
+		dateList.add(start);
+		dateList.add(end);
+		return dateList;
+  }
+
 	public static Date getTodayDate() {
 		return DayCalculator.LocalDateToDate(DayCalculator.getTodayLocalDate());
 	}
