@@ -13,7 +13,7 @@ public abstract class ToplaException extends RuntimeException {
 	private List<String> arguments;
 	
 	public ToplaException(String errorCode, String userMessage) {
-		super("["+errorCode+"] " + userMessage);
+		super(userMessage);
 		this.errorCode = errorCode;
 		this.userMessage = userMessage;
 		this.arguments = arguments;
