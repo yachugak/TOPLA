@@ -1,9 +1,11 @@
 package com.yachugak.topla.util;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
 
 public class DayCalculator {
 	public static int calDayOffset(Date dayStart, Date dayEnd) {
@@ -36,5 +38,26 @@ public class DayCalculator {
 		}
 		
 		return localDateDay;
+	}
+	
+	// LocalDate -> Date
+	public static Date convertToDateViaInstant(LocalDate localDateToConvert) {
+	    return java.util.Date.from(localDateToConvert.atStartOfDay()
+	      .atZone(ZoneId.systemDefault())
+	      .toInstant());
+	}
+	
+	// 당일 기준 7일전 날과 오늘의 날짜를 <List>LocalDate 형태로 반환
+	public static List<Date> getStartAndEndDateOf7Days() {
+		LocalDate endDate = LocalDate.now().plusDays(1);	// 오늘까지 포함할 수 있도록.
+		LocalDate startDate = endDate.minusDays(8);			// 7일전까지
+		
+		Date start = convertToDateViaInstant(startDate);
+		Date end = convertToDateViaInstant(endDate);
+		
+		ArrayList<Date> dateList = new ArrayList<>();
+		dateList.add(start);
+		dateList.add(end);
+		return dateList;
 	}
 }
