@@ -231,7 +231,7 @@ export default {
     },
 
     statistic(){
-      console.log("통계창 추가예정")
+      this.$router.push("/stat");
     }
   }
 }
