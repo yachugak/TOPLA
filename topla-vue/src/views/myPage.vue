@@ -98,11 +98,20 @@
         <v-btn
             block
             text
-            @click="pushAlarmOnOff()"
+            @click="changePwd()"
         >
           비밀번호 변경
           <v-spacer></v-spacer>
+        </v-btn>
 
+        <v-btn
+            block
+            text
+            @click="confrimDelete()"
+            color="error"
+        >
+          <strong>회원탈퇴</strong>
+          <v-spacer></v-spacer>
         </v-btn>
 
       </v-card-text>
@@ -172,12 +181,12 @@ export default {
     },
 
     async preSetting(){
-      this.loginfo = loginInfo.getLoginInfo()
       this.selectTheme=window.localStorage.getItem("theme")*1
       if(this.selectTheme===null)
         this.selectTheme=0
 
       let res = await this.$axios.get("/user")
+      this.loginfo=res.data.email
 
       this.eveningReportTime.HH=res.data.eveningReportTime.substring(0,2)
       this.eveningReportTime.mm=res.data.eveningReportTime.substring(3,5)
@@ -197,9 +206,17 @@ export default {
       this.pushPage("/preset");
     },
 
-    pushAlarmOnOff() {
+    async pushAlarmOnOff() {
       this.pushCheck = !this.pushCheck;
       console.log(this.pushCheck)
+      try{
+        await this.$axios.put('/user/push',{
+          "pushAlarmStatus":`${this.pushCheck}`
+        })
+      }
+      catch (e){
+        errorDialog(this,"시간등록 실패",e)
+      }
     },
 
     selectThemeApply() {
@@ -228,6 +245,59 @@ export default {
 
     statistic(){
       console.log("통계창 추가예정")
+    },
+
+    changePwd(){
+      this.pushPage("/changepwd");
+    },
+
+    async confrimDelete(){
+      let res,res2
+      res = await this.$dialog.error({
+        title:"회원탈퇴를 진행 하시겠습니까?",
+        text: "이 작업은 되돌릴 수 없습니다.",
+        actions: {
+          true: {
+            text: "탈퇴합니다.",
+            color: "error"
+          },
+          false: {
+            text: "아니오",
+            color: "success"
+          }
+        }
+      })
+      if(res === undefined){
+        res = false;
+      }
+
+      if(res===true){
+        res2 = await this.$dialog.error({
+          title:"진짜로 탈퇴하시겠습니까?",
+          text: "이 작업을 실행시 사용자의 모든 정보가 사라지게 됩니다.",
+          actions: {
+            true: {
+              text: "탈퇴합니다.",
+              color: "error"
+            },
+            false: {
+              text: "아니오",
+              color: "success"
+            }
+          }
+        })
+      }
+
+      if(res2 === undefined){
+        res = false;
+      }
+
+      if(res2===true){
+        await this.$axios.delete("/user")
+        loginInfo.clearLoginInfo();
+        this.$store.commit("setLoginInfo", null);
+        this.pushPage("/");
+      }
     }
   }
 }
