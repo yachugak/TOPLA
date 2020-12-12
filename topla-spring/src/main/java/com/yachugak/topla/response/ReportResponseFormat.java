@@ -19,7 +19,6 @@ public class ReportResponseFormat {
 	private Double averageWorkDoneInDeadline;
 	
 	public ReportResponseFormat(Date today, TaskHistoryService taskHistoryService, ReportService reportService, User target) {
-		int sur = 0;
 		int weekDay = 7;
 		total7daysWorkTime = 0.0;
 		averageWorkDoneInDeadline = 0.0;
@@ -32,7 +31,7 @@ public class ReportResponseFormat {
 		Calendar recordedDate = Calendar.getInstance();
 		
 		
-		for(; sur < weekDay ; sur++) {
+		for(int sur = 0; sur < weekDay ; sur++) {
 			try {
 				calendar.add(Calendar.DAY_OF_MONTH, -1);
 				targetdate = new Date(calendar.getTimeInMillis());
