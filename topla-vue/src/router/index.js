@@ -70,6 +70,12 @@ const routes = [
         name: 'all mode',
         component: () => import(/* webpackChunkName: "about" */ '../views/allTask.vue')
     },
+
+    {
+        path: "/stat",
+        name: "statistic mode",
+        component: () => import("../views/statistic.vue")
+    }
 ]
 
 const router = new VueRouter({
