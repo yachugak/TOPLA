@@ -18,6 +18,7 @@ import com.yachugak.topla.entity.User;
 import com.yachugak.topla.request.CreateTemporaryUserRequestFormat;
 import com.yachugak.topla.request.CreateUserRequestFormat;
 import com.yachugak.topla.request.FindUserPasswordRequestFormat;
+import com.yachugak.topla.request.SecureCodeCheckRequestFormat;
 import com.yachugak.topla.request.UpdateDeviceTokenRequestFormat;
 import com.yachugak.topla.request.UpdatePasswordRequestFormat;
 import com.yachugak.topla.request.UpdatePushAlarmStatusRequestFormat;
@@ -161,4 +162,18 @@ public class UserController {
 		return "ok";
 	}
 	
+	@PostMapping("/securecode/check")
+	@Transactional(readOnly = true)
+	public boolean checkSecureCode(@RequestBody SecureCodeCheckRequestFormat req) {
+		boolean successFlag = false;
+		try {
+			String email = userService.findEmailbySecureCode(req.getSecureCode());
+			successFlag = true;
+		}
+		catch(Exception e) {
+			successFlag = false;
+		}
+		
+		return successFlag;
+	}
 }

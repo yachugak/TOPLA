@@ -294,7 +294,7 @@ export default {
         estimatedTime: this.fullTaskInfo.estimatedTime,
         priority: this.fullTaskInfo.priority,
         location: this.fullTaskInfo.location,
-        remindingTime: this.fullTaskInfo.remindingTime
+        remindingTime: this.fullTaskInfo.remindingTiming
       }
       this.isDialogShow = true;
     },

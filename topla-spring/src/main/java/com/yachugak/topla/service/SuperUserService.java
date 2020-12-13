@@ -3,6 +3,7 @@ package com.yachugak.topla.service;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,17 +34,17 @@ public class SuperUserService {
 	@Autowired
 	private TaskRepository taskRepository;
 	
-	public boolean superUserLogIn(String email, String password) {
-		String superEmail = "admin@syunasoft.com";
-		String superPassword = "iamsuperuser";
-	
-		if(email.equals(superEmail) && password.equals(superPassword)) {
-			//
-			// TODO: 여기서 슈퍼유저의 랜덤스트링 리턴하게 변경해야됨
-			//
-			return true;
+	public String superUserLogIn(String email, String password) {
+		SHA256 sha256 = new SHA256();
+		password = sha256.getEncrpyt(password);
+		
+		Optional<User> target = userRepository.findByEmailAndPassword(email, password);
+		if(target.isEmpty()) {
+			throw new GeneralExceptions("접근 권한이 없습니다.");
 		}
-		return false;
+		
+		String secureCode = userService.authMapping(target.get());
+		return secureCode;
 	}
 	
 	public List<User> getAllUsers() {
@@ -52,9 +53,6 @@ public class SuperUserService {
 	}
 	
 	public boolean isSuperUser(String email) {
-		//
-		//	TODO: 여기서 이메일 대신에 랜덤 스트링을 받아서, 랜덤 스트링과 비교하게 변경
-		// 
 		String superEmail = "admin@syunasoft.com";
 		
 		if(email.equals(superEmail)) {

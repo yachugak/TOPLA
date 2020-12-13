@@ -17,8 +17,8 @@
             v-on="on"
         ></v-text-field>
       </template>
-      <v-card>
-        <v-tabs v-model="tabedItem">
+      <v-card style="height: 500px">
+        <v-tabs v-model="tabedItem" grow>
           <v-tab>날짜</v-tab>
           <v-tab>시간</v-tab>
         </v-tabs>

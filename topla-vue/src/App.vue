@@ -86,15 +86,17 @@ export default {
   },
 
   created(){
+    this.setLoginInfoToVuex();
+    window.dialog = this.$dialog;
+
     let selectTheme=window.localStorage.getItem("theme")*1
     let defTheme = this.$vuetify.theme.themes.light
     let theme= themeList[selectTheme]
-
-    window.dialog = this.$dialog;
-
     for(let color in theme){
       defTheme[color]=theme[color]
     }
+
+    this.checkAuthToken();
   },
 
   watch: {
@@ -145,8 +147,9 @@ export default {
     },
 
     onLogoutButtonClicked() {
-      loginInfo.clearLoginInfo();
+      loginInfo.clearAll()
       this.$store.commit("setLoginInfo", null);
+      this.$store.commit("setUserEmail", null);
       this.pushPage("/");
     },
 
@@ -224,6 +227,41 @@ export default {
         default:
           this.selectedNavItem = null;
           break;
+      }
+    },
+
+    setLoginInfoToVuex(){
+      if(loginInfo.isThereLoginInfo()){
+        this.$store.commit("setLoginInfo", loginInfo.getLoginInfo())
+      }
+
+      if(loginInfo.isThereUserEmail()){
+        this.$store.commit("setUserEmail", loginInfo.getUserEmail())
+      }
+    },
+
+    async checkAuthToken(){
+      if(this.$store.state.loginInfo === null){
+        return;
+      }
+
+      let successFlag = false;
+
+      try{
+        let res = await this.$axios.post("/user/securecode/check", {
+          secureCode: this.$store.state.loginInfo
+        });
+        if(res.data === "true" || res.data === true){
+          successFlag = true;
+        }else{
+          successFlag = false;
+        }
+      }catch{
+        successFlag = false;
+      }
+
+      if(successFlag === false){
+        this.onLogoutButtonClicked();
       }
     }
   }

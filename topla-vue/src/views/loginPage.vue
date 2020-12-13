@@ -99,6 +99,7 @@ export default {
         });
 
         loginInfo.setLoginInfo(res.data);
+        loginInfo.setUserEmail(this.formInput.account);
         this.$store.commit("setLoginInfo", res.data);
         this.$store.commit("setUserEmail", copiedEmail);
         window.axios.defaults.headers.common["Authorization"] = loginInfo.getLoginInfo();
