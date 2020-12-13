@@ -176,6 +176,7 @@ public class TaskTest {
 		Task dup = taskService.createNewTask(1L, "네갈죽", 3);
 		dup.setDueDate(date);
 		Task result = taskService.duplicated(dup);
+		System.out.println(a.getUid()+"\n"+dup.getUid()+"\n"+result.getUid());
 		assertEquals(result.getUid(), a.getUid());
 	}
 	
@@ -192,9 +193,14 @@ public class TaskTest {
 		taskService.setLocation(a, "");
 		
 		
-		Task dup = taskService.createNewTask(1L, "네갈", 3);
+		Task dup = new Task();
 		dup.setDueDate(date);
+		dup.setTitle("네네");
+		taskService.setDueDate(dup, date);
+		taskService.setEstimatedTime(dup, 80);
+		taskService.setLocation(dup, "");
 		Task result = taskService.duplicated(dup);
+		System.out.println(a.getUid()+"\n"+result.getUid());
 		assertNotEquals(result.getUid(), a.getUid());
 	}
 	

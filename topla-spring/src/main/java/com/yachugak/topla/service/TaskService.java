@@ -232,6 +232,10 @@ public class TaskService {
 			return search.get(0);
 		}
 	}
+	
+	public void setUser(Task task, User user) {
+		task.setUser(user);
+	}
 
 	// task와 progress 추가감소량을 받아 덧셈뺄셈.
 	public void addProgress(Task task, int progressDiff) {

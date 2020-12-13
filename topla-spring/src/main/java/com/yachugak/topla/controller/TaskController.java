@@ -50,9 +50,11 @@ public class TaskController {
 	@Transactional(readOnly = false)
 	public String createNewTask(@RequestHeader("Authorization") String secureCode, @RequestBody CreateTaskRequestFormat req) {
 		String email = userService.findEmailbySecureCode(secureCode);
+		User user = userService.findUserByEmail(email);
 		Task dup = new Task();
 		taskService.setTitle(dup, req.getTitle());
 		taskService.setDueDate(dup, req.getDueDate());
+		taskService.setUser(dup, user);
 		Task result = taskService.duplicated(dup);
 		
 		if(result.getUid() != -1 && !req.getDuplicated()) {
