@@ -35,6 +35,10 @@ public class SuperUserService {
 	private TaskRepository taskRepository;
 	
 	public String superUserLogIn(String email, String password) {
+		if(!this.isSuperUser(email)) {
+			throw new GeneralExceptions("접근 권한이 없습니다.");
+		}
+		
 		SHA256 sha256 = new SHA256();
 		password = sha256.getEncrpyt(password);
 		
