@@ -91,6 +91,7 @@
           @click:more="viewDay($event.date)"
           :day-format="dateFormat"
           :show-month-on-first="false"
+          v-model="today"
       ></v-calendar>
     </v-sheet>
   </div>
@@ -109,6 +110,7 @@ export default {
     taskViewMode: "dueDate",
     date: new Date().toISOString().substr(0, 7),
     menu2: false,
+    today:"",
     taskViewModelSelectItem: [
       {
         text: "마감일 기준으로 보기",
@@ -136,7 +138,7 @@ export default {
 
   methods: {
     setToday() {
-      this.value = ''
+      this.today = ''
       this.date = new Date().toISOString().substr(0, 7)
     },
     async prev() {
