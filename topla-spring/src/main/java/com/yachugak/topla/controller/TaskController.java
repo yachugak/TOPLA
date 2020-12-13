@@ -56,7 +56,7 @@ public class TaskController {
 		taskService.setDueDate(dup, req.getDueDate());
 		Task result = taskService.duplicated(dup);
 		
-		if(result.getUid() != -1 && !req.getDuplicated()) {
+		if(result.getUid() != -1 && req.getDuplicated()) {
 			throw new DuplicatedException(req.getTitle(), result.getTitle());
 		}
 		
