@@ -2,7 +2,6 @@ package com.yachugak.topla.controller;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.yachugak.topla.entity.Plan;
 import com.yachugak.topla.entity.Task;
-import com.yachugak.topla.entity.TaskHistory;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.request.CheckAsFinishedRequestFormat;
 import com.yachugak.topla.service.PlanService;

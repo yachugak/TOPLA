@@ -81,6 +81,11 @@ const routes = [
         name: 'forbidden page',
         component: () => import(/* webpackChunkName: "about" */ '../views/forbidden.vue')
     },
+    {
+        path: "/stat",
+        name: "statistic mode",
+        component: () => import("../views/statistic.vue")
+    }
 ]
 
 const router = new VueRouter({

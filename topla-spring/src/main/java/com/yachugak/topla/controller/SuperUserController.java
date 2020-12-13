@@ -16,26 +16,14 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.yachugak.topla.entity.SchedulePreset;
-import com.yachugak.topla.entity.TemporaryUser;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.exception.GeneralExceptions;
-import com.yachugak.topla.request.CreateTemporaryUserRequestFormat;
-import com.yachugak.topla.request.CreateUserRequestFormat;
 import com.yachugak.topla.request.FindUserPasswordRequestFormat;
 import com.yachugak.topla.request.SendMailRequestFormat;
-import com.yachugak.topla.request.UpdateDeviceTokenRequestFormat;
-import com.yachugak.topla.request.UpdatePasswordRequestFormat;
-import com.yachugak.topla.request.UpdatePushAlarmStatusRequestFormat;
-import com.yachugak.topla.request.UpdateReportTimeRequestFormat;
 import com.yachugak.topla.request.UserLogInRequestFormat;
-import com.yachugak.topla.request.deleteUserRequestFormat;
 import com.yachugak.topla.response.GetOverallInfoResponseFormat;
-import com.yachugak.topla.response.GetUserResponseFormat;
 import com.yachugak.topla.response.SuperGetUserResponseFormat;
-import com.yachugak.topla.service.PresetService;
 import com.yachugak.topla.service.SuperUserService;
-import com.yachugak.topla.service.TaskService;
 import com.yachugak.topla.service.UserService;
 import com.yachugak.topla.util.Mail;
 
@@ -50,11 +38,9 @@ public class SuperUserController {
 	@Autowired
 	private SuperUserService superUserService;
 	
-	@Autowired
-	private TaskService taskService;
 	
 	// 슈퍼 유저 로그인
-	@GetMapping("/login")
+	@PostMapping("/login")
 	@Transactional(readOnly = false)
 	public String superUserLogIn(@RequestBody UserLogInRequestFormat req) {
 		String email = req.getEmail();
@@ -166,25 +152,17 @@ public class SuperUserController {
 	}
 	
 	// 유저 삭제
-	@DeleteMapping("")
+	@DeleteMapping("/{targetEmail}")
 	@Transactional(readOnly = false)
-	public String deleteUser(@RequestHeader("Authorization") String secureCode, @RequestBody deleteUserRequestFormat req) {
+	public String deleteUser(@RequestHeader("Authorization") String secureCode, @PathVariable("targetEmail") String targetEmail) {
 		String email = userService.findEmailbySecureCode(secureCode);
 		
 		if(superUserService.isSuperUser(email) == false) {
 			throw new GeneralExceptions("접근 권한이 없습니다.");
 		}
 		
-		User targetUser = userService.findUserByEmail(req.getEmail());
+		User targetUser = userService.findUserByEmail(targetEmail);
 		userService.deleteUser(targetUser);
-		return "ok";
-	}
-	
-	@GetMapping("/test")
-	@Transactional(readOnly = false)
-	public String test(@RequestHeader("Authorization") String email) {
-		User targetUser = userService.findUserByEmail(email);
-		superUserService.findNumberOfNewTasksIn7Days(targetUser);
 		return "ok";
 	}
 	

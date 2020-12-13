@@ -55,11 +55,11 @@
             </v-list-item-icon>
             <v-list-item-title>스케줄 프리셋 설정</v-list-item-title>
           </v-list-item>
-          <v-list-item value="logout" @click="onNavSelected('logout')" v-if="isSuperUser">
+          <v-list-item value="stat" @click="onNavSelected('stat')">
             <v-list-item-icon>
-              <v-icon>mdi-logout</v-icon>
+              <v-icon>mdi-chart-areaspline</v-icon>
             </v-list-item-icon>
-            <v-list-item-title>로그아웃</v-list-item-title>
+            <v-list-item-title>통계</v-list-item-title>
           </v-list-item>
         </v-list-item-group>
       </v-list>
@@ -177,6 +177,9 @@ export default {
         case "all":
           this.pushPage("/all");
           break;
+        case "stat":
+          this.pushPage("/stat");
+          break;
       }
 
       this.isShowDrawer = false;
@@ -219,6 +222,10 @@ export default {
 
         case "mypage mode":
           this.selectedNavItem = "mypage";
+          break;
+
+        case "statistic mode":
+          this.selectedNavItem = "stat";
           break;
 
         default:
