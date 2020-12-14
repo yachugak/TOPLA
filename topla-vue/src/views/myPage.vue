@@ -292,11 +292,16 @@ export default {
         res = false;
       }
 
-      if(res2===true){
-        await this.$axios.delete("/user")
-        loginInfo.clearLoginInfo();
-        this.$store.commit("setLoginInfo", null);
-        this.pushPage("/");
+      try{
+        if(res2===true){
+          await this.$axios.delete("/user")
+          loginInfo.clearLoginInfo();
+          this.$store.commit("setLoginInfo", null);
+          this.pushPage("/");
+        }
+      }
+      catch (e) {
+        errorDialog(this,"탈퇴를 실패하였습니다.",e)
       }
     }
   }
