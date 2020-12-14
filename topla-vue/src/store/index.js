@@ -11,7 +11,9 @@ let vuex =  new Vuex.Store({
     isSuperUser: false,
 
     customPrimary: "#1976D2",
-    customSecondary: "#424242"
+    customSecondary: "#424242",
+
+    nowTheme: 0
   },
   mutations: {
     setLoginInfo(state, loginInfo){
@@ -33,6 +35,10 @@ let vuex =  new Vuex.Store({
     setCustomTheme(state, primary, secondary){
       state.customPrimary = primary;
       state.customSecondary = secondary;
+    },
+
+    setNowTheme(state, themeNumber){
+      state.nowTheme = themeNumber;
     }
   },
   actions: {

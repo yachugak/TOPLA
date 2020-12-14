@@ -279,7 +279,7 @@ export default {
     },
 
     selectThemeApply() {
-      console.log(`${this.selectTheme}`+"theme apply")
+      this.$store.commit("setNowTheme", this.selectTheme);
       let defTheme = this.$vuetify.theme.themes.light
       let theme= themeList[this.selectTheme]
 

@@ -80,6 +80,9 @@
     <v-main>
       <router-view></router-view>
     </v-main>
+
+    <!-- 테마 변경시 강제 재 렌더링용 -->
+    <span v-show="false">{{nowTheme}}</span>
   </v-app>
 </template>
 
@@ -152,6 +155,11 @@ export default {
 
     isSuperUser(){
       return this.$store.state.isSuperUser;
+    },
+
+    //테마 변경시 강제 재렌더링용
+    nowTheme(){
+      return this.$store.state.nowTheme;
     }
   },
 
