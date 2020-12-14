@@ -38,23 +38,31 @@
       <v-spacer></v-spacer>
       <v-btn
           v-if="modify"
-          @click="modifyPreset()">
+          @click="modifyPreset()"
+          color="success"
+      >
         수정
       </v-btn>
       <v-btn
           v-if="modify"
-          @click="presetAdd()">
+          @click="presetAdd()"
+          color="primary"
+      >
         프리셋 추가
       </v-btn>
 
       <v-btn
           v-if="save"
-          @click="savePreset()">
+          @click="savePreset()"
+          color="primary"
+      >
         저장
       </v-btn>
       <v-btn
           v-if="save"
-          @click="presetDelete()">
+          @click="presetDelete()"
+          color="error"
+      >
         프리셋 삭제
       </v-btn>
     </v-card-actions>
