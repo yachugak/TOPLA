@@ -3,16 +3,16 @@
     <v-container fluid class="back">
       <v-row no-gutters>
         <v-col cols="12">
-          <v-btn class="fullDateButton black--text" color="primary" @click="onYearMonthButtonClicked()">
+          <v-btn class="fullDateButton" color="primary" @click="onYearMonthButtonClicked()">
             {{selectedDate.getFullYear()}}년 {{selectedDate.getMonth()+1}}월
           </v-btn>
         </v-col>
         <v-col cols="1" v-if="$vuetify.breakpoint.mdAndUp">
-          <v-btn class="arrowButton sec text--primary" color="primary" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
+          <v-btn class="arrowButton sec" color="primary" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
         </v-col>
         <v-col cols="12" md="10">
           <div id="dateSelector">
-            <v-btn class="dateButton primary black--text"
+            <v-btn class="dateButton primary"
                    :class="{'darken-1': i===3, '': i!==3, sunday: dateSelectorButtonDisplayList.text[(i-1)*2+1]==='일', saturday: dateSelectorButtonDisplayList.text[(i-1)*2+1]==='토' }"
                    v-for="i in 5" :key="i" @click="onDateSelectorButtonSelected(i-1)" tile>
               {{dateSelectorButtonDisplayList.text[(i-1)*2]}} <br>
@@ -21,12 +21,12 @@
           </div>
         </v-col>
         <v-col cols="1" v-if="$vuetify.breakpoint.mdAndUp">
-          <v-btn class="arrowButton primary text--primary" @click="onArrowButtonSelected('right')" tile block><v-icon>mdi-chevron-right</v-icon></v-btn>
+          <v-btn class="arrowButton primary" @click="onArrowButtonSelected('right')" tile block><v-icon>mdi-chevron-right</v-icon></v-btn>
         </v-col>
       </v-row>
       <v-row v-if="$vuetify.breakpoint.smAndDown" no-gutters>
         <v-col cols="6">
-          <v-btn class="arrowButton primary text--primary" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
+          <v-btn class="arrowButton primary" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
         </v-col>
         <v-col cols="6">
           <v-btn class="arrowButton primary text--primary" @click="onArrowButtonSelected('right')" tile block><v-icon>mdi-chevron-right</v-icon></v-btn>
@@ -469,11 +469,11 @@ export default {
 }
 
 .sunday {
-  color: red !important;
+  color: #EF9A9A !important;
 }
 
 .saturday{
-  color: #0D47A1 !important;
+  color: #90CAF9 !important;
 }
 
 #addNewTaskbutton {

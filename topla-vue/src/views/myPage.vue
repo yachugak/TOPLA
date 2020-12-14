@@ -70,7 +70,7 @@
             <v-radio-group
                 class="small-font"
                 v-model="selectTheme"
-                @change="selectThemeApply()"
+                @change="selectThemeApply($event)"
             >
               <v-radio
                   class="ma-2"
@@ -80,6 +80,44 @@
                   :value="index"
               ></v-radio>
             </v-radio-group>
+            <v-expand-transition>
+              <div v-show="selectTheme===2">
+                <v-list two-line class="back pl-3">
+                  <v-list-item>
+                    <v-list-item-content>
+                      <v-list-item-title>주색</v-list-item-title>
+                      <v-list-item-subtitle>주로 표시되는 색상</v-list-item-subtitle>
+                    </v-list-item-content>
+                    <v-list-item-action>
+                      <v-btn small :color="$store.state.customPrimary" @click="onColorChangeButtonClicked('primary')"></v-btn>
+                    </v-list-item-action>
+                  </v-list-item>
+
+                  <v-list-item>
+                    <v-list-item-content>
+                      <v-list-item-title>보조색</v-list-item-title>
+                      <v-list-item-subtitle>주색에 곁들여 사용할 색상</v-list-item-subtitle>
+                    </v-list-item-content>
+                    <v-list-item-action>
+                      <v-btn small :color="$store.state.customSecondary" @click="onColorChangeButtonClicked('secondary')"></v-btn>
+                    </v-list-item-action>
+                  </v-list-item>
+                </v-list>
+                <v-dialog v-model="colorPicker.show" width="300">
+                  <v-card>
+                    <v-color-picker
+                        dot-size="30"
+                        v-model="colorPicker.color"
+                        swatches-max-height="225"
+                    ></v-color-picker>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="primary" @click="colorPicker.show=false">결정</v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              </div>
+            </v-expand-transition>
           </div>
         </v-expand-transition>
         <v-btn
@@ -153,7 +191,7 @@ export default {
       pushCheck: true,
       themeListShow: false,
       timeSet:false,
-      themeList: ["밝은 테마", "어두운 테마", "클래식 테마"],
+      themeList: ["밝은 테마", "클래식 테마", "사용자 정의 테마"],
       selectTheme: null,
       morningReportTime:{
         HH:"09",
@@ -162,7 +200,28 @@ export default {
       eveningReportTime:{
         HH:"21",
         mm:"00"
+      },
+      colorPicker: {
+        show: false,
+        target: "primary",
+        color: this.$store.state.customPrimary
       }
+    }
+  },
+
+  watch: {
+    "colorPicker.color"(newVal){
+      if(this.colorPicker.target === "primary"){
+        this.$store.state.customPrimary = newVal;
+        themeList[2].primary = newVal;
+        window.localStorage.setItem("customPrimary", newVal);
+      }else{
+        this.$store.state.customSecondary = newVal;
+        themeList[2].secondary = newVal;
+        window.localStorage.setItem("customSecondary", newVal);
+      }
+      this.selectTheme = 2;
+      this.selectThemeApply();
     }
   },
 
@@ -303,6 +362,11 @@ export default {
       catch (e) {
         errorDialog(this,"탈퇴를 실패하였습니다.",e)
       }
+    },
+
+    onColorChangeButtonClicked(target){
+      this.colorPicker.target = target;
+      this.colorPicker.show = true;
     }
   }
 }

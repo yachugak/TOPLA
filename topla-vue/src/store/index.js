@@ -8,7 +8,10 @@ let vuex =  new Vuex.Store({
     loginInfo: null,
     email: null,
     isSeenGuideBook: true,
-    isSuperUser: false
+    isSuperUser: false,
+
+    customPrimary: "#1976D2",
+    customSecondary: "#424242"
   },
   mutations: {
     setLoginInfo(state, loginInfo){
@@ -25,6 +28,11 @@ let vuex =  new Vuex.Store({
 
     setSuperUserFlag(state, flagValue){
       state.isSuperUser = flagValue;
+    },
+
+    setCustomTheme(state, primary, secondary){
+      state.customPrimary = primary;
+      state.customSecondary = secondary;
     }
   },
   actions: {
