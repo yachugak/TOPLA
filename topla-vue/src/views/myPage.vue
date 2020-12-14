@@ -50,6 +50,7 @@
                   :minute-interval="10"
                   close-on-complete
                   @change="selectTimeApply"
+                  hide-clear-button
               ></vue-timepicker>
             </v-card-text>
           </div>
@@ -245,11 +246,9 @@ export default {
         this.selectTheme=0
 
       let res = await this.$axios.get("/user")
+      console.log(res.data)
       this.loginfo=res.data.email
-
-      this.eveningReportTime.HH=res.data.eveningReportTime.substring(0,2)
-      this.eveningReportTime.mm=res.data.eveningReportTime.substring(3,5)
-
+      this.pushCheck=res.data.pushAlarmStatus
       this.morningReportTime.HH=res.data.morningReportTime.substring(0,2)
       this.morningReportTime.mm=res.data.morningReportTime.substring(3,5)
 
