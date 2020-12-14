@@ -33,9 +33,6 @@
         </v-col>
       </v-row>
 
-      <v-row class="back">
-      </v-row>
-
       <v-row>
         <v-col cols="12">
           <schedule-alert-box ref="alertBox"></schedule-alert-box>
@@ -49,6 +46,8 @@
           </div>
         </v-col>
       </v-row>
+
+      <v-divider></v-divider>
 
       <v-row v-if="taskViewMode === 'doDate'" class="back">
         <v-progress-linear

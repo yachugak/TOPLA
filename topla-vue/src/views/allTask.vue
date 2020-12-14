@@ -1,5 +1,5 @@
 <template>
-  <div class="px-3  pt-3 back">
+  <div class="px-3  pt-3 back" style="min-height: 95vh;">
     <v-card class="back">
       <v-card-title>전체 작업 목록</v-card-title>
       <div class="px-2">

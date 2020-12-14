@@ -39,7 +39,7 @@
           </v-list-item>
           <v-list-item value="todo" @click="onNavSelected('todo')" v-if="!isSuperUser">
             <v-list-item-icon>
-              <v-icon>mdi-calendar-today</v-icon>
+              <v-icon>mdi-check-box-outline</v-icon>
             </v-list-item-icon>
             <v-list-item-title>일간 작업 보기</v-list-item-title>
           </v-list-item>
