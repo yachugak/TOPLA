@@ -7,7 +7,8 @@ let vuex =  new Vuex.Store({
   state: {
     loginInfo: null,
     email: null,
-    isSeenGuideBook: true
+    isSeenGuideBook: true,
+    isSuperUser: false
   },
   mutations: {
     setLoginInfo(state, loginInfo){
@@ -18,8 +19,12 @@ let vuex =  new Vuex.Store({
       state.email = email;
     },
 
-    setGuideBookState(state, booleanValue){
+    setGuideBookState(state, booleanValue) {
       state.isSeenGuideBook = booleanValue;
+    },
+
+    setSuperUserFlag(state, flagValue){
+      state.isSuperUser = flagValue;
     }
   },
   actions: {

@@ -8,7 +8,7 @@
       <v-app-bar-nav-icon @click="isShowDrawer = !isShowDrawer" v-if="isLogined"></v-app-bar-nav-icon>
       <v-toolbar-title>TOPLA</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click="pushPage('/search')" v-if="isLogined">
+      <v-btn icon @click="pushPage('/search')" v-if="isLogined && !isSuperUser">
         <v-icon>mdi-magnify</v-icon>
       </v-btn>
       <v-btn icon @click="onSwapButtonClicked()" v-if="isShowSwapButton">
@@ -25,31 +25,31 @@
       <v-list nav dense>
 
         <v-list-item-group v-model="selectedNavItem">
-          <v-list-item value="mypage" @click="onNavSelected('myPage')">
+          <v-list-item value="mypage" @click="onNavSelected('myPage')" v-if="!isSuperUser">
             <v-list-item-icon>
               <v-icon>mdi-account</v-icon>
             </v-list-item-icon>
             <v-list-item-title>마이 페이지</v-list-item-title>
           </v-list-item>
-          <v-list-item value="all" @click="onNavSelected('all')">
+          <v-list-item value="all" @click="onNavSelected('all')" v-if="!isSuperUser">
             <v-list-item-icon>
               <v-icon>mdi-alpha-a-box</v-icon>
             </v-list-item-icon>
             <v-list-item-title>모든 작업</v-list-item-title>
           </v-list-item>
-          <v-list-item value="todo" @click="onNavSelected('todo')">
+          <v-list-item value="todo" @click="onNavSelected('todo')" v-if="!isSuperUser">
             <v-list-item-icon>
               <v-icon>mdi-calendar-today</v-icon>
             </v-list-item-icon>
             <v-list-item-title>일간 작업 보기</v-list-item-title>
           </v-list-item>
-          <v-list-item value="month" @click="onNavSelected('month')">
+          <v-list-item value="month" @click="onNavSelected('month')" v-if="!isSuperUser">
             <v-list-item-icon>
               <v-icon>mdi-calendar-month</v-icon>
             </v-list-item-icon>
             <v-list-item-title>월간 작업 보기</v-list-item-title>
           </v-list-item>
-          <v-list-item value="schedulePreset" @click="onNavSelected('schedulePreset')">
+          <v-list-item value="schedulePreset" @click="onNavSelected('schedulePreset')" v-if="!isSuperUser">
             <v-list-item-icon>
               <v-icon>mdi-calendar-heart</v-icon>
             </v-list-item-icon>
@@ -140,6 +140,10 @@ export default {
 
       let pageName = this.$route.name;
       return pageName === "todolist mode" || pageName === "calendar mode";
+    },
+
+    isSuperUser(){
+      return this.$store.state.isSuperUser;
     }
   },
 
@@ -246,11 +250,15 @@ export default {
 
     setLoginInfoToVuex(){
       if(loginInfo.isThereLoginInfo()){
-        this.$store.commit("setLoginInfo", loginInfo.getLoginInfo())
+        this.$store.commit("setLoginInfo", loginInfo.getLoginInfo());
       }
 
       if(loginInfo.isThereUserEmail()){
-        this.$store.commit("setUserEmail", loginInfo.getUserEmail())
+        this.$store.commit("setUserEmail", loginInfo.getUserEmail());
+      }
+
+      if(loginInfo.isThereSuperUserFlag()){
+        this.$store.commit("setSuperUserFlag", loginInfo.getSuperUserFlag());
       }
     },
 
