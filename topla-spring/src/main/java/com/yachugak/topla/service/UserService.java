@@ -73,8 +73,8 @@ public class UserService {
 		User newUser = new User();
 		this.setEmail(newUser, email);
 		this.setPassword(newUser, password);
-		OffsetTime morningOffsetTime = OffsetTime.of(0, 0, 0, 0, ZoneOffset.UTC);
-		OffsetTime eveningOffsetTime = OffsetTime.of(21, 0, 0, 0, ZoneOffset.UTC);
+		OffsetTime morningOffsetTime = OffsetTime.of(9, 0, 0, 0, ZoneOffset.ofHours(+9));
+		OffsetTime eveningOffsetTime = OffsetTime.of(21, 0, 0, 0, ZoneOffset.ofHours(+9));
 		this.setMorningReportTime(newUser, morningOffsetTime);
 		this.setEveningReportTime(newUser, eveningOffsetTime);
 		this.setPushAlarmStatus(newUser, true);
