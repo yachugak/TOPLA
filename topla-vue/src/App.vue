@@ -6,7 +6,11 @@
         dark
     >
       <v-app-bar-nav-icon @click="isShowDrawer = !isShowDrawer" v-if="isLogined"></v-app-bar-nav-icon>
-      <v-toolbar-title>TOPLA</v-toolbar-title>
+      <v-toolbar-title>
+        <span @click="goToHome()">
+          TOPLA
+        </span>
+      </v-toolbar-title>
       <v-spacer></v-spacer>
     </v-app-bar>
 
@@ -92,7 +96,8 @@ export default {
   data() {
     return {
       isShowDrawer: false,
-      selectedNavItem: null
+      selectedNavItem: null,
+      logoSrc: require("@/assets/logo.png")
     };
   },
 
@@ -322,6 +327,9 @@ export default {
       this.$store.commit("setGuideBookState", true);
     },
 
+    goToHome(){
+      this.$router.push("/todolist");
+    }
   }
 };
 </script>
@@ -333,6 +341,10 @@ export default {
 
 .mobile-margin {
   margin-top: 56px;
+}
+
+#app-title:hover {
+  background: #000000;
 }
 </style>
 

@@ -1,7 +1,11 @@
 <template>
   <div style="min-height: 95vh;" class="back pa-3">
     <v-card max-width="800" class="mx-auto">
-      <v-card-title>TOPLA 사용 안내서</v-card-title>
+      <v-card-title>
+        TOPLA 사용 안내서
+        <v-spacer></v-spacer>
+        <v-btn icon @click="$router.push('/todolist')"><v-icon>mdi-home</v-icon></v-btn>
+      </v-card-title>
       <v-card-subtitle>TOPLA 사용 방법을 배울 수 있는 자습서입니다.</v-card-subtitle>
 
       <v-tabs
