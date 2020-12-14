@@ -10,6 +10,7 @@ import java.util.List;
 import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.exception.NotRegisteredTaskException;
 import com.yachugak.topla.service.TaskService;
+import com.yachugak.topla.util.DayCalculator;
 
 //여러 날들을 포함하는 시간표
 public class TimeTable {
@@ -40,6 +41,13 @@ public class TimeTable {
 			throw new NotRegisteredTaskException("사전에 등록되지 않은 taskId:"+taskId);
 		}
 		
+		if(this.days.size() <= dayOffset) {
+			int pushCount = dayOffset - this.days.size() + 1;
+			for(int i = 0; i < pushCount; i++) {
+				this.days.add(new Day());
+			}
+		}
+		
 		Day day = this.getDay(dayOffset);
 		
 		day.getTaskItems().add(taskItem);
@@ -51,7 +59,9 @@ public class TimeTable {
 	
 	//이 시간표의 총합 손실 중요도를 계산하여 반환합니다.
 	public double getTotalLossPriority(Date planStartDate) {
-		LocalDate currentDate = this.portToLocalDate(planStartDate);
+		LocalDate currentDate = DayCalculator.DateToLocalDate(planStartDate);
+		
+		HashMap<Long, TaskInfo> taskInfoDictForCal = this.copyTaksInfoDict();
 
 		//마감일 내에 성공한 시간과 마감일 내에 성공 못한 시간 구하기
 		for(int dayOffset = 0; dayOffset < this.days.size(); dayOffset++) {
@@ -65,7 +75,7 @@ public class TimeTable {
 				}
 				else {
 					//마감일 안에 성공한 plan
-					this.addTimeToTaskInfoDict(taskId, time);
+					this.addTimeToTaskInfoDict(taskInfoDictForCal, taskId, time);
 				}
 			}
 			currentDate = currentDate.plusDays(1);
@@ -73,8 +83,8 @@ public class TimeTable {
 		
 		//작업별 손실 중요도 계산하여 합하기
 		double totalLossPriority = 0.0;
-		for(long taskId : this.taskInfoDict.keySet()) {
-			TaskInfo taskInfo = this.taskInfoDict.get(taskId);
+		for(long taskId : taskInfoDictForCal.keySet()) {
+			TaskInfo taskInfo = taskInfoDictForCal.get(taskId);
 			int priority = taskInfo.priority;
 
 			if(priority == 3) {
@@ -96,13 +106,35 @@ public class TimeTable {
 		return totalLossPriority;
 	}
 	
-	private LocalDate portToLocalDate(Date date) {
-		LocalDate ld = LocalDate.of(date.getYear(), date.getMonth(), date.getDate());
-		return ld;
+	private HashMap<Long, TaskInfo> copyTaksInfoDict() {
+		HashMap<Long, TaskInfo> copiedDict = new HashMap<Long, TaskInfo>();
+		
+		for(Long taskId : this.taskInfoDict.keySet()) {
+			TaskInfo copyTarget = this.taskInfoDict.get(taskId);
+			TaskInfo copiedTaskInfo = new TaskInfo(); 
+			copiedTaskInfo.dueDate = copyTarget.dueDate;
+			copiedTaskInfo.priority = copyTarget.priority;
+			copiedTaskInfo.successTime = copyTarget.successTime;
+			copiedTaskInfo.totalTime = copyTarget.totalTime;
+
+			copiedDict.put(taskId, copiedTaskInfo);
+		}
+
+		return copiedDict;
 	}
-	
+
 	public void registerTask(Task task) {
 		this.registerTaskInfo(task.getUid(), task.getEstimatedTime(), task.getPriority(), task.getDueDate());
+	}
+	
+	public void registerTask(long taskUid, TaskInfo taskInfo) {
+		TaskInfo newTaskInfo = new TaskInfo();
+		newTaskInfo.successTime = taskInfo.successTime;
+		newTaskInfo.totalTime = taskInfo.totalTime;
+		newTaskInfo.priority = taskInfo.priority;
+		newTaskInfo.dueDate = taskInfo.dueDate.plusDays(0);//복사
+		
+		this.taskInfoDict.put(taskUid, taskInfo);
 	}
 	
 	//임시로 estimateTime을 변경한 task의 estimateTime을 사후 조정할 수 있게 해 주는 함수입니다.
@@ -125,8 +157,8 @@ public class TimeTable {
 		this.taskInfoDict.put(taskId, taskInfo);
 	}
 	
-	private void addTimeToTaskInfoDict(long taskId, int successTime) {
-		TaskInfo item = this.taskInfoDict.get(taskId);
+	private void addTimeToTaskInfoDict(HashMap<Long, TaskInfo> taskInfoDict, long taskId, int successTime) {
+		TaskInfo item = taskInfoDict.get(taskId);
 		if(item == null) {
 			throw new NotRegisteredTaskException("사전에 TimeTable에 등록되지 않은 "+taskId+"가 TimeTable에서 발견되었습니다.");
 		}
@@ -142,6 +174,57 @@ public class TimeTable {
 		
 		return item.dueDate;
 	}
+	
+	public TimeTable copy() {
+		TimeTable copyedTimeTable = new TimeTable();
+		
+		for(int dayOffset = 0; dayOffset < this.days.size(); dayOffset++) {
+			List<TaskItem> taskItemList = this.days.get(dayOffset).getTaskItems();
+			
+			for(TaskItem ti : taskItemList) {
+				TaskItem copyedTaskItem = new TaskItem();
+				copyedTaskItem.setTaskId(ti.getTaskId());
+				copyedTaskItem.setTime(ti.getTime());
+				copyedTaskItem.setPlnaUid(ti.getPlnaUid());
+				
+				TaskInfo taskInfo = this.taskInfoDict.get(ti.getTaskId());
+				
+				copyedTimeTable.registerTask(ti.getTaskId(), taskInfo);
+				
+				copyedTimeTable.addTaskItem(dayOffset, copyedTaskItem);
+			}
+		}
+		
+		return copyedTimeTable;
+	}
+
+	//이 시간표에 들어있는 plan들의 uid를 구합니다.
+	public List<Long> getPlanUidList(){
+		ArrayList<Long> planUidList = new ArrayList<Long>();
+		for(Day day : this.days) {
+			for(TaskItem ti : day.getTaskItems()) {
+				planUidList.add(ti.getPlnaUid());
+			}
+		}
+		
+		return planUidList;
+	}
+
+	public void deleteAllUndonTaskItemByTaskId(long uid) {
+		for(Day day : this.days) {
+			ArrayList<TaskItem> removeList = new ArrayList<TaskItem>();
+
+			for(TaskItem ti : day.getTaskItems()) {
+				if(ti.getTaskId() == uid && ti.getPlnaUid() == null) {
+					removeList.add(ti);
+				}
+			}
+
+			for(TaskItem deleteTarget : removeList) {
+				day.getTaskItems().remove(deleteTarget);
+			}
+		}
+	}
 }
 
 class TaskInfo{
@@ -151,6 +234,6 @@ class TaskInfo{
 	public LocalDate dueDate;
 	
 	public void setDueDate(Date dueDate) {
-		this.dueDate = LocalDate.of(dueDate.getYear(), dueDate.getMonth(), dueDate.getDate());
+		this.dueDate = DayCalculator.DateToLocalDate(dueDate);
 	}
 }

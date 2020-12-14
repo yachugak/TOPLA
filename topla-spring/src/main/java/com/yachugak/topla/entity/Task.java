@@ -66,6 +66,9 @@ public class Task {
 	@OneToMany(mappedBy = "task")
 	private List<Plan> plans;
 
+	@OneToMany(mappedBy = "task")
+	private List<TaskHistory> taskHistory;
+
 	public Long getUid() {
 		return uid;
 	}
@@ -180,6 +183,4 @@ public class Task {
 	public void setPlans(List<Plan> plans) {
 		this.plans = plans;
 	}
-
-	
 }

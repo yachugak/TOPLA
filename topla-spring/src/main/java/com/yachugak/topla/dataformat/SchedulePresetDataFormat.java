@@ -4,24 +4,16 @@ import com.yachugak.topla.exception.InvalidArgumentException;
 
 public class SchedulePresetDataFormat {
 	private int[] hourList = new int[7];
-	private long presetUid;
-
+	
 	public int[] getHourList() {
 		return hourList;
 	}
 	
+	// Front에서 받은 HourList를 세팅하는 함수.
 	public void setHourList(int[] hourList) {
 		for(int day = 0; day < 7; day++) {
 			setTimeByHour(day, hourList[day]);
 		}
-	}
-	
-	public long getPresetUid() {
-		return presetUid;
-	}
-
-	public void setPresetUid(long presetUid) {
-		this.presetUid = presetUid;
 	}
 
 	/// sun = 0 sat = 6
@@ -55,6 +47,7 @@ public class SchedulePresetDataFormat {
 		return encodedString;
 	}
 	
+	// DB에서 받은 preset 객체의 encodedString을 해석하는 함수.
 	public void decode(String encodedString) {
 		int day = 0;
 		for(int pos = 0; pos <= 24; pos += 4) {

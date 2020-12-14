@@ -1,15 +1,19 @@
 package com.yachugak.topla;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.yachugak.topla.entity.User;
+import com.yachugak.topla.repository.AuthMappingRepository;
 import com.yachugak.topla.repository.UserRepository;
 import com.yachugak.topla.service.UserService;
+import com.yachugak.topla.entity.TemporaryUser;
 
 @SpringBootTest
 public class UserTest {
@@ -17,6 +21,8 @@ public class UserTest {
 	private UserService userService;
 	@Autowired
 	private UserRepository userRepository;
+	@Autowired
+	private AuthMappingRepository authmappingRepository;
 	
 	@Test
 	@Transactional(readOnly = false)
@@ -27,6 +33,69 @@ public class UserTest {
 		
 		User targetUser = userService.findUserByEmail("이메일입니다");
 		assertEquals(targetUser.getDeviceToken(), "새로운디바이스토큰입니다");
+	}
+	
+	@Test
+	public void randomCode() {
+		System.out.println(userService.randomCode(6));
+	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	@Disabled
+	public void createTemporaryUser() {
+		try {
+			userService.createTemporaryUser("dnrlalth@gmail.com");
+			assertTrue(true);
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			assertTrue(false);
+		}
+	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	@Disabled
+	public void createFailTemporaryUser() {
+		try {
+			userService.createTemporaryUser("abc@abc.abc");
+			
+			assertTrue(false);
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			assertTrue(true);
+		}
+	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	@Disabled
+	public void createUser() {
+		String email = "ahj0313@ajou.ac.kr";
+		String passwd = "asdf";
+		String secureCode;
+		
+		userService.createTemporaryUser(email);
+		
+		secureCode = userService.findTemporaryUserByEmail(email).getSecureCode();
+		
+		User user = userService.createUser(email, passwd);
+		userService.deleteTempUser(email);
+		
+		//코드는 이메일에서 직접 확인할것
+		System.out.println(secureCode);
+		assertEquals(email, user.getEmail());
+	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	public void authMapping() {
+		User newUser = userService.createUser("a@a.a", "aaa");
+		String secureCode = userService.userLogin("a@a.a", "aaa");
+		
+		assertEquals(secureCode, authmappingRepository.findByUser(newUser).get().getSecureCode());
 	}
 }
 

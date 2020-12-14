@@ -1,80 +1,124 @@
-<template>
-  <v-card :color="bgColor" >
-    <div id="flexBox">
-      <div id="leftSide" class="large-checkbox">
-        <v-checkbox v-model="isDone" :disabled="isCallDoing"></v-checkbox>
+  <template>
+    <v-card elevation="5" rounded="xl">
+      <div id="flexBox" class="back">
+        <div id="leftSide" class="large-checkbox">
+          <v-checkbox v-model="isDone" :disabled="callCount>0"></v-checkbox>
+        </div>
+        <div id="rightSide" @click="onCardClicked($event)">
+          <v-card-title>
+            {{title}}
+            <v-icon v-if="remindingTime !== null">mdi-bell</v-icon>
+            <v-spacer></v-spacer>
+            <v-icon v-if="priority>=1" :color="bgColor">mdi-star</v-icon>
+            <v-icon v-if="priority>=2" :color="bgColor">mdi-star</v-icon>
+            <v-icon v-if="priority>=3" :color="bgColor">mdi-star</v-icon>
+          </v-card-title>
+          <v-card-text>
+            <v-container fluid>
+              <v-row no-gutters>
+                <v-col cols="6">
+                  <v-icon>mdi-clock-check-outline</v-icon>
+                  {{displayEstimatedTime}}
+                </v-col>
+                <v-col cols="6">
+                  <v-icon>mdi-calendar-clock</v-icon>
+                  {{displayDueDate}}
+                </v-col>
+              </v-row>
+              <v-row no-gutters>
+                <v-col cols="6">
+                  <v-icon>mdi-map-marker-outline</v-icon>
+                  <span v-if="displayLocation !==null">
+                    {{displayLocation}}
+                    <v-btn v-if="lat !== null" small icon @click="goToKakaoMapSite()">
+                      <v-icon>mdi-map-search-outline</v-icon>
+                    </v-btn>
+                  </span>
+                  <span v-else>
+                    <v-progress-circular color="primary" :size="20" indeterminate></v-progress-circular>
+                  </span>
+                </v-col>
+                <v-col cols="6">
+                  <div id="progressContentBox">
+                    <v-icon id="progressIcon">mdi-progress-clock</v-icon>
+                    <v-progress-linear :value="percentProgress"></v-progress-linear>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card-text>
+        </div>
       </div>
-      <div id="rightSide" @click="onCardClicked($event)">
-        <v-card-title>{{title}}</v-card-title>
-        <v-card-text>
-          <v-container fluid>
-            <v-row no-gutters>
-              <v-col cols="6">
-                <v-icon>mdi-clock-check-outline</v-icon>
-                {{displayEstimatedTime}}
-              </v-col>
-              <v-col cols="6">
-                <v-icon>mdi-calendar-clock</v-icon>
-                {{displayDueDate}}
-              </v-col>
-            </v-row>
-            <v-row no-gutters>
-              <v-col cols="6">
-                <v-icon>mdi-map-marker-outline</v-icon>
-                <span v-if="displayLocation !==null">
-                  {{displayLocation}}
-                  <v-btn v-if="lat !== null" small icon @click="goToKakaoMapSite()">
-                    <v-icon>mdi-map-search-outline</v-icon>
-                  </v-btn>
-                </span>
-                <span v-else>
-                  <v-progress-circular color="primary" :size="20" indeterminate></v-progress-circular>
-                </span>
-              </v-col>
-              <v-col cols="6">
-                <div id="progressContentBox">
-                  <v-icon id="progressIcon">mdi-progress-clock</v-icon>
-                  <v-progress-linear :value="percentProgress"></v-progress-linear>
-                </div>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
-      </div>
-    </div>
-    <v-expand-transition>
-      <v-progress-linear indeterminate height="10" v-show="isCallDoing"></v-progress-linear>
-    </v-expand-transition>
-    <kakao-map ref="map" v-show="false" :is-load-gps="false"></kakao-map>
+      <v-expand-transition>
+        <v-progress-linear indeterminate height="10" v-show="callCount>0"></v-progress-linear>
+      </v-expand-transition>
+      <kakao-map ref="map" v-show="false" :is-load-gps="false"></kakao-map>
+
+    <v-dialog
+            v-model="isDialogShow"
+            persistent
+            max-width="500"
+    >
+      <v-card>
+        <v-card-title>
+          작업 정보 수정
+          <v-spacer></v-spacer>
+          <v-btn color="error" :loading="callCount>0" @click="onTaskDeleteButtonclicked()" icon><v-icon>mdi-delete</v-icon></v-btn>
+        </v-card-title>
+        <task-info-form
+                v-model="taskFormData"
+                ref="infoForm"
+        ></task-info-form>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="secondary" @click="isDialogShow = false" :loading="callCount>0">뒤로 </v-btn>
+          <v-btn color="primary" @click="onTaskUpdateButtonClicked()" :loading="callCount>0"> 수정 </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
 <script>
 import gpsString from "@/plugins/gpsString";
 import kakaoMap from "@/components/kakaoMap";
+import taskInfoForm from "./taskInfoForm";
+import errorDialog from "../plugins/errorDialog";
 
 export default {
   name: "taskCard",
 
   components: {
-    kakaoMap
+    kakaoMap,
+    taskInfoForm
   },
 
   data() {
     return {
       bgColorByPriority: [
-        "amber lighten-3",
+        "amber lighten-1",
         "amber darken-2",
         "amber darken-4",
       ],
 
       doneColor: "brown lighten-3",
       isDone: null,
-      isCallDoing: false, //현재 뭔가 요청이 진행중인가?,
       addr: null,
       distance:null,
       lat: null,
-      lng: null
+      lng: null,
+
+      taskFormData: {
+        title: "",
+        dueDate: null,
+        estimatedTime: 0,
+        priority: 1,
+        location: null,
+        remindingTime: null
+      },
+      callCount: 0,
+      isDialogShow: false,
+      destroyedFlag: false
     }
   },
   
@@ -117,7 +161,21 @@ export default {
     planUid: {
       type: Number,
       default: -1
+    },
+
+    remindingTime: {
+      type: String,
+      default: null
+    },
+
+    fullTaskInfo: {
+      type: Object,
+      default: null
     }
+  },
+
+  destroyed() {
+    this.destroyedFlag = true;
   },
 
   computed: {
@@ -176,12 +234,7 @@ export default {
   },
 
   created() {
-    if(this.progress >= this.estimatedTime){
-      this.isDone = true;
-    }
-    else{
-      this.isDone = false;
-    }
+    this.isDone = this.progress >= this.estimatedTime;
   },
 
   watch: {
@@ -204,12 +257,12 @@ export default {
       if(this.uid === null){
         return;
       }
-      if(this.isCallDoing){
+      if(this.callCount > 0){
         return;
       }
 
 
-      this.isCallDoing = true;
+      this.callCount++;
       try {
         if(this.planUid === -1){
           //task 끝내기 모드
@@ -230,44 +283,52 @@ export default {
         console.error(e.response.data);
       }
       finally {
-        this.isCallDoing = false;
+        this.callCount--;
       }
     },
 
     onCardClicked(){
-      this.$emit("click", this.uid);
+      this.taskFormData = {
+        title: this.fullTaskInfo.title,
+        dueDate: this.fullTaskInfo.dueDate,
+        estimatedTime: this.fullTaskInfo.estimatedTime,
+        priority: this.fullTaskInfo.priority,
+        location: this.fullTaskInfo.location,
+        remindingTime: this.fullTaskInfo.remindingTiming
+      }
+      this.isDialogShow = true;
     },
 
     async loadAddr(lat, lng){
       let addr = null
       while(addr === null){
+        if(this.destroyedFlag){
+          console.log("인스턴스 파괴됨, 주소 변환 종료");
+          return;
+        }
         try {
           addr = await this.$refs.map.geoToAddress(lat, lng);
           this.lat = lat;
           this.lng = lng;
         }
         catch(e){
-          console.log(e)
           console.info(`${lat}, ${lng}의 주소 변환 시도 실패, 1초후 재시도`);
           await wait(1000);
         }
       }
 
       this.addr = addr;
-      // if(addrObject.roadAddress === undefined){
-      //   this.addr = addrObject.roadAddress;
-      // }
-      // else{
-      //   this.addr = addrObject.address;
-      // }
     },
 
     async loadDistance(latLng){
-
       let devicePostion
       let polyline = null
 
       while(polyline ===null){
+        if(this.destroyedFlag){
+          console.log("인스턴스 파괴됨, 거리 획득 시도 종료");
+          return;
+        }
         try{
 
           devicePostion=await this.$refs.map.getDevicePosition()
@@ -279,8 +340,8 @@ export default {
           })
         }
         catch (e) {
-          console.log(e)
-          console.info(`실패, 1초후 재시도`);
+          // console.log(e)
+          console.info(`거리 획득 실패, 1초후 재시도`);
           await wait(1000)
         }
       }
@@ -292,11 +353,15 @@ export default {
     async calculateDistanceByKeyword(keyword){
       let searchList=null
       while(searchList === null){
+        if(this.destroyedFlag){
+          console.log("인스턴스 파괴됨, 거리 획득 시도 종료");
+          return;
+        }
         try {
           searchList = await this.$refs.map.search(keyword);
         }
         catch(e){
-          console.log(e)
+          // console.log(e)
           await wait(1000);
         }
       }
@@ -314,6 +379,81 @@ export default {
 
     goToKakaoMapSite(){
       window.open(`https://map.kakao.com/link/to/${this.displayLocation},${this.lat},${this.lng}`);
+    },
+
+    async onTaskUpdateButtonClicked(){
+      let validationResultFlag = this.$refs.infoForm.formValue()
+      if(validationResultFlag === false){
+        return;
+      }
+
+      let requestBody = {
+        title: this.taskFormData.title,
+        priority: this.taskFormData.priority,
+        dueDate: this.taskFormData.dueDate,
+        estimatedTime: this.taskFormData.estimatedTime,
+        location: this.taskFormData.location,
+        remindingTiming: this.taskFormData.remindingTime
+      }
+
+      try{
+        this.callCount++;
+        await this.$axios.put(`/task/${this.uid}`, requestBody);
+
+        this.$emit("update");
+        this.isDialogShow = false;
+      }
+
+      catch(e){
+          errorDialog(this, "수정 실패", e);
+      }
+      finally {
+          this.callCount--;
+      }
+    },
+
+    async onTaskDeleteButtonclicked(){
+      let confrimResult = await this.confrimDelete();
+      if(confrimResult === false){
+        return;
+      }
+
+      this.callCount++;
+      try{
+        await this.$axios.delete(`/task/${this.uid}`);
+      }
+      catch(e){
+        errorDialog(this, "작업 삭제 실패", e);
+      }
+      finally {
+        this.callCount--;
+      }
+
+      this.$dialog.notify.success(`[${this.title}] 작업을 삭제하였습니다.`);
+      this.$emit("update");
+    },
+
+    async confrimDelete(){
+      this.callCount++;
+      let res = await this.$dialog.error({
+        title:"정말로 삭제하시겠습니까?",
+        text: "이 작업은 되돌릴 수 없습니다.",
+        actions: {
+          true: {
+            text: "삭제합니다.",
+            color: "error"
+          },
+          false: {
+            text: "아니오",
+            color: "success"
+          }
+        }
+      })
+      if(res === undefined){
+        res = false;
+      }
+      this.callCount--;
+      return res;
     }
   }
 }

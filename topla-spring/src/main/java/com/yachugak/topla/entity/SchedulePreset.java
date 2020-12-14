@@ -17,13 +17,15 @@ public class SchedulePreset {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long uid;
 
+	@Column
+	private String name;
+	
 	@ManyToOne
 	@JoinColumn(name = "user_uid")
 	private User user;
 	
 	@Column(name = "preset_code")
 	private String presetCode;
-
 	
 	public Long getUid() {
 		return uid;
@@ -31,6 +33,14 @@ public class SchedulePreset {
 	
 	public void setUid(Long uid) {
 		this.uid = uid;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public User getUser() {

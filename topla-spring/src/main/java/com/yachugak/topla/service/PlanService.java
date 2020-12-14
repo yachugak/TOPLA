@@ -1,8 +1,12 @@
 package com.yachugak.topla.service;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,11 +17,13 @@ import com.yachugak.topla.dataformat.SchedulePresetDataFormat;
 import com.yachugak.topla.entity.Plan;
 import com.yachugak.topla.entity.Task;
 import com.yachugak.topla.entity.User;
+import com.yachugak.topla.exception.EntityNotFoundException;
 import com.yachugak.topla.exception.InvalidArgumentException;
 import com.yachugak.topla.plan.Planizer;
 import com.yachugak.topla.plan.TaskItem;
 import com.yachugak.topla.plan.TimeTable;
 import com.yachugak.topla.repository.PlanRepository;
+import com.yachugak.topla.util.DayCalculator;
 
 
 @Service
@@ -35,11 +41,9 @@ public class PlanService {
 	
 	public void plan(User user, Date planStartDate) {
 		logger.debug("plan 시작합니다.");
-//		int planStartDay = planStartDate.getDay();
-		List<SchedulePresetDataFormat> schedulePresetList = presetService.getAllPreset(user);
+	
+		SchedulePresetDataFormat selectedPreset = presetService.getSelectedPresetInDataFormat(user);
 		
-		//TODO: 후에 선택된 프리셋을 가져오는 API가 생기면 그거 반영할 것
-		SchedulePresetDataFormat selectedPreset = schedulePresetList.get(0);
 		logger.debug("선택된 프리셋 정보");
 		logger.debug("일요일 " + selectedPreset.getTimeByHour(0)+"분");
 		logger.debug("월요일 " + selectedPreset.getTimeByHour(1)+"분");
@@ -52,10 +56,14 @@ public class PlanService {
 		List<Task> taskList = taskService.getTaskListToPlan(user.getUid(), planStartDate);
 		
 		Planizer planizer = new Planizer(selectedPreset, taskList, planStartDate);
-		TimeTable calculatedPlan = planizer.naivelyOptimizedPlan();
+		TimeTable doneTimeTable = this.recoverDoneTimeTable(user, planStartDate);
+		planizer.setDoneTimeTable(doneTimeTable);
+		// TimeTable calculatedPlan = planizer.naivelyOptimizedPlan();
+		TimeTable calculatedPlan = planizer.fractionalBinPackingPlan();
 		
 		//task의 기존 일정 초기화
 		int lastDayOffset = calculatedPlan.getLastDayOffset();
+		List<Long> withoutList = calculatedPlan.getPlanUidList();
 		logger.debug("TimeTable에는 " + (lastDayOffset+1) + "일간의 일정이 담겨 있습니다.");
 		for(int dayOffset = 0; dayOffset <= lastDayOffset; dayOffset++) {
 			List<TaskItem> todayTaskList = calculatedPlan.getDay(dayOffset).getTaskItems();
@@ -63,8 +71,8 @@ public class PlanService {
 			for(TaskItem ti : todayTaskList) {
 				long taskUid = ti.getTaskId();
 				Task targetTask = taskService.findTaskById(taskUid);
-				taskService.clearPlan(targetTask);
-				logger.debug(taskUid + "번 작업의 일정을 초기화함.");
+				taskService.clearPlanWithout(targetTask, withoutList);
+				logger.debug(taskUid + "번 작업의 일정을 일부(또는 전부) 초기화함.");
 			}
 			
 		}
@@ -74,6 +82,10 @@ public class PlanService {
 		for(int dayOffset = 0; dayOffset <= lastDayOffset; dayOffset++) {
 			List<TaskItem> todayTaskList = calculatedPlan.getDay(dayOffset).getTaskItems();
 			for(TaskItem ti : todayTaskList) {
+				if(ti.getPlnaUid() != null) {
+					//이미 등록되어 있는 plan이므로 스킵
+					continue;
+				}
 				long taskUid = ti.getTaskId();
 				int doTime = ti.getTime();
 				Task targetTask = taskService.findTaskById(taskUid);
@@ -98,7 +110,9 @@ public class PlanService {
 	}
 
 	public Plan findPlanById(long planUid) {
-		return planRepository.findById(planUid).get();
+		Plan targetPlan = planRepository.findById(planUid).orElseThrow(()->new EntityNotFoundException("Plan", "이 존재하지 않습니다."));		
+		return targetPlan;
+		
 	}
 	
 	// Plan과 task의 progress 동시 업데이트. 언체크시 progress == -1
@@ -127,6 +141,35 @@ public class PlanService {
 		}
 		return cappedProgress;
 	}
+	
+	public TimeTable recoverDoneTimeTable(User user, Date startDate){
+		TimeTable doneTimeTable = new TimeTable();
+
+		List<Plan> planList = planRepository.findByUserAndDoDateGreaterThanEqual(user.getUid(), startDate);
+
+		for(Plan plan : planList) {
+			if(plan.getDoTime() <= plan.getProgress()) { //progress는 doTime을 넘을 수 없지만 혹시 몰라서
+				TaskItem newTaskItem = new TaskItem();
+				newTaskItem.setTaskId(plan.getTask().getUid());
+				newTaskItem.setPlnaUid(plan.getUid());
+				newTaskItem.setTime(plan.getDoTime());
+				int dayOffset = DayCalculator.calDayOffset(startDate, plan.getDoDate());
+				doneTimeTable.registerTask(plan.getTask());
+				doneTimeTable.addTaskItem(dayOffset, newTaskItem);
+			}
+		}
+		
+		return doneTimeTable;
+	}
+	
+	
+	public List<Plan> findByTask(Task task){
+		return planRepository.findByTask(task);
+	}
 
 
+	public List<Plan> findPlanByUserUidAndDoDate(Long userUid, Date doDate) {
+		return planRepository.findPlanToMorningPush(userUid, doDate);
+		
+	}
 }

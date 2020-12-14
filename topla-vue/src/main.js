@@ -7,6 +7,11 @@ import './registerServiceWorker'
 import vuetify from './plugins/vuetify';
 import firebase from "firebase/app";
 import "firebase/messaging";
+import "./plugins/dialog.js";
+import loginInfo from "@/plugins/loginInfo";
+import moment from "moment";
+
+moment.locale("ko");
 
 Vue.config.productionTip = false
 
@@ -16,6 +21,12 @@ new Vue({
   vuetify,
   render: h => h(App)
 }).$mount('#app')
+
+if(loginInfo.isThereLoginInfo()){
+    let loginInfoString = loginInfo.getLoginInfo();
+    store.commit("setLoginInfo", loginInfoString);
+}
+
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -48,9 +59,6 @@ messaging.getToken()
     .then(async function(key){
         console.log(`device key = ${key}`);
         window.myDeviceKey = key;
-        await window.axios.put("/user/1/token", {
-            "deviceToken": key
-        })
     })
 
 // // Handle received push notification at foreground
@@ -61,3 +69,13 @@ messaging.onMessage(payload => {
     new Notification(payload.data.title, notificationOptions);
     alert(payload.data.body);
 })
+
+//foreground 상태에서 받은 메세지 처리
+messaging.onMessage((payload) => {
+    if(window.dialog === undefined){
+        alert(payload.data.message);
+        return;
+    }
+
+    window.dialog.notify.info( `[${payload.data.title}] ${payload.data.message}`);
+});

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,8 +22,10 @@ import com.yachugak.topla.entity.SchedulePreset;
 import com.yachugak.topla.entity.User;
 import com.yachugak.topla.request.CreateSchedulePresetRequestFormat;
 import com.yachugak.topla.response.SchedulePresetResponseFormat;
+import com.yachugak.topla.service.PlanService;
 import com.yachugak.topla.service.PresetService;
 import com.yachugak.topla.service.UserService;
+import com.yachugak.topla.util.DayCalculator;
 
 @RestController
 @RequestMapping(path = "${apiUriPrefix}/preset")
@@ -30,81 +33,92 @@ import com.yachugak.topla.service.UserService;
 public class PresetController {
 	@Autowired 
 	private PresetService presetService;
+
 	@Autowired
 	private UserService userService;
 	
+	@Autowired
+	private PlanService planService;
+
+	
 	@GetMapping("")
 	@Transactional(readOnly = true)
-	public SchedulePresetResponseFormat getSelectedSchedulePreset() {
-		// TODO: 현재 유저1만 가리킴. 이후 spring security 세팅후에 변경 예정.		
-		User user = userService.findUserById(1L);
-		SchedulePresetDataFormat presetFormat = presetService.getSelectedPresetInDataFormat(user);
+	public SchedulePresetResponseFormat getSelectedSchedulePreset(@RequestHeader("Authorization") String secureCode) {
+		String email = userService.findEmailbySecureCode(secureCode);
+		User user = userService.findUserByEmail(email);
+		SchedulePreset targetPreset = user.getSchedulePreset(); 
+		SchedulePresetDataFormat presetFormat = presetService.convertPresetToDataFormat(targetPreset);
 		
 		SchedulePresetResponseFormat response = new SchedulePresetResponseFormat();
+		response.setPresetUid(targetPreset.getUid());
+		response.setPresetName(targetPreset.getName());
 		response.setSchedulePreset(presetFormat.getHourList());
-		response.setPresetUid(presetFormat.getPresetUid());
 		return response;
 	}
 	
 	@GetMapping("/list")
 	@Transactional(readOnly = true)
-	public List<SchedulePresetResponseFormat> getAllSchedulePreset() {
-		// TODO: 현재 유저1만 가리킴. 이후 spring security 세팅후에 변경 예정.
-		User user = userService.findUserById(1L);
-		
+	public List<SchedulePresetResponseFormat> getAllSchedulePreset(@RequestHeader("Authorization") String secureCode) {
+		String email = userService.findEmailbySecureCode(secureCode);
+		User user = userService.findUserByEmail(email);
 		ArrayList<SchedulePresetResponseFormat> res= new ArrayList<>();
 		
-		List<SchedulePresetDataFormat> plistDataFormats = presetService.getAllPreset(user);
-		for (SchedulePresetDataFormat i : plistDataFormats) {
-			SchedulePresetResponseFormat tempFormat = new SchedulePresetResponseFormat();
-			tempFormat.setSchedulePreset(i.getHourList());
-			tempFormat.setPresetUid(i.getPresetUid());
-			res.add(tempFormat);
-		}
+		List<SchedulePreset> presetList = presetService.getAllPreset(user);
+		List<SchedulePresetDataFormat> formatList = presetService.convertPresetListToDataFormats(presetList);
+		res = presetService.assemblePresetResponseFormat(presetList, formatList);
+		
 		return res;
 	}
 	
-	@PostMapping("/create")
+	@PostMapping("")
 	@Transactional(readOnly = false)
-	public String createSchedulePreset(@RequestBody CreateSchedulePresetRequestFormat req) {
-		// TODO: 현재 유저1의 스케줄 프리셋만 생성함. 이후 spring security 세팅후에 변경예정		
-		User user = userService.findUserById(1L);
+	public String createSchedulePreset(@RequestHeader("Authorization") String secureCode , @RequestBody CreateSchedulePresetRequestFormat req) {
+		String email = userService.findEmailbySecureCode(secureCode);
+		User user = userService.findUserByEmail(email);
+		int[] hourList = req.getSchedulePreset();
+		String presetName = req.getPresetName();			
+		SchedulePresetDataFormat presetFormat = presetService.convertHourListToDataFormat(hourList);
 		
-		SchedulePresetDataFormat presetFormat = new SchedulePresetDataFormat();
-		presetFormat.setHourList(req.getSchedulePreset());
-		SchedulePreset preset = presetService.createSchedulePreset(user, presetFormat);
-			
-		// TODO: 리뷰 필요. 프리셋 생성시 새 프리셋을 기본값으로.
-		return "redirect:/api/preset/select?presetUid=" + preset.getUid();
-		
+		SchedulePreset preset = presetService.createSchedulePreset(user, presetName, presetFormat);
+
+		return "redirect:/api/preset/select?presetUid=" + preset.getUid();		
 	}
+	
 	
 	@DeleteMapping("/{uid}")
 	@Transactional(readOnly = false)
 	public String deleteSchedulePreset(@PathVariable("uid") long uid) {
 		presetService.deletePreset(uid);
-
 		return "ok";
 	}
 	
 	@PutMapping("/{uid}")
 	@Transactional(readOnly = false)
-	public String updateSchedulePreset(@PathVariable("uid") long uid, @RequestBody CreateSchedulePresetRequestFormat req) {
+	public String updateSchedulePreset(@RequestHeader("Authorization") String secureCode, @PathVariable("uid") long uid, @RequestBody CreateSchedulePresetRequestFormat req) {
+		String email = userService.findEmailbySecureCode(secureCode);
+		User user = userService.findUserByEmail(email);
+
+		String presetName = req.getPresetName();
 		SchedulePresetDataFormat presetFormat = presetService.convertHourListToDataFormat(req.getSchedulePreset());
 		String encodedPreset = presetFormat.encodeHourListToSchedulePresetString();
 		
 		SchedulePreset updateTarget = presetService.findPresetByID(uid);
-		updateTarget.setPresetCode(encodedPreset);
+		presetService.setName(updateTarget, presetName);
+		presetService.setPresetCode(updateTarget, encodedPreset);
+
+		planService.plan(user, DayCalculator.getTodayDate());
 		
 		return "ok";
 	}
 	
 	@PutMapping("/select")
 	@Transactional(readOnly = false)
-	public String selectSchedulePreset(@RequestParam("presetUid") long presetUid) {
-		// TODO: 유저1에만 대응
-		User user = userService.findUserById(1L);
-		userService.setPresetCode(user, presetUid);
+	public String selectSchedulePreset(@RequestHeader("Authorization") String secureCode, @RequestParam("presetUid") long presetUid) {
+		String email = userService.findEmailbySecureCode(secureCode);
+		User user = userService.findUserByEmail(email);
+		userService.setSelectedPreset(user, presetUid);
+		
+		planService.plan(user, DayCalculator.getTodayDate());
 		
 		return "ok";
 	}

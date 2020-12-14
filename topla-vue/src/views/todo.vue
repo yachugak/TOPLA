@@ -1,14 +1,19 @@
 <template lang="html">
   <div>
-    <v-container fluid class="secondary">
+    <v-container fluid class="back">
       <v-row no-gutters>
+        <v-col cols="12">
+          <v-btn class="fullDateButton" color="primary" @click="onYearMonthButtonClicked()">
+            {{selectedDate.getFullYear()}}년 {{selectedDate.getMonth()+1}}월
+          </v-btn>
+        </v-col>
         <v-col cols="1" v-if="$vuetify.breakpoint.mdAndUp">
-          <v-btn class="arrowButton primary darken-1" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
+          <v-btn class="arrowButton sec" color="primary" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
         </v-col>
         <v-col cols="12" md="10">
           <div id="dateSelector">
             <v-btn class="dateButton primary"
-                   :class="{'darken-4': i===3, 'darken-1': i!==3, sunday: dateSelectorButtonDisplayList.text[(i-1)*2+1]==='일', saturday: dateSelectorButtonDisplayList.text[(i-1)*2+1]==='토' }"
+                   :class="{'darken-1': i===3, '': i!==3, sunday: dateSelectorButtonDisplayList.text[(i-1)*2+1]==='일', saturday: dateSelectorButtonDisplayList.text[(i-1)*2+1]==='토' }"
                    v-for="i in 5" :key="i" @click="onDateSelectorButtonSelected(i-1)" tile>
               {{dateSelectorButtonDisplayList.text[(i-1)*2]}} <br>
               {{dateSelectorButtonDisplayList.text[(i-1)*2+1]}}
@@ -16,25 +21,15 @@
           </div>
         </v-col>
         <v-col cols="1" v-if="$vuetify.breakpoint.mdAndUp">
-          <v-btn class="arrowButton primary darken-1" @click="onArrowButtonSelected('right')" tile block><v-icon>mdi-chevron-right</v-icon></v-btn>
+          <v-btn class="arrowButton primary" @click="onArrowButtonSelected('right')" tile block><v-icon>mdi-chevron-right</v-icon></v-btn>
         </v-col>
       </v-row>
       <v-row v-if="$vuetify.breakpoint.smAndDown" no-gutters>
         <v-col cols="6">
-          <v-btn class="arrowButton primary darken-1" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
+          <v-btn class="arrowButton primary" @click="onArrowButtonSelected('left')" tile block><v-icon>mdi-chevron-left</v-icon></v-btn>
         </v-col>
         <v-col cols="6">
-          <v-btn class="arrowButton primary darken-1" @click="onArrowButtonSelected('right')" tile block><v-icon>mdi-chevron-right</v-icon></v-btn>
-        </v-col>
-      </v-row>
-
-      <v-row>
-        <v-col cols="12">
-          <v-btn color="primary" block
-                 @click="toggleTaskViewMode()"
-          >
-            작업을 {{taskViewMode === "dueDate" ? "마감일로" : "하는 날로"}} 보는 중
-          </v-btn>
+          <v-btn class="arrowButton primary text--primary" @click="onArrowButtonSelected('right')" tile block><v-icon>mdi-chevron-right</v-icon></v-btn>
         </v-col>
       </v-row>
 
@@ -44,22 +39,39 @@
         </v-col>
       </v-row>
 
-      <v-row v-if="taskViewMode === 'doDate'">
+      <v-row no-gutters>
+        <v-col cols="12" md="4">
+          <div class="flex-center">
+            <v-select label="보기 기준" :items="taskViewModelSelectItem" v-model="taskViewMode"></v-select>
+          </div>
+        </v-col>
+      </v-row>
+
+
+      <v-row v-if="taskViewMode === 'doDate'" class="back">
         <v-progress-linear
-            :buffer-value="(todayAllocationTime/todayPresetTime)*100"
-            :value="(todayFinishTime/todayPresetTime)*100"
-            stream height="10" color="info"></v-progress-linear>
-        오늘 프리셋: {{todayPresetTime/60}}시간<br>
-        할당 시간: {{todayAllocationTime/60}}시간<br>
-        한 시간: {{todayFinishTime/60}}시간<br>
+            v-if="todayAllocationTime > 0"
+            :value="(todayFinishTime/todayAllocationTime)*100"
+            stream height="20" color="primary"
+        >
+          <template v-slot>
+            {{((todayFinishTime/todayAllocationTime)*100).toFixed(0)}}%
+          </template>
+        </v-progress-linear>
+        <v-progress-linear
+            v-else
+            :buffer-value="0"
+            stream height="20" color="primary"
+        >
+          <template v-slot>
+          </template>
+        </v-progress-linear>
       </v-row>
     </v-container>
 
-    <div class="py-4 secondary" :class="{taskContainerSizeSm: isSm, taskContainerSizeMd: !isSm }">
-      <div class="mb-2">
-        <span id="dayText" class="pl-2">{{selectedDate.getMonth()+1}}월 {{selectedDate.getDate()}}일 {{getDayName(selectedDate.getDay())}}요일</span>
-        <span id="taskCountText" class="pr-2">{{displayTaskList.length}}개의 작업</span>
-      </div>
+    <v-divider></v-divider>
+
+    <div class="py-4 back" :class="{taskContainerSizeSm: isSm, taskContainerSizeMd: !isSm }">
       <task-card class="mx-2 mb-4" v-for="task in displayTaskList" :key="taskViewMode === 'dueDate' ? task.uid : task.planUid"
                  :title="task.title"
                  :priority="task.priority"
@@ -69,51 +81,37 @@
                  :due-date="task.dueDate"
                  :location="task.location"
                  :plan-uid="taskViewMode === 'dueDate' ? -1 : task.planUid"
+                 :reminding-time="task.remindingTiming"
+                 :full-task-info="findTask(task.uid)"
                  @update="getTaskList()"
-                 @click="onTaskClicked(task.uid)"
       ></task-card>
     </div>
 
     <v-btn
-        color="primary"
+        color="secondary"
         elevation="2"
         fab
         large
         id="addNewTaskbutton"
-        @click="isShowNewTaskdialog = true; taskCreatedMode = true"
+        @click="showCreateTaskDialog()"
     ><v-icon>mdi-plus-circle-outline</v-icon></v-btn>
 
-    <!--테스트 추가 창-->
+    <!--태스크 추가 창-->
     <v-dialog
         v-model="isShowNewTaskdialog"
         persistent
         max-width="500"
     >
       <v-card v-if="isShowNewTaskdialog">
-        <v-card-title v-if="taskCreatedMode">새로운 작업 추가</v-card-title>
-        <v-card-title v-else>작업 정보 보기 / 수정</v-card-title>
-        <task-info-form v-model="newTaskFormData"></task-info-form>
+        <v-card-title>새로운 작업 추가</v-card-title>
+        <task-info-form
+            v-model="newTaskFormData"
+            ref="infoForm"
+        ></task-info-form>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-              color="error"
-              @click="isShowNewTaskdialog = false"
-              :loading="isCalling>0"
-          >
-            취소
-          </v-btn>
-          <v-btn
-              color="primary"
-              @click="onAddNewTaskButtonClicked()"
-              :loading="isCalling>0"
-          >
-            <span v-if="taskCreatedMode">
-              추가
-            </span>
-            <span v-else>
-              수정
-            </span>
-          </v-btn>
+          <v-btn color="secondary" @click="isShowNewTaskdialog = false" :loading="isCalling>0">뒤로</v-btn>
+          <v-btn color="primary" @click="onAddNewTaskButtonClicked()" :loading="isCalling>0">추가</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -124,6 +122,8 @@
 import taskInfoForm from "@/components/taskInfoForm";
 import taskCard from "@/components/taskCard";
 import scheduleAlertBox from "@/components/scheduleAlertBox";
+import moment from "moment";
+import errorDialog from "@/plugins/errorDialog";
 
 export default {
   data() {
@@ -132,17 +132,27 @@ export default {
       selectedDate: new Date(),
       taskList: [],
       isShowNewTaskdialog: false,
-      taskCreatedMode: true,
       newTaskFormData: {
         title: "",
         dueDate: null,
-        estimatedTime: 0,
+        estimatedTime: 30,
         priority: 1,
-        location: null
+        location: null,
+        remindingTime: null
       },
       updateTargetTask: null,
       isCalling: 0, //현재 통신 진행중인지 나타내는 변수, 1 이상이면 통신 진행중이라는 뜻
       taskViewMode: "dueDate",//현재 작업의 보기 모드, dueDate와 doDate가 있음.
+      taskViewModelSelectItem: [
+        {
+          text: "마감일 기준으로 보기",
+          value: "dueDate"
+        },
+        {
+          text: "하는 날 기준으로 보기",
+          value: "doDate"
+        }
+      ],
       schedulePreset: [0,0,0,0,0,0,0]
     }
   },
@@ -151,14 +161,6 @@ export default {
     taskInfoForm,
     taskCard,
     scheduleAlertBox
-  },
-
-  watch: {
-    isShowNewTaskdialog(newVal){
-      if(newVal === false){
-        this.formClear();
-      }
-    }
   },
 
   computed: {
@@ -266,39 +268,32 @@ export default {
     },
 
     async onAddNewTaskButtonClicked(){
+
+      let validationResultFlag = this.$refs.infoForm.formValue()
+      if(validationResultFlag === false){
+        return;
+      }
+
       let requestBody = {
         title: this.newTaskFormData.title,
         priority: this.newTaskFormData.priority,
         dueDate: this.newTaskFormData.dueDate,
         estimatedTime: this.newTaskFormData.estimatedTime,
-        location: this.newTaskFormData.location
+        location: this.newTaskFormData.location,
+        remindingTiming: this.newTaskFormData.remindingTime
       }
+
       try{
         this.isCalling++;
-        if(this.taskCreatedMode){
-          await this.$axios.post("/task", requestBody);
-        }
-        else{
-          await this.$axios.put(`/task/${this.updateTargetTask.uid}`, requestBody);
-        }
-
+        await this.$axios.post("/task", requestBody);
         await this.getTaskList();
-        this.isCalling--
         this.isShowNewTaskdialog = false;
-      }catch(e){
-        console.log(e);
       }
-    },
-
-    toggleTaskViewMode(){
-      if(this.taskViewMode === "dueDate"){
-        this.taskViewMode = "doDate";
+      catch(e){
+        errorDialog(this, "등록 실패", e);
       }
-      else if(this.taskViewMode === "doDate"){
-        this.taskViewMode = "dueDate";
-      }
-      else{
-        throw new Error(`알 수 없는 taskViewMode: ${this.taskViewMode}`);
+      finally {
+        this.isCalling--
       }
     },
 
@@ -346,34 +341,86 @@ export default {
       return dispalyTaskList;
     },
 
-    onTaskClicked(taskUid){
-      let task = this.taskList.find(item => item.uid === taskUid);
-      this.updateTargetTask = task;
-      this.isShowNewTaskdialog = true;
-      this.taskCreatedMode = false;
+    clearForm(){
       this.newTaskFormData = {
-        dueDate: task.dueDate,
-        estimatedTime: task.estimatedTime,
-        location: task.location,
-        priority: task.priority,
-        title: task.title
+        title: "",
+        dueDate: null,
+        estimatedTime: 30,
+        priority: 1,
+        location: null,
+        remindingTime: null
       }
     },
 
-    formClear(){
-      this.newTaskFormData = {
-        dueDate: null,
-        title: "",
-        priority: 1,
-        location: null,
-        estimatedTime: 0
+    onYearMonthButtonClicked(){
+      this.$router.push({
+        name: 'calendar mode',
+        params: {
+          date: this.selectedDate,
+          viewMode: this.taskViewMode
+        }
+      })
+    },
+
+    findTask(taskUid){
+      return this.taskList.find(function(task){
+        return task.uid === taskUid;
+      })
+    },
+
+    async showGuideBookMsg(){
+      let res = undefined;
+
+      if(this.$store.state.isSeenGuideBook === true){
+        return;
       }
+
+      while(res===undefined){
+        res = await this.$dialog.info({
+          title: "TOPLA에 오신 것을 환영합니다!",
+          text: "TOPLA를 선택해 주셔서 감사합니다. 사용 전에 앞서 미리 안내서를 읽어볼 수도 있습니다. 안내서를 읽어 보시겠습니까?",
+          actions: {
+            false: {
+              text: "아니오"
+            },
+            true: {
+              text: "예"
+            }
+          }
+        });
+
+        if(res === true){
+          this.$router.push("/guide");
+          break;
+        }
+        else if(res === false){
+          break;
+        }
+      }
+
+      this.$store.commit("setGuideBookState", true);
+      window.localStorage.setItem("isSeenGuideBook", true);
+    },
+
+    showCreateTaskDialog(){
+      this.clearForm();
+      this.isShowNewTaskdialog = true;
+      let m = moment(this.selectedDate.getTime());
+      let dateString = m.format("yyyy[-]MM[-]DD");
+      this.newTaskFormData.dueDate = dateString;
     }
   },
 
   created() {
     this.getTaskList();
     this.getSchedulePreset();
+
+    if(this.$route.params.date !==undefined && this.$route.params.viewMode!==undefined){
+      this.selectedDate=new Date(this.$route.params.date)
+      this.taskViewMode=this.$route.params.viewMode
+    }
+
+    this.showGuideBookMsg();
   }
 }
 </script>
@@ -402,27 +449,38 @@ export default {
 #dayText {
   display: inline-block;
   width: calc((100vw - (100vw - 100%)) / 2);
-  color: white;
 }
 
 #taskCountText {
   display: inline-block;
   width: calc((100vw - (100vw - 100%)) / 2);
   text-align: right;
-  color: white;
 }
 
 .sunday {
-  color: red !important;
+  color: #EF9A9A !important;
 }
 
 .saturday{
-  color: deepskyblue !important;
+  color: #90CAF9 !important;
 }
 
 #addNewTaskbutton {
   position: fixed;
   bottom: 30px;
   right: 30px;
+}
+
+.flex-center {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.fullDateButton {
+  width: 100%;
 }
 </style>

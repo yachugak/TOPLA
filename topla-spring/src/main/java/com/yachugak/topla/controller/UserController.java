@@ -5,20 +5,30 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yachugak.topla.entity.SchedulePreset;
+import com.yachugak.topla.entity.TemporaryUser;
 import com.yachugak.topla.entity.User;
+import com.yachugak.topla.exception.GeneralExceptions;
+import com.yachugak.topla.request.CreateTemporaryUserRequestFormat;
 import com.yachugak.topla.request.CreateUserRequestFormat;
+import com.yachugak.topla.request.FindUserPasswordRequestFormat;
+import com.yachugak.topla.request.SecureCodeCheckRequestFormat;
 import com.yachugak.topla.request.UpdateDeviceTokenRequestFormat;
+import com.yachugak.topla.request.UpdatePasswordRequestFormat;
+import com.yachugak.topla.request.UpdatePushAlarmStatusRequestFormat;
+import com.yachugak.topla.request.UpdateReportTimeRequestFormat;
+import com.yachugak.topla.request.UserLogInRequestFormat;
 import com.yachugak.topla.response.GetUserResponseFormat;
 import com.yachugak.topla.service.PresetService;
 import com.yachugak.topla.service.UserService;
+
 
 @RestController
 @RequestMapping(path = "${apiUriPrefix}/user")
@@ -33,58 +43,135 @@ public class UserController {
 	@PostMapping("")
 	@Transactional(readOnly = false)
 	public String createUser(@RequestBody CreateUserRequestFormat req) {
-		User newUser = userService.createUser(req.getEmail(), req.getPassword());		
-		userService.setMorningReportTime(newUser, req.getMorningReportTime());
-		userService.setEveningReportTime(newUser, req.getEveningReportTime());
-
-		SchedulePreset newPreset = presetService.createSchedulePreset(newUser, presetService.createDefaultSchedulePreset());
-		userService.setPresetCode(newUser, newPreset);
-	
-		return "ok";
+		TemporaryUser targeTemporaryUser = userService.findTemporaryUserByEmail(req.getEmail());
+		
+		if(targeTemporaryUser.getSecureCode().equals(req.getSecureCode())) {
+			User newUser = userService.createUser(req.getEmail(), req.getPassword());
+			String presetName = "기본 프리셋";
+			
+			SchedulePreset newPreset = presetService.createSchedulePreset(newUser, presetName, presetService.createDefaultSchedulePreset());
+			userService.setSelectedPreset(newUser, newPreset);
+			
+			userService.deleteTempUser(req.getEmail());
+			return "ok";
+		}
+		
+		else {
+			throw new GeneralExceptions("보안코드가 잘못되었습니다.");
+		}
 	}
 	
-	@GetMapping("/{uid}")
-	@Transactional(readOnly = false)
-	public GetUserResponseFormat getUserInfo(@PathVariable("uid") long uid) {
-		User targetUser = userService.findUserById(uid);
+	
+	@GetMapping("")
+	@Transactional(readOnly = true)
+	public GetUserResponseFormat getUserInfo(@RequestHeader("Authorization") String secureCode) {
+		String email = userService.findEmailbySecureCode(secureCode);
+		User targetUser = userService.findUserByEmail(email);
 		GetUserResponseFormat res = new GetUserResponseFormat();
 		res.setEmail(targetUser.getEmail());
 		res.setMorningReportTime(targetUser.getMorningReportTime());
 		res.setEveningReportTime(targetUser.getEveningReportTime());
 		res.setPresetUid(targetUser.getSchedulePreset().getUid());
-		
+		res.setPushAlarmStatus(targetUser.getPushAlarmStatus());
 		return res;
 	}
 	
-	@PutMapping("/{uid}")
+	@PutMapping("")
 	@Transactional(readOnly = false)
-	public String updateUserInfo(@PathVariable("uid") long uid, @RequestBody CreateUserRequestFormat req) {
-		// TODO: 리뷰필요. getUserInfo 이후에 호출된다고 가정?
-		User updateTarget = userService.findUserById(uid);
-		userService.setEmail(updateTarget, req.getEmail());
-		userService.setPassword(updateTarget, req.getPassword());
+	public String updateReportTime(@RequestHeader("Authorization") String secureCode, @RequestBody UpdateReportTimeRequestFormat req) {
+		String email = userService.findEmailbySecureCode(secureCode);
+		User updateTarget = userService.findUserByEmail(email);
 		userService.setMorningReportTime(updateTarget, req.getMorningReportTime());
 		userService.setEveningReportTime(updateTarget, req.getEveningReportTime());
 		
 		return "ok";
 	}
 	
-	@DeleteMapping("/{uid}")
+	@PutMapping("/password")
 	@Transactional(readOnly = false)
-	public String deleteUser(@PathVariable("uid") long uid) {
-		User targetUser = userService.findUserById(uid);
+	public String updatePassword(@RequestHeader("Authorization") String secureCode, @RequestBody UpdatePasswordRequestFormat req) {
+		String email = userService.findEmailbySecureCode(secureCode);
+		User user = userService.findUserByEmail(email);
+		if(userService.isPasswordValid(user, req.getOldPassword())) {
+			userService.setPassword(user, req.getNewPassword());
+		}
+		return "ok";
+	}
+	
+	@PutMapping("/push")
+	@Transactional(readOnly = false)
+	public String updatePushAlarmStatus(@RequestHeader("Authorization") String secureCode, @RequestBody UpdatePushAlarmStatusRequestFormat req) {
+		String email = userService.findEmailbySecureCode(secureCode);
+		User user = userService.findUserByEmail(email);
+		userService.setPushAlarmStatus(user, req.isPushAlarmStatus());
+		
+		return "ok";
+	}
+	
+	@DeleteMapping("")
+	@Transactional(readOnly = false)
+	public String deleteUser(@RequestHeader("Authorization") String secureCode) {
+		String email = userService.findEmailbySecureCode(secureCode);
+		User targetUser = userService.findUserByEmail(email);
 		userService.deleteUser(targetUser);
 		
 		return "ok";
 	}
 	
-	@PutMapping("/{uid}/token")
+	@PutMapping("/token")
 	@Transactional(readOnly = false)
-	public String updateDeviceToken(@PathVariable("uid") long uid, @RequestBody UpdateDeviceTokenRequestFormat req) {
-		User targetUser = userService.findUserById(uid);
+	public String updateDeviceToken(@RequestHeader("Authorization") String secureCode, @RequestBody UpdateDeviceTokenRequestFormat req) {
+		String email = userService.findEmailbySecureCode(secureCode);
+		User targetUser = userService.findUserByEmail(email);
 		userService.setDeviceToken(targetUser, req.getDeviceToken());
 		
 		return "ok";
 	}
+	
+	@PostMapping("/login")
+	@Transactional(readOnly = false)
+	public String userLogIn(@RequestBody UserLogInRequestFormat req) {
+		String email = req.getEmail();
+		String password = req.getPassword();
+		String secureCode = userService.userLogin(email, password);
+		
+		return secureCode;
+	}
 
+	
+	@PostMapping("/temporary")
+	@Transactional(readOnly = false)
+	public String createTemporaryUser(@RequestBody CreateTemporaryUserRequestFormat req) {
+		TemporaryUser newTempUser = userService.createTemporaryUser(req.getEmail());
+		
+		return "ok";
+	}
+	
+	@PutMapping("/lostpassword")
+	@Transactional(readOnly = false)
+	public String findPassword(@RequestBody FindUserPasswordRequestFormat req) {
+		int length = 6; // 임시비밀번호 길이
+		
+		User targetUser = userService.findUserByEmail(req.getEmail());
+		String randomCode = userService.randomCode(length);
+		userService.setPassword(targetUser, randomCode);
+		userService.sendTemporalPasswordByEmail(targetUser, randomCode);
+		
+		return "ok";
+	}
+	
+	@PostMapping("/securecode/check")
+	@Transactional(readOnly = true)
+	public boolean checkSecureCode(@RequestBody SecureCodeCheckRequestFormat req) {
+		boolean successFlag = false;
+		try {
+			String email = userService.findEmailbySecureCode(req.getSecureCode());
+			successFlag = true;
+		}
+		catch(Exception e) {
+			successFlag = false;
+		}
+		
+		return successFlag;
+	}
 }

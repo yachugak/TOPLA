@@ -1,6 +1,6 @@
 package com.yachugak.topla.service;
 
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +18,7 @@ import com.yachugak.topla.exception.InvalidArgumentException;
 import com.yachugak.topla.repository.PlanRepository;
 import com.yachugak.topla.repository.TaskRepository;
 import com.yachugak.topla.repository.UserRepository;
+import com.yachugak.topla.util.DayCalculator;
 
 @Service
 public class TaskService {
@@ -30,12 +31,12 @@ public class TaskService {
 	@Autowired
 	private UserRepository userRepository;
 	
-	@Autowired
-	private PlanService planService;
-	
-	public List<Task> getAllTask(){
-		// TODO: 현재 리포짓 전부 가져옴. 각 유저에 대한 task로 수정필요.
-		return taskRepository.findAll();
+	public List<Task> getAllTask(User targetUser){
+		if(targetUser == null) {
+			throw new InvalidArgumentException("targetUser", "User 객체", null);
+		}
+		
+		return taskRepository.findByUser(targetUser);
 	}
 
 	public Task createNewTask(String title, int priority) {
@@ -60,7 +61,6 @@ public class TaskService {
 		}
 		
 		newTask.setUser(owner.get());
-		
 		taskRepository.saveAndFlush(newTask);
 
 		return newTask;
@@ -176,6 +176,17 @@ public class TaskService {
 		}
 	}
 	
+	// task에 할당된 plan을 지우되 목록으로 주어진 list에 존재하는 plan은 지우지 않습니다. witoutList는 삭제하지 않을 plan의 uid를 가집니다.
+	public void clearPlanWithout(Task task, List<Long> withoutList) {
+		List<Plan> planList = task.getPlans();
+
+		for(Plan p : planList) {
+			if(withoutList.indexOf(p.getUid()) < 0) {//witout목록에 없으면 삭제
+				planRepository.delete(p);
+			}
+		}
+	}
+	
 	public void addPlan(Task task, Date doDate, int doTime) {
 		if(doTime < 0 || doTime > 1440) {
 			throw new InvalidArgumentException("doTime", "0~1440", ""+doTime);
@@ -188,6 +199,15 @@ public class TaskService {
 		newPlan.setTask(task);
 		
 		planRepository.saveAndFlush(newPlan);
+		
+		if(task.getPlans() == null) {
+			List<Plan> temp = new ArrayList<Plan>();
+			temp.add(newPlan);
+			task.setPlans(temp);
+		}
+		else {
+			task.getPlans().add(newPlan);
+		}
 	}
 	
 	public List<Task> getTaskListToPlan(long userUid, Date planStartDate){
@@ -199,22 +219,22 @@ public class TaskService {
 	}
 	
 	public Task duplicated(Task task) {
-		List<Task> search = taskRepository.findByTitleContains(task.getTitle());
+		List<Task> search = taskRepository.findByTitleAndDueDateAndUser(task.getTitle(), task.getDueDate(), task.getUser());
 		
-		SimpleDateFormat format1 = new SimpleDateFormat("YYYY-MM-DD");
-		
-		for(Task t : search) {
-			String date1 = format1.format(t.getDueDate());
-			String date2 = format1.format(task.getDueDate());
-			if(date1.equals(date2)) {
-				return t;
-			}
+		if(search.isEmpty()) {
+			Task result = new Task();
+			result.setUid((long)-1);;
+			
+			return result;
 		}
 		
-		Task result = new Task();
-		result.setUid((long)-1);;
-		
-		return result;
+		else {
+			return search.get(0);
+		}
+	}
+	
+	public void setUser(Task task, User user) {
+		task.setUser(user);
 	}
 
 	// task와 progress 추가감소량을 받아 덧셈뺄셈.
@@ -223,4 +243,10 @@ public class TaskService {
 		int actualProgress = prevProgress + progressDiff;
 		this.setProgress(task,  actualProgress);
 	}
+
+	public List<Task> findTaskByRemindingTimingAndPushAlarmStatus(Date currentTime) {
+		return taskRepository.findByRemindingTimingAndPushAlarmStatus(currentTime, true);
+		
+	}
+	
 }

@@ -1,43 +1,358 @@
 <template>
   <v-app>
     <v-app-bar
-      app
-      color="primary"
-      dark
+        app
+        color="primary darken-2"
+        dark
     >
-      <div class="d-flex align-center">
-        TOPLA
-      </div>
+      <v-app-bar-nav-icon @click="isShowDrawer = !isShowDrawer" v-if="isLogined"></v-app-bar-nav-icon>
+      <v-toolbar-title>
+        <span @click="goToHome()">
+          TOPLA
+        </span>
+      </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click="pushPage('/')"><v-icon>mdi-desk</v-icon></v-btn>
-      <v-btn icon @click="pushPage('/preset')"><v-icon>mdi-calendar-heart</v-icon></v-btn>
     </v-app-bar>
+
+    <v-navigation-drawer
+        v-model="isShowDrawer"
+        fixed
+        temporary
+        left
+    >
+      <v-list nav dense>
+
+        <v-list-item-group v-model="selectedNavItem">
+          <v-list-item value="mypage" @click="onNavSelected('myPage')" v-if="!isSuperUser">
+            <v-list-item-icon>
+              <v-icon>mdi-account</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>마이 페이지</v-list-item-title>
+          </v-list-item>
+          <v-list-item value="search" @click="onNavSelected('search')" v-if="!isSuperUser">
+            <v-list-item-icon>
+              <v-icon>mdi-magnify</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>검색</v-list-item-title>
+          </v-list-item>
+          <v-list-item value="all" @click="onNavSelected('all')" v-if="!isSuperUser">
+            <v-list-item-icon>
+              <v-icon>mdi-alpha-a-box</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>모든 작업</v-list-item-title>
+          </v-list-item>
+          <v-list-item value="todo" @click="onNavSelected('todo')" v-if="!isSuperUser">
+            <v-list-item-icon>
+              <v-icon>mdi-check-box-outline</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>일간 작업 보기</v-list-item-title>
+          </v-list-item>
+          <v-list-item value="month" @click="onNavSelected('month')" v-if="!isSuperUser">
+            <v-list-item-icon>
+              <v-icon>mdi-calendar-month</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>월간 작업 보기</v-list-item-title>
+          </v-list-item>
+          <v-list-item value="schedulePreset" @click="onNavSelected('schedulePreset')" v-if="!isSuperUser">
+            <v-list-item-icon>
+              <v-icon>mdi-calendar-heart</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>스케줄 프리셋 설정</v-list-item-title>
+          </v-list-item>
+          <v-list-item value="stat" @click="onNavSelected('stat')" v-if="!isSuperUser">
+            <v-list-item-icon>
+              <v-icon>mdi-chart-areaspline</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>통계</v-list-item-title>
+          </v-list-item>
+          <v-list-item value="guide" @click="onNavSelected('guide')" v-if="!isSuperUser">
+            <v-list-item-icon>
+              <v-icon>mdi-book-information-variant</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>안내서</v-list-item-title>
+          </v-list-item>
+          <v-list-item value="logout" @click="onLogoutButtonClicked()" v-if="isSuperUser">
+            <v-list-item-icon>
+              <v-icon>mdi-logout</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>로그아웃</v-list-item-title>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+    </v-navigation-drawer>
 
     <v-main>
       <router-view></router-view>
     </v-main>
+
+    <!-- 테마 변경시 강제 재 렌더링용 -->
+    <span v-show="false">{{nowTheme}}</span>
   </v-app>
 </template>
 
 <script>
+import loginInfo from "@/plugins/loginInfo";
+import themeList from "@/plugins/theme";
+
 export default {
   name: 'App',
-
   data() {
     return {
+      isShowDrawer: false,
+      selectedNavItem: null,
+      logoSrc: require("@/assets/logo.png")
     };
   },
 
-  methods: {
-    async pushPage(location){
-      try{
-        await this.$router.push(location)
+  created() {
+    this.setLoginInfoToVuex();
+    window.dialog = this.$dialog;
+
+    let selectTheme = window.localStorage.getItem("theme") * 1
+    themeList[2].primary = window.localStorage.getItem("customPrimary");
+    themeList[2].secondary = window.localStorage.getItem("customSecondary");
+    this.$store.commit("setCustomTheme", themeList[2].primary, themeList[2].secondary);
+    let defTheme = this.$vuetify.theme.themes.light
+    let theme = themeList[selectTheme]
+    for (let color in theme) {
+      defTheme[color] = theme[color]
+    }
+
+    this.checkAuthToken();
+    this.loadisSeenGuidBook();
+  },
+
+  watch: {
+    isShowDrawer(newVal) {
+      if (newVal === true) {
+        this.matchPage();
       }
-      catch{
+    }
+  },
+
+  computed: {
+    isLoginPage() {
+      return this.$route.name === "login page";
+    },
+
+    isLogined() {
+      if (this.$store.state.loginInfo === null) {
+        return false;
+      }
+
+      return true;
+    },
+
+    sidleBarMargin() {
+      return {
+        "mobile-margin": !this.$vuetify.breakpoint.mdAndUp
+      }
+    },
+
+    isShowSwapButton() {
+      if (this.isLogined === false) {
+        return false;
+      }
+
+      let pageName = this.$route.name;
+      return pageName === "todolist mode" || pageName === "calendar mode";
+    },
+
+    isSuperUser(){
+      return this.$store.state.isSuperUser;
+    },
+
+    //테마 변경시 강제 재렌더링용
+    nowTheme(){
+      return this.$store.state.nowTheme;
+    }
+  },
+
+  methods: {
+    async pushPage(location) {
+      try {
+        await this.$router.push(location)
+      } catch {
         //아무것도 안 함.
         //같은 페이지로 이동시 예외가 던저지기 때문에 이렇게 함.
       }
+    },
+
+    onLogoutButtonClicked() {
+      loginInfo.clearAll()
+      this.$store.commit("setLoginInfo", null);
+      this.$store.commit("setUserEmail", null);
+      this.pushPage("/");
+    },
+
+    onNavSelected(mode) {
+      switch (mode) {
+        case "myPage":
+          this.pushPage("/mypage");
+          break;
+        case "search":
+          this.pushPage("/search");
+          break;
+        case "todo":
+          this.pushPage("/");
+          break;
+        case "month":
+          this.pushPage("/calendar");
+          break;
+        case "schedulePreset":
+          this.pushPage("/preset");
+          break;
+        case "logout":
+          this.onLogoutButtonClicked();
+          break;
+        case "all":
+          this.pushPage("/all");
+          break;
+        case "stat":
+          this.pushPage("/stat");
+          break;
+        case "guide":
+          this.pushPage("/guide");
+          break;
+      }
+
+      this.isShowDrawer = false;
+    },
+
+    onSwapButtonClicked() {
+      let pageName = this.$route.name;
+      if (pageName === "todolist mode") {
+        this.pushPage("/calendar");
+        this.$dialog.message.info("월간 보기 화면으로 전환합니다.", {timeout: 800});
+        return
+      } else if (pageName === "calendar mode") {
+        this.pushPage("/")
+        this.$dialog.message.info("일간 보기 화면으로 전환합니다.", {timeout: 800});
+        return
+      }
+
+      this.pushPage("/");
+    },
+
+    matchPage() {
+      let pageName = this.$route.name;
+      switch (pageName) {
+        case "todolist mode":
+          this.selectedNavItem = "todo";
+          break;
+
+        case "search mode":
+          this.selectedNavItem = "search"
+          break;
+
+        case "calendar mode":
+          this.selectedNavItem = "month";
+          break;
+
+        case "all mode":
+          this.selectedNavItem = "all";
+          break;
+
+        case "preset mode":
+          this.selectedNavItem = "schedulePreset";
+          break;
+
+        case "mypage mode":
+          this.selectedNavItem = "mypage";
+          break;
+
+        case "statistic mode":
+          this.selectedNavItem = "stat";
+          break;
+
+        case "user guide mode":
+          this.selectedNavItem = "guide";
+          break;
+
+        default:
+          this.selectedNavItem = null;
+          break;
+      }
+    },
+
+    setLoginInfoToVuex(){
+      if(loginInfo.isThereLoginInfo()){
+        this.$store.commit("setLoginInfo", loginInfo.getLoginInfo());
+      }
+
+      if(loginInfo.isThereUserEmail()){
+        this.$store.commit("setUserEmail", loginInfo.getUserEmail());
+      }
+
+      if(loginInfo.isThereSuperUserFlag()){
+        this.$store.commit("setSuperUserFlag", loginInfo.getSuperUserFlag());
+      }
+    },
+
+    async checkAuthToken() {
+      if (this.$store.state.loginInfo === null) {
+        return;
+      }
+
+      let successFlag = false;
+
+      try {
+        let res = await this.$axios.post("/user/securecode/check", {
+          secureCode: this.$store.state.loginInfo
+        });
+        if (res.data === "true" || res.data === true) {
+          successFlag = true;
+        } else {
+          successFlag = false;
+        }
+      } catch {
+        successFlag = false;
+      }
+
+      if (successFlag === false) {
+        this.onLogoutButtonClicked();
+      }
+    },
+
+    loadisSeenGuidBook(){
+      let info = window.localStorage.getItem("isSeenGuideBook");
+
+      if(info === null || info === undefined){
+        this.$store.commit("setGuideBookState", false);
+        return;
+      }
+
+      if(info === true || info === "true"){
+        this.$store.commit("setGuideBookState", true);
+        return;
+      }
+
+      if(info === false || info === "false"){
+        this.$store.commit("setGuideBookState", false);
+        return;
+      }
+
+      this.$store.commit("setGuideBookState", true);
+    },
+
+    goToHome(){
+      this.$router.push("/todolist");
     }
   }
 };
 </script>
+
+<style scoped>
+.desktop-margin {
+  margin-top: 64px;
+}
+
+.mobile-margin {
+  margin-top: 56px;
+}
+
+#app-title:hover {
+  background: #000000;
+}
+</style>
+
