@@ -93,7 +93,7 @@
         fab
         large
         id="addNewTaskbutton"
-        @click="isShowNewTaskdialog = true; taskCreatedMode = true"
+        @click="showCreateTaskDialog()"
     ><v-icon>mdi-plus-circle-outline</v-icon></v-btn>
 
     <!--태스크 추가 창-->
@@ -122,6 +122,8 @@
 import taskInfoForm from "@/components/taskInfoForm";
 import taskCard from "@/components/taskCard";
 import scheduleAlertBox from "@/components/scheduleAlertBox";
+import moment from "moment";
+import errorDialog from "@/plugins/errorDialog";
 
 export default {
   data() {
@@ -219,14 +221,6 @@ export default {
     }
   },
 
-  watch: {
-    isShowNewTaskdialog(newVal){
-      if(newVal === true){
-        this.clearForm();
-      }
-    }
-  },
-
   methods: {
     async getTaskList() {
       this.isCalling++;
@@ -291,23 +285,12 @@ export default {
 
       try{
         this.isCalling++;
-        if(this.taskCreatedMode){
-          await this.$axios.post("/task", requestBody);
-        }
-        else{
-          await this.$axios.put(`/task/${this.updateTargetTask.uid}`, requestBody);
-        }
-
+        await this.$axios.post("/task", requestBody);
         await this.getTaskList();
         this.isShowNewTaskdialog = false;
       }
-
       catch(e){
-        this.$dialog.error({
-          title: "등록 실패",
-          text: e.response.data.message
-        });
-
+        errorDialog(this, "등록 실패", e);
       }
       finally {
         this.isCalling--
@@ -415,11 +398,17 @@ export default {
         }
       }
 
-      console.log("??");
       this.$store.commit("setGuideBookState", true);
       window.localStorage.setItem("isSeenGuideBook", true);
-    }
+    },
 
+    showCreateTaskDialog(){
+      this.clearForm();
+      this.isShowNewTaskdialog = true;
+      let m = moment(this.selectedDate.getTime());
+      let dateString = m.format("yyyy[-]MM[-]DD");
+      this.newTaskFormData.dueDate = dateString;
+    }
   },
 
   created() {
