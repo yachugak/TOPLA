@@ -61,6 +61,12 @@
             </v-list-item-icon>
             <v-list-item-title>통계</v-list-item-title>
           </v-list-item>
+          <v-list-item value="guide" @click="onNavSelected('guide')">
+            <v-list-item-icon>
+              <v-icon>mdi-book-information-variant</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>안내서</v-list-item-title>
+          </v-list-item>
         </v-list-item-group>
       </v-list>
     </v-navigation-drawer>
@@ -97,6 +103,7 @@ export default {
     }
 
     this.checkAuthToken();
+    this.loadisSeenGuidBook();
   },
 
   watch: {
@@ -180,6 +187,9 @@ export default {
         case "stat":
           this.pushPage("/stat");
           break;
+        case "guide":
+          this.pushPage("/guide");
+          break;
       }
 
       this.isShowDrawer = false;
@@ -228,6 +238,10 @@ export default {
           this.selectedNavItem = "stat";
           break;
 
+        case "user guide mode":
+          this.selectedNavItem = "guide";
+          break;
+
         default:
           this.selectedNavItem = null;
           break;
@@ -271,7 +285,29 @@ export default {
       if(successFlag === false){
         this.onLogoutButtonClicked();
       }
-    }
+    },
+
+    loadisSeenGuidBook(){
+      let info = window.localStorage.getItem("isSeenGuideBook");
+
+      if(info === null || info === undefined){
+        this.$store.commit("setGuideBookState", false);
+        return;
+      }
+
+      if(info === true || info === "true"){
+        this.$store.commit("setGuideBookState", true);
+        return;
+      }
+
+      if(info === false || info === "false"){
+        this.$store.commit("setGuideBookState", false);
+        return;
+      }
+
+      this.$store.commit("setGuideBookState", true);
+    },
+
   }
 };
 </script>
