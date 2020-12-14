@@ -65,11 +65,8 @@ public class SuperUserService {
 		return false;
 	}
 
-	public void resetPassword(User targetUser) {
-		String password = "0000";
-		SHA256 sha256 = new SHA256();
-		password = sha256.getEncrpyt(password);
-		userService.setPassword(targetUser, password);
+	public void resetPassword(User targetUser, String newPassword) {
+		userService.setPassword(targetUser, newPassword);
 	}
 
 	// 전체 유저 대상
