@@ -8,12 +8,6 @@
       <v-app-bar-nav-icon @click="isShowDrawer = !isShowDrawer" v-if="isLogined"></v-app-bar-nav-icon>
       <v-toolbar-title>TOPLA</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click="pushPage('/search')" v-if="isLogined">
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
-      <v-btn icon @click="onSwapButtonClicked()" v-if="isShowSwapButton">
-        <v-icon>mdi-swap-horizontal</v-icon>
-      </v-btn>
     </v-app-bar>
 
     <v-navigation-drawer
@@ -25,41 +19,59 @@
       <v-list nav dense>
 
         <v-list-item-group v-model="selectedNavItem">
-          <v-list-item value="mypage" @click="onNavSelected('myPage')">
+          <v-list-item value="mypage" @click="onNavSelected('myPage')" v-if="!isSuperUser">
             <v-list-item-icon>
               <v-icon>mdi-account</v-icon>
             </v-list-item-icon>
             <v-list-item-title>마이 페이지</v-list-item-title>
           </v-list-item>
-          <v-list-item value="all" @click="onNavSelected('all')">
+          <v-list-item value="search" @click="onNavSelected('search')" v-if="!isSuperUser">
+            <v-list-item-icon>
+              <v-icon>mdi-magnify</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>검색</v-list-item-title>
+          </v-list-item>
+          <v-list-item value="all" @click="onNavSelected('all')" v-if="!isSuperUser">
             <v-list-item-icon>
               <v-icon>mdi-alpha-a-box</v-icon>
             </v-list-item-icon>
             <v-list-item-title>모든 작업</v-list-item-title>
           </v-list-item>
-          <v-list-item value="todo" @click="onNavSelected('todo')">
+          <v-list-item value="todo" @click="onNavSelected('todo')" v-if="!isSuperUser">
             <v-list-item-icon>
               <v-icon>mdi-calendar-today</v-icon>
             </v-list-item-icon>
             <v-list-item-title>일간 작업 보기</v-list-item-title>
           </v-list-item>
-          <v-list-item value="month" @click="onNavSelected('month')">
+          <v-list-item value="month" @click="onNavSelected('month')" v-if="!isSuperUser">
             <v-list-item-icon>
               <v-icon>mdi-calendar-month</v-icon>
             </v-list-item-icon>
             <v-list-item-title>월간 작업 보기</v-list-item-title>
           </v-list-item>
-          <v-list-item value="schedulePreset" @click="onNavSelected('schedulePreset')">
+          <v-list-item value="schedulePreset" @click="onNavSelected('schedulePreset')" v-if="!isSuperUser">
             <v-list-item-icon>
               <v-icon>mdi-calendar-heart</v-icon>
             </v-list-item-icon>
             <v-list-item-title>스케줄 프리셋 설정</v-list-item-title>
           </v-list-item>
-          <v-list-item value="stat" @click="onNavSelected('stat')">
+          <v-list-item value="stat" @click="onNavSelected('stat')" v-if="!isSuperUser">
             <v-list-item-icon>
               <v-icon>mdi-chart-areaspline</v-icon>
             </v-list-item-icon>
             <v-list-item-title>통계</v-list-item-title>
+          </v-list-item>
+          <v-list-item value="guide" @click="onNavSelected('guide')" v-if="!isSuperUser">
+            <v-list-item-icon>
+              <v-icon>mdi-book-information-variant</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>안내서</v-list-item-title>
+          </v-list-item>
+          <v-list-item value="logout" @click="onLogoutButtonClicked()" v-if="isSuperUser">
+            <v-list-item-icon>
+              <v-icon>mdi-logout</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>로그아웃</v-list-item-title>
           </v-list-item>
         </v-list-item-group>
       </v-list>
@@ -85,18 +97,19 @@ export default {
     };
   },
 
-  created(){
+  created() {
     this.setLoginInfoToVuex();
     window.dialog = this.$dialog;
 
-    let selectTheme=window.localStorage.getItem("theme")*1
+    let selectTheme = window.localStorage.getItem("theme") * 1
     let defTheme = this.$vuetify.theme.themes.light
-    let theme= themeList[selectTheme]
-    for(let color in theme){
-      defTheme[color]=theme[color]
+    let theme = themeList[selectTheme]
+    for (let color in theme) {
+      defTheme[color] = theme[color]
     }
 
     this.checkAuthToken();
+    this.loadisSeenGuidBook();
   },
 
   watch: {
@@ -133,6 +146,10 @@ export default {
 
       let pageName = this.$route.name;
       return pageName === "todolist mode" || pageName === "calendar mode";
+    },
+
+    isSuperUser(){
+      return this.$store.state.isSuperUser;
     }
   },
 
@@ -158,6 +175,9 @@ export default {
         case "myPage":
           this.pushPage("/mypage");
           break;
+        case "search":
+          this.pushPage("/search");
+          break;
         case "todo":
           this.pushPage("/");
           break;
@@ -175,6 +195,9 @@ export default {
           break;
         case "stat":
           this.pushPage("/stat");
+          break;
+        case "guide":
+          this.pushPage("/guide");
           break;
       }
 
@@ -198,10 +221,13 @@ export default {
 
     matchPage() {
       let pageName = this.$route.name;
-      console.log(pageName);
       switch (pageName) {
         case "todolist mode":
           this.selectedNavItem = "todo";
+          break;
+
+        case "search mode":
+          this.selectedNavItem = "search"
           break;
 
         case "calendar mode":
@@ -224,6 +250,10 @@ export default {
           this.selectedNavItem = "stat";
           break;
 
+        case "user guide mode":
+          this.selectedNavItem = "guide";
+          break;
+
         default:
           this.selectedNavItem = null;
           break;
@@ -232,38 +262,64 @@ export default {
 
     setLoginInfoToVuex(){
       if(loginInfo.isThereLoginInfo()){
-        this.$store.commit("setLoginInfo", loginInfo.getLoginInfo())
+        this.$store.commit("setLoginInfo", loginInfo.getLoginInfo());
       }
 
       if(loginInfo.isThereUserEmail()){
-        this.$store.commit("setUserEmail", loginInfo.getUserEmail())
+        this.$store.commit("setUserEmail", loginInfo.getUserEmail());
+      }
+
+      if(loginInfo.isThereSuperUserFlag()){
+        this.$store.commit("setSuperUserFlag", loginInfo.getSuperUserFlag());
       }
     },
 
-    async checkAuthToken(){
-      if(this.$store.state.loginInfo === null){
+    async checkAuthToken() {
+      if (this.$store.state.loginInfo === null) {
         return;
       }
 
       let successFlag = false;
 
-      try{
+      try {
         let res = await this.$axios.post("/user/securecode/check", {
           secureCode: this.$store.state.loginInfo
         });
-        if(res.data === "true" || res.data === true){
+        if (res.data === "true" || res.data === true) {
           successFlag = true;
-        }else{
+        } else {
           successFlag = false;
         }
-      }catch{
+      } catch {
         successFlag = false;
       }
 
-      if(successFlag === false){
+      if (successFlag === false) {
         this.onLogoutButtonClicked();
       }
-    }
+    },
+
+    loadisSeenGuidBook(){
+      let info = window.localStorage.getItem("isSeenGuideBook");
+
+      if(info === null || info === undefined){
+        this.$store.commit("setGuideBookState", false);
+        return;
+      }
+
+      if(info === true || info === "true"){
+        this.$store.commit("setGuideBookState", true);
+        return;
+      }
+
+      if(info === false || info === "false"){
+        this.$store.commit("setGuideBookState", false);
+        return;
+      }
+
+      this.$store.commit("setGuideBookState", true);
+    },
+
   }
 };
 </script>
