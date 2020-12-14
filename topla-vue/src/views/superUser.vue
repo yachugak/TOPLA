@@ -135,7 +135,7 @@
           </template>
           <template v-slot:item.action="{item}">
             <v-btn small icon @click="showMailDialog(item.email)"><v-icon>mdi-email-edit</v-icon></v-btn>
-            <v-btn small icon @click="onPasswordResetButtonClicked(item.email)"><v-icon>mdi-lock-reset</v-icon></v-btn>
+            <v-btn small icon @click="showPasswordResetDialog(item.email)"><v-icon>mdi-lock-reset</v-icon></v-btn>
             <v-btn small icon @click="onUserBanButtonClicked(item.email)"><v-icon>mdi-account-cancel</v-icon></v-btn>
           </template>
         </v-data-table>
@@ -162,13 +162,22 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="passwordChangeDialog.show" max-width="700" persistent>
+    <v-dialog v-model="passwordChangeDialog.show" max-width="700" :persistent="passwordChangeDialog.isOnGoing">
       <v-card>
-        <v-card-title>비밀번호 초기화 중</v-card-title>
-        <v-card-text class="text-center">
-          <v-progress-linear indeterminate></v-progress-linear>
-          {{passwordChangeDialog.message}}
+        <v-card-title>비밀번호 강제 변경</v-card-title>
+        <v-card-subtitle>사용자의 비밀번호를 변경합니다.</v-card-subtitle>
+        <v-card-text>
+          <v-form ref="passwordChangeForm">
+            <v-text-field outlined label="변경 대상" disabled :value="passwordChangeDialog.target"></v-text-field>
+            <v-text-field outlined label="새 비밀번호" :rules="passwordRule" v-model="passwordChangeDialog.password"></v-text-field>
+          </v-form>
         </v-card-text>
+        <v-card-actions>
+          {{passwordChangeDialog.message}}
+          <v-spacer></v-spacer>
+          <v-btn color="secondary" :loading="passwordChangeDialog.isOnGoing" @click="passwordChangeDialog.show=false">취소</v-btn>
+          <v-btn color="primary" :loading="passwordChangeDialog.isOnGoing" @click="onPasswordResetButtonClicked()">변경</v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
     <v-dialog :persistent="callCount>0" max-width="700" v-model="userBanDialog.show">
@@ -287,6 +296,7 @@ export default {
       ],
 
       requireRule: [validator.rules.required("필수값입니다.")],
+      passwordRule: [validator.rules.required("필수값입니다."), validator.rules.minLength(4, "4자 이상이여야 합니다."), validator.rules.maxLength(30, "30자를 넘을 수 없습니다.")],
 
       mailDialog: {
         to: "",
@@ -297,7 +307,10 @@ export default {
 
       passwordChangeDialog: {
         show: false,
-        message: ""
+        message: "",
+        target: "",
+        password: "",
+        isOnGoing: false
       },
 
       userBanDialog: {
@@ -444,10 +457,14 @@ export default {
       }
     },
 
-    async onPasswordResetButtonClicked(targetEmail){
+    async onPasswordResetButtonClicked(){
+      if(this.$refs.passwordChangeForm.validate() === false){
+        return;
+      }
+
       let res = await this.$dialog.info({
         title: "사용자의 비밀번호 초기화",
-        text: `${targetEmail}의 비밀번호를 초기화 하시겠습니까?`,
+        text: `${this.passwordChangeDialog.target}의 비밀번호를 초기화 하시겠습니까?`,
         actions: {
           false: {
             text: "아니오",
@@ -497,19 +514,21 @@ export default {
       }
 
       this.callCount++;
+      this.passwordChangeDialog.isOnGoing = true;
       this.passwordChangeDialog.show = true;
-      this.passwordChangeDialog.message = "비밀번호를 초기화 하는 중..."
+      this.passwordChangeDialog.message = "비밀번호를 초기화 하는 중...";
       let passwordChangeSuccessFlag = false;
       try{
         await this.$axios.put("/superuser/resetpassword", {
-          email: targetEmail
+          email: this.passwordChangeDialog.target,
+          password: this.passwordChangeDialog.password
         });
         passwordChangeSuccessFlag = true;
-        this.passwordChangeDialog.message = "메일 전송 중..."
+        this.passwordChangeDialog.message = "메일 전송 중...";
         await this.$axios.post("/superuser/sendmail",{
-          to: targetEmail,
+          to: this.passwordChangeDialog.target,
           title: "[TOPLA] 귀하의 계정의 비밀번호가 초기화되었습니다.",
-          content: `귀하의 TOPLA 계정 ${targetEmail}의 비밀번호가 초기화되었습니다. 자세한 문의는 topla@syunasoft.com으로 문의해 주시기 바랍니다.`
+          content: `귀하의 TOPLA 계정 ${this.passwordChangeDialog.target}의 비밀번호가 초기화되었습니다. 자세한 문의는 topla@syunasoft.com으로 문의해 주시기 바랍니다.`
         });
         this.$dialog.notify.success("비밀번호가 초기화되었고 메일 전송 요청이 성공했습니다.");
       }
@@ -522,6 +541,7 @@ export default {
       finally {
         this.callCount--;
         this.passwordChangeDialog.show = false;
+        this.passwordChangeDialog.isOnGoing = false;
       }
     },
 
@@ -676,6 +696,14 @@ export default {
       }
       this.allMailDialog.finish = true;
       this.$dialog.notify.info(`[메일 전송 결과] 총 ${this.allMailDialog.total}건 중 ${this.allMailDialog.success}건 성공, ${this.allMailDialog.fail}건 실패`);
+    },
+
+    showPasswordResetDialog(target){
+      this.passwordChangeDialog.target = target;
+      this.passwordChangeDialog.isOnGoing = false;
+      this.passwordChangeDialog.password = "";
+      this.passwordChangeDialog.show = true;
+      this.passwordChangeDialog.message = "";
     }
   }
 }
