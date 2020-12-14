@@ -130,3 +130,24 @@ back-end의 코드만 돌아가므로 ui는 존재하지 않습니다.
 - mysql
 - json parser
 - javax email
+
+# 6. 소스파일 설명
+## Front-End
+
+## Back-End
++ `src/main/java/com/yachugack/topla` : app을 시작하는 main이 있습니다.
++ `src/main/java/com/yachugack/topla/Controller` : front-end와 back-end간 통신을 중계해줍니다.
++ `src/main/java/com/yachugack/topla/dataformat` : back-end에서 정의한 data형식이 들어있습니다.
++ `src/main/java/com/yachugack/topla/entity` : DataBase의 정보를 끌어오기 위해 hibernate로 정의한 entity가 들어있습니다.
++ `src/main/java/com/yachugack/topla/exception` : 서비스에서 발생하는 예외를 처리하기 위해 직접 정의한 처리구문들이 들어있습니다.
++ `src/main/java/com/yachugack/topla/plan` : 서비스에서 plan을 계산하기 위한 알고리즘이 들어가있습니다.
++ `src/main/java/com/yachugack/topla/remind` : 서비스에서 remind기능을 구현하기 위한 코드가 들어있습니다.
++ `src/main/java/com/yachugack/topla/repository` : 데이터베이스에서 정보를 찾기 위한 쿼리문이 들어있습니다.
++ `src/main/java/com/yachugack/topla/request` : front-end에서 데이터를 받기 위한 양식이 들어있습니다.
++ `src/main/java/com/yachugack/topla/response` : front-end로 데이터를 보내기 위한 양식이 들어있습니다.
++ `src/main/java/com/yachugack/topla/service` : back-end에서 실제로 서비스를 위한 코드들이 담겨져있습니다.
++ `src/main/java/com/yachugack/topla/util` : 서비스 전반에 걸쳐 필요한 util들이 들어있습니다.
++ `src/test/java/com/yachugak/topla` : TDD기반의 프로젝트이므로 테스트를 위한 코드들이 있습니다.
+
+# 7. git-hub
+`git-hub 주소` : https://github.com/yachugak/TOPLA
