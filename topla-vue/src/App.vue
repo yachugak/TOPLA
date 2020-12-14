@@ -43,7 +43,7 @@
           </v-list-item>
           <v-list-item value="todo" @click="onNavSelected('todo')" v-if="!isSuperUser">
             <v-list-item-icon>
-              <v-icon>mdi-calendar-today</v-icon>
+              <v-icon>mdi-check-box-outline</v-icon>
             </v-list-item-icon>
             <v-list-item-title>일간 작업 보기</v-list-item-title>
           </v-list-item>
@@ -84,6 +84,9 @@
     <v-main>
       <router-view></router-view>
     </v-main>
+
+    <!-- 테마 변경시 강제 재 렌더링용 -->
+    <span v-show="false">{{nowTheme}}</span>
   </v-app>
 </template>
 
@@ -157,6 +160,11 @@ export default {
 
     isSuperUser(){
       return this.$store.state.isSuperUser;
+    },
+
+    //테마 변경시 강제 재렌더링용
+    nowTheme(){
+      return this.$store.state.nowTheme;
     }
   },
 
