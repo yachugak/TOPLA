@@ -106,7 +106,7 @@ export default {
     weekday: [0, 1, 2, 3, 4, 5, 6],
     dueTasks: [],
     doTasks: [],
-    colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
+    colors: ['amber lighten-3', 'amber darken-2', 'amber darken-4'],
     taskViewMode: "dueDate",
     date: new Date().toISOString().substr(0, 7),
     menu2: false,
