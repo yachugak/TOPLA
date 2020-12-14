@@ -385,6 +385,41 @@ export default {
       })
     },
 
+    async showGuideBookMsg(){
+      let res = undefined;
+
+      if(this.$store.state.isSeenGuideBook === true){
+        return;
+      }
+
+      while(res===undefined){
+        res = await this.$dialog.info({
+          title: "TOPLA에 오신 것을 환영합니다!",
+          text: "TOPLA를 선택해 주셔서 감사합니다. 사용 전에 앞서 미리 안내서를 읽어볼 수도 있습니다. 안내서를 읽어 보시겠습니까?",
+          actions: {
+            false: {
+              text: "아니오"
+            },
+            true: {
+              text: "예"
+            }
+          }
+        });
+
+        if(res === true){
+          this.$router.push("/guide");
+          break;
+        }
+        else if(res === false){
+          break;
+        }
+      }
+
+      console.log("??");
+      this.$store.commit("setGuideBookState", true);
+      window.localStorage.setItem("isSeenGuideBook", true);
+    }
+
   },
 
   created() {
@@ -395,6 +430,8 @@ export default {
       this.selectedDate=new Date(this.$route.params.date)
       this.taskViewMode=this.$route.params.viewMode
     }
+
+    this.showGuideBookMsg();
   }
 }
 </script>
