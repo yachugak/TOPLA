@@ -89,7 +89,6 @@ import themeList from "@/plugins/theme";
 
 export default {
   name: 'App',
-
   data() {
     return {
       isShowDrawer: false,
@@ -102,6 +101,9 @@ export default {
     window.dialog = this.$dialog;
 
     let selectTheme = window.localStorage.getItem("theme") * 1
+    themeList[2].primary = window.localStorage.getItem("customPrimary");
+    themeList[2].secondary = window.localStorage.getItem("customSecondary");
+    this.$store.commit("setCustomTheme", themeList[2].primary, themeList[2].secondary);
     let defTheme = this.$vuetify.theme.themes.light
     let theme = themeList[selectTheme]
     for (let color in theme) {
@@ -333,3 +335,4 @@ export default {
   margin-top: 56px;
 }
 </style>
+
