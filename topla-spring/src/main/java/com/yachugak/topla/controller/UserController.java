@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.yachugak.topla.entity.SchedulePreset;
 import com.yachugak.topla.entity.TemporaryUser;
 import com.yachugak.topla.entity.User;
+import com.yachugak.topla.exception.GeneralExceptions;
 import com.yachugak.topla.request.CreateTemporaryUserRequestFormat;
 import com.yachugak.topla.request.CreateUserRequestFormat;
 import com.yachugak.topla.request.FindUserPasswordRequestFormat;
@@ -56,7 +57,7 @@ public class UserController {
 		}
 		
 		else {
-			return "인증번호가 다릅니다.";
+			throw new GeneralExceptions("보안코드가 잘못되었습니다.");
 		}
 	}
 	
