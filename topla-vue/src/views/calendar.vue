@@ -3,7 +3,6 @@
     <v-sheet height="600">
       <v-container fluid>
         <v-row no-gutters>
-          <v-col cols="12">
             <v-toolbar
                 flat
             >
@@ -69,7 +68,6 @@
               </v-btn>
 
             </v-toolbar>
-          </v-col>
         </v-row>
         <v-row>
           <v-col cols="12" class="px-6">
@@ -92,6 +90,7 @@
           :day-format="dateFormat"
           :show-month-on-first="false"
           v-model="today"
+
       ></v-calendar>
     </v-sheet>
   </div>
@@ -106,7 +105,7 @@ export default {
     weekday: [0, 1, 2, 3, 4, 5, 6],
     dueTasks: [],
     doTasks: [],
-    colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
+    colors: ['amber lighten-1', 'amber darken-2', 'amber darken-4'],
     taskViewMode: "dueDate",
     date: new Date().toISOString().substr(0, 7),
     menu2: false,
@@ -174,23 +173,35 @@ export default {
         errorDialog(this,"받아오기 실패",e)
       }
 
+      let selectColor
+
       for (let i = 0; i < task.data.length; i++) {
+
+        if(task.data[i].finishDate===null)
+          selectColor=this.colors[task.data[i].priority-1]
+        else
+          selectColor='grey'
         dueTasks.push({
           name: task.data[i].title,
           start: new Date(`${task.data[i].dueDate}`),
           end: new Date(`${task.data[i].dueDate}`),
-          color: this.colors[3],
+          color: selectColor,
           timed: false,
         })
       }
 
       for (let i = 0; i < task.data.length; i++) {
         for (let j = 0; j < task.data[i].planList.length; j++) {
+
+          if(task.data[i].finishDate===null)
+            selectColor=this.colors[task.data[i].priority-1]
+          else
+            selectColor='grey'
           doTasks.push({
             name: task.data[i].title,
             start: new Date(`${task.data[i].planList[j].doDate}`),
             end: new Date(`${task.data[i].planList[j].doDate}`),
-            color: this.colors[3],
+            color: this.colors[task.data[i].priority-1],
             timed: false,
           })
         }
