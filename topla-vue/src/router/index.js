@@ -72,6 +72,11 @@ const routes = [
         path: "/stat",
         name: "statistic mode",
         component: () => import("../views/statistic.vue")
+    },
+    {
+        path: "/guide",
+        name: "user guide page",
+        component: () => import("../views/userGuide")
     }
 ]
 

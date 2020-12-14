@@ -6,7 +6,8 @@ Vue.use(Vuex)
 let vuex =  new Vuex.Store({
   state: {
     loginInfo: null,
-    email: null
+    email: null,
+    isSeenGuideBook: true
   },
   mutations: {
     setLoginInfo(state, loginInfo){
@@ -15,6 +16,10 @@ let vuex =  new Vuex.Store({
 
     setUserEmail(state, email){
       state.email = email;
+    },
+
+    setGuideBookState(state, booleanValue){
+      state.isSeenGuideBook = booleanValue;
     }
   },
   actions: {
