@@ -2,7 +2,8 @@ package com.yachugak.topla.request;
 
 public class FindUserPasswordRequestFormat {
 	private String email;
-
+	private String password;
+	
 	public String getEmail() {
 		return email;
 	}
@@ -11,4 +12,12 @@ public class FindUserPasswordRequestFormat {
 		this.email = email;
 	}
 
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
 }

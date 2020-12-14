@@ -140,14 +140,15 @@ public class SuperUserController {
 	@PutMapping("/resetpassword")
 	@Transactional(readOnly = false)
 	public String resetPassword(@RequestHeader("Authorization") String secureCode, @RequestBody FindUserPasswordRequestFormat req) {
-		String email = userService.findEmailbySecureCode(secureCode);
+		String newPassword = req.getPassword();
 		
+		String email = userService.findEmailbySecureCode(secureCode);
 		if(superUserService.isSuperUser(email) == false) {
 			throw new GeneralExceptions("접근 권한이 없습니다.");
 		}
 		
 		User targetUser = userService.findUserByEmail(req.getEmail());
-		superUserService.resetPassword(targetUser);
+		superUserService.resetPassword(targetUser, newPassword);
 		return "ok";
 	}
 	
