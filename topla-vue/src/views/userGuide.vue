@@ -164,6 +164,14 @@ export default {
     }
   },
 
+  created() {
+    let pageName = this.$route.params.pageName;
+
+    if(pageName === "preset"){
+      this.selectedTab = 4;
+    }
+  },
+
   methods: {
     selectPage(pageNum){
       this.selectedTab = pageNum;
