@@ -1,6 +1,6 @@
 <template>
   <div id="backgroundDiv" class="back pa-4">
-    <v-card class="pa-4">
+    <v-card class="pa-4 mx-auto" max-width="1000">
       <v-form v-if="currentMode==='login'" ref="form">
         <v-text-field
             label="계정"
@@ -93,22 +93,44 @@ export default {
       this.callCount++;
       try {
         let copiedEmail = this.formInput.account;
-        let res = await this.$axios.post("/user/login", {
-          email: this.formInput.account,
-          password: this.formInput.password
-        });
+        let copiedPassword = this.formInput.password;
 
-        loginInfo.setLoginInfo(res.data);
-        loginInfo.setUserEmail(this.formInput.account);
-        this.$store.commit("setLoginInfo", res.data);
+        let authToken = await this.superUserLogin(copiedEmail, copiedPassword);
+
+        console.log("authToken", authToken);
+        //관리자 계정이 아니면 일반 회원 로그인 시도.
+        if(authToken === null){
+          console.log("일반");
+          loginInfo.setSuperUserFlag(false);
+          this.$store.commit("setSuperUserFlag", false);
+          let res = await this.$axios.post("/user/login", {
+            email: copiedEmail,
+            password: copiedPassword
+          });
+          authToken = res.data;
+        }
+        else{
+          console.log("관리자");
+          loginInfo.setSuperUserFlag(true);
+          this.$store.commit("setSuperUserFlag", true);
+        }
+
+        loginInfo.setLoginInfo(authToken);
+        loginInfo.setUserEmail(copiedEmail);
+        this.$store.commit("setLoginInfo", authToken);
         this.$store.commit("setUserEmail", copiedEmail);
-        window.axios.defaults.headers.common["Authorization"] = loginInfo.getLoginInfo();
+        window.axios.defaults.headers.common["Authorization"] = authToken;
 
         await window.axios.put("/user/token", {
           "deviceToken": window.myDeviceKey
         })
 
-        await this.$router.push("/todolist");
+        if(this.$store.state.isSuperUser){
+          this.$router.push("/superuser");
+        }
+        else {
+          this.$router.push("/todolist");
+        }
       }
       catch(e){
         this.$dialog.error({
@@ -119,6 +141,30 @@ export default {
       finally {
         this.callCount--;
       }
+    },
+
+    //관리자 로그인에 성공하면 인증토큰 반환, 실패하면 null 반환.
+    async superUserLogin(account, password){
+      this.callCount++;
+      let authToken = null;
+      try{
+        let res = await this.$axios.post("/superuser/login",{
+          email: account,
+          password: password
+        })
+
+        authToken = res.data;
+      }
+      catch{
+        loginInfo.setSuperUserFlag(false);
+        this.$store.commit("setSuperUserFlag", false);
+        authToken = null;
+      }
+      finally {
+        this.callCount--;
+      }
+
+      return authToken;
     },
 
     async onRegisterButtonClicked(){
