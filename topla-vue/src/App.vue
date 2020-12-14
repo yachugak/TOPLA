@@ -8,12 +8,6 @@
       <v-app-bar-nav-icon @click="isShowDrawer = !isShowDrawer" v-if="isLogined"></v-app-bar-nav-icon>
       <v-toolbar-title>TOPLA</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click="pushPage('/search')" v-if="isLogined">
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
-      <v-btn icon @click="onSwapButtonClicked()" v-if="isShowSwapButton">
-        <v-icon>mdi-swap-horizontal</v-icon>
-      </v-btn>
     </v-app-bar>
 
     <v-navigation-drawer
@@ -30,6 +24,12 @@
               <v-icon>mdi-account</v-icon>
             </v-list-item-icon>
             <v-list-item-title>마이 페이지</v-list-item-title>
+          </v-list-item>
+          <v-list-item value="search" @click="onNavSelected('search')">
+            <v-list-item-icon>
+              <v-icon>mdi-magnify</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>검색</v-list-item-title>
           </v-list-item>
           <v-list-item value="all" @click="onNavSelected('all')">
             <v-list-item-icon>
@@ -85,15 +85,15 @@ export default {
     };
   },
 
-  created(){
+  created() {
     this.setLoginInfoToVuex();
     window.dialog = this.$dialog;
 
-    let selectTheme=window.localStorage.getItem("theme")*1
+    let selectTheme = window.localStorage.getItem("theme") * 1
     let defTheme = this.$vuetify.theme.themes.light
-    let theme= themeList[selectTheme]
-    for(let color in theme){
-      defTheme[color]=theme[color]
+    let theme = themeList[selectTheme]
+    for (let color in theme) {
+      defTheme[color] = theme[color]
     }
 
     this.checkAuthToken();
@@ -158,6 +158,9 @@ export default {
         case "myPage":
           this.pushPage("/mypage");
           break;
+        case "search":
+          this.pushPage("/search");
+          break;
         case "todo":
           this.pushPage("/");
           break;
@@ -198,10 +201,13 @@ export default {
 
     matchPage() {
       let pageName = this.$route.name;
-      console.log(pageName);
       switch (pageName) {
         case "todolist mode":
           this.selectedNavItem = "todo";
+          break;
+
+        case "search mode":
+          this.selectedNavItem = "search"
           break;
 
         case "calendar mode":
@@ -230,37 +236,37 @@ export default {
       }
     },
 
-    setLoginInfoToVuex(){
-      if(loginInfo.isThereLoginInfo()){
+    setLoginInfoToVuex() {
+      if (loginInfo.isThereLoginInfo()) {
         this.$store.commit("setLoginInfo", loginInfo.getLoginInfo())
       }
 
-      if(loginInfo.isThereUserEmail()){
+      if (loginInfo.isThereUserEmail()) {
         this.$store.commit("setUserEmail", loginInfo.getUserEmail())
       }
     },
 
-    async checkAuthToken(){
-      if(this.$store.state.loginInfo === null){
+    async checkAuthToken() {
+      if (this.$store.state.loginInfo === null) {
         return;
       }
 
       let successFlag = false;
 
-      try{
+      try {
         let res = await this.$axios.post("/user/securecode/check", {
           secureCode: this.$store.state.loginInfo
         });
-        if(res.data === "true" || res.data === true){
+        if (res.data === "true" || res.data === true) {
           successFlag = true;
-        }else{
+        } else {
           successFlag = false;
         }
-      }catch{
+      } catch {
         successFlag = false;
       }
 
-      if(successFlag === false){
+      if (successFlag === false) {
         this.onLogoutButtonClicked();
       }
     }
