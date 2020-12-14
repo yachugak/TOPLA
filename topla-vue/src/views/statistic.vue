@@ -15,8 +15,8 @@
       <v-row v-if="!isDataLoading">
         <v-col cols="12" md="6">
           <v-card>
-            <v-card-title>최근 7일간 작업량</v-card-title>
-            <v-card-subtitle>최근 7일간 작업을 얼만큼 했는지에 대한 통계입니다.</v-card-subtitle>
+            <v-card-title>최근 완료한 작업량</v-card-title>
+            <v-card-subtitle>지난 7일동안 작업한 시간의 총합입니다.</v-card-subtitle>
             <v-card-text>
               <div class="text-center">
                 <span class="text-h4">{{workTimeString}}</span>
@@ -27,7 +27,7 @@
         <v-col cols="12" md="6">
           <v-card>
             <v-card-title>마감일 며칠 전에 일을 끝냈을까요?</v-card-title>
-            <v-card-subtitle>최근 7일간 완료된 작업에 대해서 평균적으로 마감일 며칠 전에 완료했는지에 대한 통계입니다.</v-card-subtitle>
+            <v-card-subtitle>지난 7일동안 마감일보다 빨리 끝낸 작업시간의 평균입니다.</v-card-subtitle>
             <v-card-text>
               <div class="text-center">
                 <span class="text-h4">{{averageLeftDueDateString}}</span>
