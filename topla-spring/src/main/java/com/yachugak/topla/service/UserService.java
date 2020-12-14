@@ -221,7 +221,7 @@ public class UserService {
 	
 	
 	public TemporaryUser findTemporaryUserByEmail(String email) {
-		TemporaryUser result = temporaryUserRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("user", "유저: "+ email + "가 존재하지 않습니다."));		
+		TemporaryUser result = temporaryUserRepository.findByEmail(email).orElseThrow(()->new GeneralExceptions("인증이 되지 않은 이메일입니다."));		
 		return result;
 	}
 	
