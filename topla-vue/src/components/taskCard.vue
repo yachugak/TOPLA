@@ -96,7 +96,7 @@ export default {
   data() {
     return {
       bgColorByPriority: [
-        "amber lighten-3",
+        "amber lighten-1",
         "amber darken-2",
         "amber darken-4",
       ],
