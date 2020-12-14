@@ -177,7 +177,7 @@ export default {
     async presetAdd(){
       let len=this.preset.length
       await this.$axios.post(`/preset`,{
-        "schedulePreset":[0,0,0,0,0,0,0],
+        "schedulePreset":[300,300, 300,300,300,300,300],
         "presetName":`추가된 프리셋 ${len+1}`
       })
 
