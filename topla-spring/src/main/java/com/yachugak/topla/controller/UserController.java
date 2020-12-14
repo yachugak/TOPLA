@@ -72,7 +72,7 @@ public class UserController {
 		res.setMorningReportTime(targetUser.getMorningReportTime());
 		res.setEveningReportTime(targetUser.getEveningReportTime());
 		res.setPresetUid(targetUser.getSchedulePreset().getUid());
-		
+		res.setPushAlarmStatus(targetUser.getPushAlarmStatus());
 		return res;
 	}
 	

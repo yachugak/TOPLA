@@ -8,6 +8,7 @@ public class GetUserResponseFormat {
 	private OffsetTime morningReportTime;
 	private OffsetTime eveningReportTime;
 	private long presetUid;
+	private Boolean pushAlarmStatus;
 	
 	public String getEmail() {
 		return email;
@@ -38,5 +39,11 @@ public class GetUserResponseFormat {
 	}
 	public void setPresetUid(long presetUid) {
 		this.presetUid = presetUid;
+	}
+	public Boolean getPushAlarmStatus() {
+		return pushAlarmStatus;
+	}
+	public void setPushAlarmStatus(Boolean pushAlarmStatus) {
+		this.pushAlarmStatus = pushAlarmStatus;
 	}
 }
