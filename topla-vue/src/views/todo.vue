@@ -47,7 +47,6 @@
         </v-col>
       </v-row>
 
-      <v-divider></v-divider>
 
       <v-row v-if="taskViewMode === 'doDate'" class="back">
         <v-progress-linear
@@ -69,6 +68,8 @@
         </v-progress-linear>
       </v-row>
     </v-container>
+
+    <v-divider></v-divider>
 
     <div class="py-4 back" :class="{taskContainerSizeSm: isSm, taskContainerSizeMd: !isSm }">
       <task-card class="mx-2 mb-4" v-for="task in displayTaskList" :key="taskViewMode === 'dueDate' ? task.uid : task.planUid"
