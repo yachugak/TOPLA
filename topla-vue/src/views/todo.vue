@@ -93,7 +93,7 @@
         fab
         large
         id="addNewTaskbutton"
-        @click="isShowNewTaskdialog = true; taskCreatedMode = true"
+        @click="showCreateTaskDialog()"
     ><v-icon>mdi-plus-circle-outline</v-icon></v-btn>
 
     <!--태스크 추가 창-->
@@ -122,6 +122,7 @@
 import taskInfoForm from "@/components/taskInfoForm";
 import taskCard from "@/components/taskCard";
 import scheduleAlertBox from "@/components/scheduleAlertBox";
+import moment from "moment";
 
 export default {
   data() {
@@ -216,14 +217,6 @@ export default {
         timeSum += task.doTime;
       }
       return timeSum;
-    }
-  },
-
-  watch: {
-    isShowNewTaskdialog(newVal){
-      if(newVal === true){
-        this.clearForm();
-      }
     }
   },
 
@@ -415,11 +408,17 @@ export default {
         }
       }
 
-      console.log("??");
       this.$store.commit("setGuideBookState", true);
       window.localStorage.setItem("isSeenGuideBook", true);
-    }
+    },
 
+    showCreateTaskDialog(){
+      this.clearForm();
+      this.isShowNewTaskdialog = true;
+      let m = moment(this.selectedDate.getTime());
+      let dateString = m.format("yyyy[-]MM[-]DD");
+      this.newTaskFormData.dueDate = dateString;
+    }
   },
 
   created() {
