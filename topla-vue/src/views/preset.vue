@@ -1,12 +1,10 @@
 <template>
   <v-container fluid class="vh-100 back">
     <v-row>
-      <v-col cols="12">
-        <v-alert color="info" dismissible border="left">
-          <div class="infoHeader">스케줄 프리셋이란?</div>
-          <div class="infoBody">요거예 당신이 매일매일 일할 시간을 지정할 수 있어예</div>
-        </v-alert>
-      </v-col>
+      <v-card-title>
+        스케줄 프리셋 설정
+        <v-btn icon @click="onInformationButtonClicked()"><v-icon>mdi-information</v-icon></v-btn>
+      </v-card-title>
     </v-row>
     <v-row>
       <v-col cols="6">
@@ -206,6 +204,15 @@ export default {
 
       this.modify = true
       this.save=false
+    },
+
+    onInformationButtonClicked(){
+      this.$router.push({
+        name: "user guide page",
+        params: {
+          pageName: "preset"
+        }
+      });
     }
   }
 }
