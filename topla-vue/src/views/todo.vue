@@ -123,6 +123,7 @@ import taskInfoForm from "@/components/taskInfoForm";
 import taskCard from "@/components/taskCard";
 import scheduleAlertBox from "@/components/scheduleAlertBox";
 import moment from "moment";
+import errorDialog from "@/plugins/errorDialog";
 
 export default {
   data() {
@@ -284,23 +285,12 @@ export default {
 
       try{
         this.isCalling++;
-        if(this.taskCreatedMode){
-          await this.$axios.post("/task", requestBody);
-        }
-        else{
-          await this.$axios.put(`/task/${this.updateTargetTask.uid}`, requestBody);
-        }
-
+        await this.$axios.post("/task", requestBody);
         await this.getTaskList();
         this.isShowNewTaskdialog = false;
       }
-
       catch(e){
-        this.$dialog.error({
-          title: "등록 실패",
-          text: e.response.data.message
-        });
-
+        errorDialog(this, "등록 실패", e);
       }
       finally {
         this.isCalling--
